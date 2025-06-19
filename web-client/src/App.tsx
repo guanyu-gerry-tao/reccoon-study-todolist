@@ -8,7 +8,10 @@ function App() {
 
   return (
     <>
-      <Todolist />
+      <div className='relative bg-[#fbfbfb] m-4 p-2 rounded-3xl [height:calc(100vh-2rem)]'>
+        <Todolist />
+        
+      </div>
     </>
   )
 }
