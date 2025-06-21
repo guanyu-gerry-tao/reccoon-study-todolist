@@ -1,0 +1,10 @@
+.pendingCard {
+    opacity: 0.5;
+    transition: opacity;
+    transition-duration: 0.5s;
+}
+
+.Card {
+    transition: opacity;
+    transition-duration: 0.5s;
+}

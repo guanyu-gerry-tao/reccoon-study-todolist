@@ -36,12 +36,19 @@ function Task({ taskInfo, actions }: {taskInfo: TaskItem, actions: TaskActions})
       e.clientX - rect.left,
       e.clientY - rect.top
     ); // Set the drag image to the center of the input field
+    e.currentTarget.classList.replace('Card', 'pendingCard');
+  }
+
+  const handleDragEnd = (e: React.DragEvent<HTMLInputElement>) => {
+    console.log(`Drag ended for task: ${taskInfo.id}`);
+    e.currentTarget.classList.replace('pendingCard', 'Card');
   }
 
   return (
-    <div className='bg-amber-500 rounded-lg m-2 ml-0 mr-6 p-2'
+    <div className='Card bg-amber-500 rounded-lg m-2 ml-0 mr-6 p-2'
     draggable={true}
-    onDragStart={handleDragStart}>
+    onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}>
       <input 
       className='cursor-default outline-0'
       type="text" 
