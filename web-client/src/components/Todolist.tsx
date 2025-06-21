@@ -5,18 +5,8 @@ import '../App.css'
 import Menubar from './Menubar.tsx'
 import TodoColumn from './TodoColumn.tsx'
 
-type TaskItem = {
-  id: string;
-  title: string;
-  dueDate?: Date;
-  description?: string;
-  status: 'planned' | 'working' | 'finished';
-  isPending: boolean;
-  isDeleted: boolean;
-  isArchived: boolean;
-}
+import type { TaskItem, NewTaskItem } from './type.ts'
 
-type NewTaskItem = Omit<TaskItem, 'isPending' | 'isDeleted' | 'isArchived'>;
 
 function Todolist() {
 
@@ -40,13 +30,18 @@ function Todolist() {
     });
   };
 
+  const taskActions = {
+    add: addTask,
+    update: updateTask,
+  };
+
   return (
     <>
       <div className='relative flex flex-row'>
         <Menubar />
-        <TodoColumn title={"Planned"} bgColor='#f5dacb'/> 
-        <TodoColumn title={"Working"} bgColor='#f5f3cb'/>
-        <TodoColumn title={"Finished"} bgColor='#d6f5cb'/>
+        <TodoColumn title={"Planned"} bgColor='#f5dacb' status='planned' actions={taskActions} tasks={tasks.filter(task => task.status === 'planned')}/> 
+        <TodoColumn title={"Working"} bgColor='#f5f3cb' status='working' actions={taskActions} tasks={tasks.filter(task => task.status === 'working')}/>
+        <TodoColumn title={"Finished"} bgColor='#d6f5cb' status='finished' actions={taskActions} tasks={tasks.filter(task => task.status === 'finished')}/>
       </div>
     </>
   )
