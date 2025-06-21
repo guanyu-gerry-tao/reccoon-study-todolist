@@ -12,9 +12,8 @@ function TodoColumn({title, bgColor, status, actions, tasks} : TodoColumnProps) 
     <>
         <div className='relative bg-[#ac7d7d] rounded-2xl m-2 p-8 h-[calc(100vh-4rem)] w-80 flex flex-col' style={{backgroundColor: bgColor}}>
             <h1 className='relative text-4xl h-15 '>{title}</h1>
-            <TaskList tasks={tasks}/>
+            <TaskList tasks={tasks} actions={actions}/>
             <div>
-                <Dashline />
                 <AddNewTask actions={actions} status={status} />
             </div>
         </div>

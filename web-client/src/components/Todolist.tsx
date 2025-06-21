@@ -16,6 +16,7 @@ function Todolist() {
     setTasks(draft => {
       const id = crypto.randomUUID();
       draft.push({ ...newTask, id, isPending: false, isDeleted: false, isArchived: false });
+      console.log(`Task added with id: ${id}`);
     });
   };
 
@@ -30,18 +31,41 @@ function Todolist() {
     });
   };
 
+  const deleteTask = (id: string) => {
+    setTasks(draft => {
+      const index = draft.findIndex(task => task.id === id);
+      if (index !== -1) {
+        draft[index].isDeleted = true; // Mark the task as deleted
+        // Optionally, you can remove the task from the array
+        // draft.splice(index, 1);
+      }
+    })
+  };
+
+
   const taskActions = {
     add: addTask,
     update: updateTask,
+    delete: deleteTask,
   };
+
+  function checkIfTaskAppears(task: TaskItem) {
+    if (task.isDeleted) {
+      return false; // Do not display deleted tasks
+    }
+    if (task.isArchived) {
+      return false; // Do not display archived tasks
+    }
+    return true; // Display tasks that are not deleted or archived
+  }
 
   return (
     <>
       <div className='relative flex flex-row'>
         <Menubar />
-        <TodoColumn title={"Planned"} bgColor='#f5dacb' status='planned' actions={taskActions} tasks={tasks.filter(task => task.status === 'planned')}/> 
-        <TodoColumn title={"Working"} bgColor='#f5f3cb' status='working' actions={taskActions} tasks={tasks.filter(task => task.status === 'working')}/>
-        <TodoColumn title={"Finished"} bgColor='#d6f5cb' status='finished' actions={taskActions} tasks={tasks.filter(task => task.status === 'finished')}/>
+        <TodoColumn title={"Planned"} bgColor='#f5dacb' status='planned' actions={taskActions} tasks={tasks.filter(task => task.status === 'planned' && checkIfTaskAppears(task))}/>
+        <TodoColumn title={"Working"} bgColor='#f5f3cb' status='working' actions={taskActions} tasks={tasks.filter(task => task.status === 'working' && checkIfTaskAppears(task))}/>
+        <TodoColumn title={"Finished"} bgColor='#d6f5cb' status='finished' actions={taskActions} tasks={tasks.filter(task => task.status === 'finished' && checkIfTaskAppears(task))}/>
       </div>
     </>
   )

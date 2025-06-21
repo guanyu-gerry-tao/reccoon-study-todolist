@@ -1,6 +1,6 @@
 import '../App.css'
 
-function Dashline({color = '#e6e7eb'}: {color?: string}) {
+function Dashline({color = '#000000'}: {color?: string}) {
 
   return (
     <>

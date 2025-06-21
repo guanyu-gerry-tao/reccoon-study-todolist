@@ -24,6 +24,7 @@ type TodoColumnProps = {
 type TaskActions = {
   add: (newTask: NewTaskItem) => void;
   update: (id: string, updatedFields: Partial<TaskItem>) => void;
+  delete: (id: string) => void;
 };
 
 export type { TaskItem };

@@ -1,14 +1,18 @@
 import '../App.css'
 import Task from './Task.tsx';
-import type { TaskItem, NewTaskItem } from './type.ts';
+import Dashline from './Dashline.tsx';
+import type { TaskItem, TaskActions } from './type.ts';
 
 
-function Tasklist({tasks}: {tasks: TaskItem[]}) {
+function Tasklist({tasks, actions}: {tasks: TaskItem[], actions: TaskActions}) {
 
   return (
     <>
         {tasks.map((task: TaskItem) => (
-            <Task title={task.title} />
+          <div key={task.id}>
+            <Task taskInfo={task} actions={actions} />
+            <Dashline />
+          </div>
         ))}
     </>
   )
