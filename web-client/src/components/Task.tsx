@@ -28,10 +28,27 @@ function Task({ taskInfo, actions }: {taskInfo: TaskItem, actions: TaskActions})
     }
   };
 
+  const handleDragStart = (e: React.DragEvent<HTMLInputElement>) => {
+    console.log(`Drag started for task: ${taskInfo.id}`);
+    const rect = e.currentTarget.getBoundingClientRect();
+    e.dataTransfer.setDragImage(
+      e.currentTarget,
+      e.clientX - rect.left,
+      e.clientY - rect.top
+    ); // Set the drag image to the center of the input field
+  }
+
   return (
-    <>
-      <input type="text" defaultValue={taskInfo.title} onClick={handleClickTitle} onKeyDown={handleKeyboard}/>
-    </>
+    <div className='bg-amber-500 rounded-lg m-2 ml-0 mr-6 p-2'
+    draggable={true}
+    onDragStart={handleDragStart}>
+      <input 
+      className='cursor-default outline-0'
+      type="text" 
+      defaultValue={taskInfo.title} 
+      onClick={handleClickTitle} 
+      onKeyDown={handleKeyboard}/>
+    </div>
   )
 }
 

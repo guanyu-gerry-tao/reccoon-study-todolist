@@ -4,18 +4,20 @@ import '../App.css'
 
 import Menubar from './Menubar.tsx'
 import TodoColumn from './TodoColumn.tsx'
+import {loadInitData} from '../data/loadInitData.ts'
 
 import type { TaskItem, NewTaskItem } from './type.ts'
 
 
 function Todolist() {
 
-  const [tasks, setTasks] = useImmer<TaskItem[]>([]);
+  const testInitData = loadInitData();
+  const [tasks, setTasks] = useImmer<TaskItem[]>(testInitData);
 
   const addTask = (newTask: NewTaskItem) => {
     setTasks(draft => {
       const id = crypto.randomUUID();
-      draft.push({ ...newTask, id, isPending: false, isDeleted: false, isArchived: false });
+      draft.push({ ...newTask, id, isCompleted: false, isPending: false, isDeleted: false, isArchived: false });
       console.log(`Task added with id: ${id}`);
     });
   };
@@ -63,9 +65,9 @@ function Todolist() {
     <>
       <div className='relative flex flex-row'>
         <Menubar />
-        <TodoColumn title={"Planned"} bgColor='#f5dacb' status='planned' actions={taskActions} tasks={tasks.filter(task => task.status === 'planned' && checkIfTaskAppears(task))}/>
-        <TodoColumn title={"Working"} bgColor='#f5f3cb' status='working' actions={taskActions} tasks={tasks.filter(task => task.status === 'working' && checkIfTaskAppears(task))}/>
-        <TodoColumn title={"Finished"} bgColor='#d6f5cb' status='finished' actions={taskActions} tasks={tasks.filter(task => task.status === 'finished' && checkIfTaskAppears(task))}/>
+        <TodoColumn title={"Planned"} bgColor='#f5dacb' status={0} actions={taskActions} tasks={tasks.filter(task => task.status === 0 && checkIfTaskAppears(task))}/>
+        <TodoColumn title={"Working"} bgColor='#f5f3cb' status={1} actions={taskActions} tasks={tasks.filter(task => task.status === 1 && checkIfTaskAppears(task))}/>
+        <TodoColumn title={"Finished"} bgColor='#d6f5cb' status={2} actions={taskActions} tasks={tasks.filter(task => task.status === 2 && checkIfTaskAppears(task))}/>
       </div>
     </>
   )

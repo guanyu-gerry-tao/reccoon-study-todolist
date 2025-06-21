@@ -2,21 +2,22 @@
 type TaskItem = NewTaskItem & {
   id: string;
   isPending: boolean;
+  isCompleted: boolean;
   isDeleted: boolean;
   isArchived: boolean;
 }
 
 type NewTaskItem = {
     title: string;
-    dueDate?: Date;
+    dueDate?: Date | undefined
     description?: string;
-    status: 'planned' | 'working' | 'finished';
+    status: number; // 0: Now, 1: Next, 2: Later
 };
 
 type TodoColumnProps = {
   title: React.ReactNode;
   bgColor: string;
-  status: 'planned' | 'working' | 'finished';
+  status: number;
   actions: TaskActions;
   tasks: TaskItem[];
 }
