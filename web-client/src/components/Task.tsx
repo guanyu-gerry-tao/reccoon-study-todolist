@@ -4,7 +4,7 @@ import Dashline from './Dashline'
 import type { TaskItem, TaskActions } from './type.ts'
 
 
-function Task({ taskInfo, actions }: {taskInfo: TaskItem, actions: TaskActions}) {
+function Task({ taskInfo, actions }: {taskInfo: TaskItem, actions: TaskActions }) {
 
   let tempValue = taskInfo.title; // Temporary variable to store the current value of the input field
 
@@ -29,21 +29,16 @@ function Task({ taskInfo, actions }: {taskInfo: TaskItem, actions: TaskActions})
     }
   };
 
-  const handleDragStart = (e: React.DragEvent<HTMLInputElement>) => {
+  const handleDragStart = (e: React.DragEvent<HTMLElement>) => {
     console.log(`Drag started for task: ${taskInfo.id}`);
-    const rect = e.currentTarget.getBoundingClientRect();
-    //e.dataTransfer.setDragImage(
-      //e.currentTarget,
-      //e.clientX - rect.left,
-      //e.clientY - rect.top
-    //); // Set the drag image to the center of the input field
     e.currentTarget.classList.add('pendingCard');
+    e.dataTransfer.setData('text/drag-source', 'card');
     requestAnimationFrame(() => {
       document.querySelectorAll('.dragZone').forEach(el => (el as HTMLElement).classList.add('active'))
     });
   }
 
-  const handleDragEnd = (e: React.DragEvent<HTMLInputElement>) => {
+  const handleDragEnd = (e: React.DragEvent<HTMLElement>) => {
     console.log(`Drag ended for task: ${taskInfo.id}`);
     e.currentTarget.classList.remove('pendingCard');
     requestAnimationFrame(() => {
@@ -63,9 +58,11 @@ function Task({ taskInfo, actions }: {taskInfo: TaskItem, actions: TaskActions})
       defaultValue={taskInfo.title} 
       onClick={handleClickTitle} 
       onKeyDown={handleKeyboard}/>
-
+      <span>{taskInfo.order}</span>
     </div>
   )
 }
 
 export default Task
+
+

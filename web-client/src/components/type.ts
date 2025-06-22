@@ -1,17 +1,16 @@
+import type { RefObject } from "react";
 
 type TaskItem = NewTaskItem & {
   id: string;
-  isPending: boolean;
-  isCompleted: boolean;
-  isDeleted: boolean;
-  isArchived: boolean;
 }
 
 type NewTaskItem = {
     title: string;
-    dueDate?: Date | undefined
+    order: number;
+    dueDate?: Date | undefined;
     description?: string;
     status: number; // 0: Now, 1: Next, 2: Later
+    previousStatus: number;
 };
 
 type TodoColumnProps = {

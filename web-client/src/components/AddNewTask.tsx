@@ -5,15 +5,18 @@ import Dashline from './Dashline.tsx';
 
 import Project from './Project.tsx'
 
-function AddNewTask({ actions, status }: { actions: TaskActions, status: number }) {
+function AddNewTask({ actions, status, newOrder }: { actions: TaskActions, status: number, newOrder: number }) {
 
   const handleKeyboard = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') { // Check if the Enter key is pressed: this will add a new task
       const newTaskTitle = e.currentTarget.value.trim(); // Get the trimmed value of the input field
+      const newTaskOrder = newOrder;
       if (newTaskTitle) { // Check if the input is not empty
         const newTask = {
           title: newTaskTitle,
           status: status,
+          order: newTaskOrder,
+          previousStatus: status,
         };
         actions.add(newTask); // Call the add function from actions with the new task
         e.currentTarget.value = ''; // Clear the input field after adding the task

@@ -1,6 +1,12 @@
 :root {
     --cardHeight: 40px;
     --cardGapHeight: 6px;
+    --cardGapExtHeight: 100px;
+}
+
+.cardContainer {
+    height: calc(var(--cardHeight));
+    margin: var(--cardGapHeight);
 }
 
 .pendingCard {
@@ -16,7 +22,7 @@
 }
 
 .dragZone {
-    height: calc(var(--cardHeight)/2 + var(--cardGapHeight)/2);
+    height: calc(var(--cardHeight)/2 + var(--cardGapHeight));
     opacity: 0.5;
     pointer-events: none;
     z-index: 10;
@@ -27,13 +33,23 @@
 }
 
 .dragZoneT {
-    bottom: calc(0.5 * var(--cardGapHeight));
-    opacity: 0.5;
+    bottom: calc(var(--cardHeight)/2);
+    background-color: chocolate;
 }
 
 .dragZoneB {
-    top: calc(0.5 * var(--cardGapHeight));
-    opacity: 0.5;
+    top: calc(var(--cardHeight)/2);
+    background-color: brown;
+}
+
+.dragZoneFirst {
+    height: var(--cardGapExtHeight);
+    background-color: blue;
+}
+
+.dragZoneLast {
+    height: var(--cardGapExtHeight);
+    background-color: aqua;
 }
 
 .taskGap {

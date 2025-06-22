@@ -4,23 +4,24 @@ import '../App.css'
 function TaskGap() {
 
 
-  const handleDragEnter = (e: React.DragEvent<HTMLInputElement>) => {
-    if (e.currentTarget instanceof HTMLElement){
-      if (e.currentTarget.classList.contains("dragZoneT")) {
+  const handleDragEnter = (e: React.DragEvent<HTMLElement>) => {
+    console.log(e.dataTransfer.getData('text/drag-source'))
+    if (e.target instanceof HTMLElement){
+      if (e.currentTarget.classList.contains("dragZoneT") && e.target.classList.contains('Card')) {
         console.log('test T');
       }
-      if (e.currentTarget.classList.contains("dragZoneB")) {
+      if (e.currentTarget.classList.contains("dragZoneB") && e.target.classList.contains('Card')) {
         console.log('test B');
       }
     }
   }
   
-  const handleDragLeave = (e: React.DragEvent<HTMLInputElement>) => {
-    if (e.currentTarget instanceof HTMLElement){
-      if (e.currentTarget.classList.contains("dragZoneT")) {
+  const handleDragLeave = (e: React.DragEvent<HTMLElement>) => {
+    if (e.target instanceof HTMLElement){
+      if (e.currentTarget.classList.contains("dragZoneT") && e.target.classList.contains('Card')) {
         console.log('Leave test T');
       }
-      if (e.currentTarget.classList.contains("dragZoneB")) {
+      if (e.currentTarget.classList.contains("dragZoneB") && e.target.classList.contains('Card')) {
         console.log('Leave test B');
       }
     }
