@@ -1,3 +1,4 @@
+import { style } from 'motion/react-client';
 import '../App.css'
 import Dashline from './Dashline'
 import type { TaskItem, TaskActions } from './type.ts'
@@ -31,30 +32,38 @@ function Task({ taskInfo, actions }: {taskInfo: TaskItem, actions: TaskActions})
   const handleDragStart = (e: React.DragEvent<HTMLInputElement>) => {
     console.log(`Drag started for task: ${taskInfo.id}`);
     const rect = e.currentTarget.getBoundingClientRect();
-    e.dataTransfer.setDragImage(
-      e.currentTarget,
-      e.clientX - rect.left,
-      e.clientY - rect.top
-    ); // Set the drag image to the center of the input field
-    e.currentTarget.classList.replace('Card', 'pendingCard');
+    //e.dataTransfer.setDragImage(
+      //e.currentTarget,
+      //e.clientX - rect.left,
+      //e.clientY - rect.top
+    //); // Set the drag image to the center of the input field
+    e.currentTarget.classList.add('pendingCard');
+    requestAnimationFrame(() => {
+      document.querySelectorAll('.dragZone').forEach(el => (el as HTMLElement).classList.add('active'))
+    });
   }
 
   const handleDragEnd = (e: React.DragEvent<HTMLInputElement>) => {
     console.log(`Drag ended for task: ${taskInfo.id}`);
-    e.currentTarget.classList.replace('pendingCard', 'Card');
+    e.currentTarget.classList.remove('pendingCard');
+    requestAnimationFrame(() => {
+      document.querySelectorAll('.dragZone').forEach(el => (el as HTMLElement).classList.remove('active') )
+    })
   }
 
+
   return (
-    <div className='Card bg-amber-500 rounded-lg m-2 ml-0 mr-6 p-2'
+    <div className='Card relative bg-amber-500 rounded-lg ml-0 mr-6 p-2'
     draggable={true}
     onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}>
+    onDragEnd={handleDragEnd}>
       <input 
       className='cursor-default outline-0'
       type="text" 
       defaultValue={taskInfo.title} 
       onClick={handleClickTitle} 
       onKeyDown={handleKeyboard}/>
+
     </div>
   )
 }

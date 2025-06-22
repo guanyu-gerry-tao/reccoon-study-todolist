@@ -1,10 +1,42 @@
+:root {
+    --cardHeight: 40px;
+    --cardGapHeight: 6px;
+}
+
 .pendingCard {
     opacity: 0.5;
-    transition: opacity;
-    transition-duration: 0.5s;
 }
 
 .Card {
     transition: opacity;
     transition-duration: 0.5s;
+    height: var(--cardHeight);
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+.dragZone {
+    height: calc(var(--cardHeight)/2 + var(--cardGapHeight)/2);
+    opacity: 0.5;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.dragZone.active {
+    pointer-events: auto;
+}
+
+.dragZoneT {
+    bottom: calc(0.5 * var(--cardGapHeight));
+    opacity: 0.5;
+}
+
+.dragZoneB {
+    top: calc(0.5 * var(--cardGapHeight));
+    opacity: 0.5;
+}
+
+.taskGap {
+    height: calc(var(--cardGapHeight));
+    background-color: aqua;
 }
