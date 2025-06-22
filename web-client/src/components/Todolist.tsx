@@ -35,6 +35,10 @@ function Todolist() {
       } else {
         console.warn(`Task with id ${id} not found.`);
       }
+      const filtered = draft.filter(t => t.status === task?.status).sort((a, b) => a.order - b.order);
+      filtered.forEach((task, index) => {
+        task.order = index;
+      })
     });
   };
 

@@ -14,7 +14,9 @@ function Task({ taskInfo, actions }: {taskInfo: TaskItem, actions: TaskActions }
 
   const handleKeyboard = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
+      e.currentTarget.title = e.currentTarget.value;
       e.currentTarget.blur(); // Remove focus from the input field
+      console.log(`update title: ${e.currentTarget.title}`)
     }
     if (e.key === 'Escape' && e.currentTarget.value !== '') {
       // Handle Escape key press logic here
@@ -27,7 +29,17 @@ function Task({ taskInfo, actions }: {taskInfo: TaskItem, actions: TaskActions }
       actions.delete(taskInfo.id); // Call the delete function from actions with the title
       e.currentTarget.blur(); // Remove focus from the input field
     }
-  };
+  }; 
+
+  const handleLostFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    if (e.currentTarget.value === '') {
+      actions.delete(taskInfo.id);
+      console.log(`Task deleted: ${taskInfo.id}`);
+    } else if (e.currentTarget.value !== taskInfo.title) {
+      actions.update(taskInfo.id, { ...taskInfo, title: e.currentTarget.value });
+      console.log(`Title updated to: ${e.currentTarget.value}`);
+    }
+  }
 
   const handleDragStart = (e: React.DragEvent<HTMLElement>) => {
     console.log(`Drag started for task: ${taskInfo.id}`);
@@ -46,7 +58,6 @@ function Task({ taskInfo, actions }: {taskInfo: TaskItem, actions: TaskActions }
     })
   }
 
-
   return (
     <div className='Card relative bg-amber-500 rounded-lg ml-0 mr-6 p-2'
     draggable={true}
@@ -57,7 +68,8 @@ function Task({ taskInfo, actions }: {taskInfo: TaskItem, actions: TaskActions }
       type="text" 
       defaultValue={taskInfo.title} 
       onClick={handleClickTitle} 
-      onKeyDown={handleKeyboard}/>
+      onKeyDown={handleKeyboard} 
+      onBlur={handleLostFocus}/>
       <span>{taskInfo.order}</span>
     </div>
   )
