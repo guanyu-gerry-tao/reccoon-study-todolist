@@ -11,7 +11,6 @@ import {loadInitData} from './data/loadInitData.ts'
 function App() {
 
   const testInitData = loadInitData();
-  console.log('testInitData', testInitData);
   const [tasks, setTasks] = useImmer<TaskItem[]>(testInitData);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -25,10 +24,16 @@ function App() {
       const task = draft.find(t => t.id === result.draggableId);
 
       if (task && result.destination){
-        task.status = Number(result.destination.droppableId);
-        task.order = result.destination.index - 0.5; // Use a float to allow for gaps
 
-        const filteredTasks = draft.filter(t => t.status === task.status).sort((a, b) => a.order - b.order);
+        // TODO: fix bug of ordering
+
+        task.status = Number(result.destination.droppableId);
+        task.order = result.destination.index; // Use a float to allow for gaps
+
+        const filteredTasks = draft
+        .filter(t => t.status === task.status)
+        .sort((a, b) => a.order - b.order);
+        
         filteredTasks.forEach((t, index) => {
           t.order = index;
         });

@@ -63,21 +63,21 @@ function Todolist({tasks, setTasks}: {tasks: TaskItem[], setTasks: setTasks} ) {
         <Menubar />
 
         <TodoColumn title={"Planned"} 
-        bgColor='#f5dacb' 
+        bgColor='#fff8e8' 
         status={1} 
         actions={taskActions} 
         tasks={tasks.filter(task => task.status === 1)} 
         />
         
         <TodoColumn title={"Working"} 
-        bgColor='#f5f3cb' 
+        bgColor='#f0f1fd' 
         status={2} 
         actions={taskActions} 
         tasks={tasks.filter(task => task.status === 2)} 
         />
         
         <TodoColumn title={"Finished"} 
-        bgColor='#d6f5cb' 
+        bgColor='#e8fdec' 
         status={3} 
         actions={taskActions} 
         tasks={tasks.filter(task => task.status === 3)} 

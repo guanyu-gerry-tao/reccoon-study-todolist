@@ -16,7 +16,7 @@
 .Card {
     transition: opacity;
     transition-duration: 0.5s;
-    height: 60px;
+    min-height: 50px;
 }
 
 .taskGap {
