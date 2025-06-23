@@ -7,6 +7,7 @@ import { DragDropContext } from '@hello-pangea/dnd';
 import type { DragDropContextProps } from '@hello-pangea/dnd';
 import type { TaskItem } from './components/type.ts';
 import {loadInitData} from './data/loadInitData.ts'
+import { filter, pre } from 'motion/react-client';
 
 function App() {
 
@@ -27,18 +28,43 @@ function App() {
 
         // TODO: fix bug of ordering
 
-        task.status = Number(result.destination.droppableId);
-        task.order = result.destination.index; // Use a float to allow for gaps
+        const previousStatus = task.status;
+        const previousOrder = task.order;
+        const resultStatus = Number(result.destination.droppableId);
+        const resultIndex = result.destination.index;
 
-        const filteredTasks = draft
-        .filter(t => t.status === task.status)
-        .sort((a, b) => a.order - b.order);
+
+        if (previousOrder === resultIndex && previousStatus === resultStatus) {
+          console.log('No change in order or status');
+          return; // No change in order or status, do nothing
+        }
+
+        if (resultIndex > previousOrder) {
+          task.order = resultIndex + 0.5; // Adjust order if moving down
+        } else {
+          task.order = resultIndex - 0.5; // Adjust order if moving up
+        }        
         
-        filteredTasks.forEach((t, index) => {
-          t.order = index;
+        if (resultStatus !== previousStatus) {
+          task.status = resultStatus; // Update the status of the task
+          const prevFiltered = draft.filter(t => t.status === previousStatus).sort((a, b) => a.order - b.order);
+          prevFiltered.forEach((t, index) => {
+            t.order = index; // Reorder tasks in the previous status
+          });
+        }
+        
+        const filtered = draft.filter(t => t.status === resultStatus).sort((a, b) => a.order - b.order);
+        filtered.forEach((t, index) => {
+          t.order = index; // Reorder tasks in the same status
         });
 
-        console.log(`Task ${task.id} moved to status ${task.status} at order ${task.order}`);
+        //task.order = resultIndex; // Set the new order based on the destination index
+        //task.status = resultStatus; // Update the status based on the droppableId
+        
+        console.log('previousStatus:', previousStatus);
+        console.log('resultStatus:', resultStatus);
+        console.log('previousOrder:', previousOrder);
+        console.log('resultIndex:', resultIndex);
       }
       setIsDragging(false);
     });

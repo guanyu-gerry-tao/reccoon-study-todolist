@@ -109,7 +109,7 @@ function Task({ taskInfo, actions, draggingType, draggingTaskId }:
                 onKeyDown={ handleDescKeyboard}
                 onBlur={handleDescLostFocus}
                 />
-                <span>{taskInfo.id} ,</span>
+
                 <span>{taskInfo.order}</span>
               </div>
           </div>
