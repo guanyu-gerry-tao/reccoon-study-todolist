@@ -18,7 +18,7 @@ function AddNewTask({ actions, status, newOrder }: { actions: TaskActions, statu
           order: newTaskOrder,
           previousStatus: status,
         };
-        actions.add(newTask); // Call the add function from actions with the new task
+        actions.addTask(newTask); // Call the add function from actions with the new task
         e.currentTarget.value = ''; // Clear the input field after adding the task
       }
     }

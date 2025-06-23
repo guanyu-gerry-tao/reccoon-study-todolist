@@ -4,7 +4,8 @@ import Dashline from './Dashline'
 import type { TaskItem, TaskActions } from './type.ts'
 
 
-function Task({ taskInfo, actions }: {taskInfo: TaskItem, actions: TaskActions }) {
+function Task({ taskInfo, actions, draggingType, draggingTaskId }: 
+  {taskInfo: TaskItem, actions: TaskActions, draggingType?: string | null, draggingTaskId?: string | null}) {
 
   let tempValue = taskInfo.title; // Temporary variable to store the current value of the input field
 
@@ -26,17 +27,17 @@ function Task({ taskInfo, actions }: {taskInfo: TaskItem, actions: TaskActions }
     if (e.currentTarget.value === '' && (e.key === 'Delete' || e.key === 'Backspace' || e.key === 'Escape')) {
       // Handle Backspace or Delete key press logic here
       console.log(`Delete ${taskInfo.id}`)
-      actions.delete(taskInfo.id); // Call the delete function from actions with the title
+      actions.deleteTask(taskInfo.id); // Call the delete function from actions with the title
       e.currentTarget.blur(); // Remove focus from the input field
     }
   }; 
 
   const handleLostFocus = (e: React.FocusEvent<HTMLInputElement>) => {
     if (e.currentTarget.value === '') {
-      actions.delete(taskInfo.id);
+      actions.deleteTask(taskInfo.id);
       console.log(`Task deleted: ${taskInfo.id}`);
     } else if (e.currentTarget.value !== taskInfo.title) {
-      actions.update(taskInfo.id, { ...taskInfo, title: e.currentTarget.value });
+      actions.updateTask(taskInfo.id, { ...taskInfo, title: e.currentTarget.value });
       console.log(`Title updated to: ${e.currentTarget.value}`);
     }
   }
@@ -44,7 +45,8 @@ function Task({ taskInfo, actions }: {taskInfo: TaskItem, actions: TaskActions }
   const handleDragStart = (e: React.DragEvent<HTMLElement>) => {
     console.log(`Drag started for task: ${taskInfo.id}`);
     e.currentTarget.classList.add('pendingCard');
-    e.dataTransfer.setData('text/drag-source', 'card');
+    actions.draggingTask(taskInfo.id); // Notify the parent component that a task is being dragged    
+    
     requestAnimationFrame(() => {
       document.querySelectorAll('.dragZone').forEach(el => (el as HTMLElement).classList.add('active'))
     });
@@ -53,6 +55,7 @@ function Task({ taskInfo, actions }: {taskInfo: TaskItem, actions: TaskActions }
   const handleDragEnd = (e: React.DragEvent<HTMLElement>) => {
     console.log(`Drag ended for task: ${taskInfo.id}`);
     e.currentTarget.classList.remove('pendingCard');
+    actions.draggingTaskEnd(); // Notify the parent component that dragging has ended
     requestAnimationFrame(() => {
       document.querySelectorAll('.dragZone').forEach(el => (el as HTMLElement).classList.remove('active') )
     })

@@ -6,7 +6,7 @@ import type { TodoColumnProps, TaskActions } from './type.ts';
 import TaskList from './TaskList.tsx';
 
 
-function TodoColumn({title, bgColor, status, actions, tasks} : TodoColumnProps) {
+function TodoColumn({title, bgColor, status, actions, tasks, draggingType, draggingTaskId} : TodoColumnProps) {
 
   const numTasks = tasks.length;
 
@@ -14,7 +14,10 @@ function TodoColumn({title, bgColor, status, actions, tasks} : TodoColumnProps) 
     <>
         <div className='relative bg-[#ac7d7d] rounded-2xl m-2 p-8 pr-0 h-[calc(100vh-4rem)] w-80 flex flex-col' style={{backgroundColor: bgColor}}>
             <h1 className='relative text-4xl h-15 '>{title}</h1>
-            <TaskList tasks={tasks} actions={actions}/>
+            <TaskList tasks={tasks}
+             actions={actions}
+             draggingType={draggingType}
+             draggingTaskId={draggingTaskId}/>
             <div>
                 <AddNewTask actions={actions} status={status} newOrder={numTasks}/>
             </div>

@@ -4,30 +4,29 @@ import Task from './Task.tsx';
 import TaskGap from './TaskGap.tsx'
 import type { TaskItem, TaskActions } from './type.ts';
 
-
-function Tasklist({tasks, actions}: {tasks: TaskItem[], actions: TaskActions}) {
+function Tasklist({tasks, actions, draggingType, draggingTaskId}: 
+  {tasks: TaskItem[], actions: TaskActions, draggingType?: string | null, draggingTaskId?: string | null}) {
 
   const tasksSorted = tasks.sort((a, b) => a.order - b.order);
 
   const handleDragEnter = (e: React.DragEvent<HTMLElement>) => {
-    console.log(e.dataTransfer.getData('text/drag-source'))
-    if (e.target instanceof HTMLElement){
-      if (e.currentTarget.classList.contains("dragZoneT") && e.target.classList.contains('Card')) {
-        console.log('test T');
+    if (draggingType === 'task' && draggingTaskId) {
+      if (e.currentTarget.classList.contains("dragZoneT")) {
+        console.log(`Enter div T, who: ${draggingTaskId}, at order: ${e.currentTarget.dataset.order}`);
       }
-      if (e.currentTarget.classList.contains("dragZoneB") && e.target.classList.contains('Card')) {
-        console.log('test B');
+      if (e.currentTarget.classList.contains("dragZoneB")) {
+        console.log(`Enter div B, who: ${draggingTaskId}, at order: ${e.currentTarget.dataset.order}`);
       }
     }
   }
   
   const handleDragLeave = (e: React.DragEvent<HTMLElement>) => {
-    if (e.target instanceof HTMLElement){
-      if (e.currentTarget.classList.contains("dragZoneT") && e.target.classList.contains('Card')) {
-        console.log('Leave test T');
+    if (draggingType === 'task' && draggingTaskId) {
+      if (e.currentTarget.classList.contains("dragZoneT")) {
+        console.log(`Leave div T, who: ${draggingTaskId}, at order: ${e.currentTarget.dataset.order}`);
       }
-      if (e.currentTarget.classList.contains("dragZoneB") && e.target.classList.contains('Card')) {
-        console.log('Leave test B');
+      if (e.currentTarget.classList.contains("dragZoneB")) {
+        console.log(`Leave div B, who: ${draggingTaskId}, at order: ${e.currentTarget.dataset.order}`);
       }
     }
   }
@@ -37,13 +36,18 @@ function Tasklist({tasks, actions}: {tasks: TaskItem[], actions: TaskActions}) {
         {tasksSorted.map((task: TaskItem) => (
           <div key={task.id} className='cardContainer relative'>
 
-            <div className={`dragZone dragZoneT absolute left-0 h-3 w-full ${task.order === 0 ? 'dragZoneFirst' : ''}`}
+            <div data-order={task.order} 
+            className={`dragZone dragZoneT absolute left-0 h-3 w-full ${task.order === 0 ? 'dragZoneFirst' : ''}`}
             onDragEnter={handleDragEnter}
             onDragLeave={handleDragLeave}></div>
 
-            <Task taskInfo={task} actions={actions} />
+            <Task taskInfo={task} 
+            actions={actions} 
+            draggingType={draggingType} 
+            draggingTaskId={draggingTaskId}/>
 
-            <div className={`dragZone dragZoneB absolute left-0 h-3 w-full ${task.order === tasksSorted.length -1 ? 'dragZoneLast' : ''}`}
+            <div data-order={task.order} 
+            className={`dragZone dragZoneB absolute left-0 h-3 w-full ${task.order === tasksSorted.length -1 ? 'dragZoneLast' : ''}`}
             onDragEnter={handleDragEnter}
             onDragLeave={handleDragLeave}></div>
 

@@ -19,12 +19,16 @@ type TodoColumnProps = {
   status: number;
   actions: TaskActions;
   tasks: TaskItem[];
+  draggingType?: string | null;
+  draggingTaskId?: string | null;
 }
 
 type TaskActions = {
-  add: (newTask: NewTaskItem) => void;
-  update: (id: string, updatedFields: Partial<TaskItem>) => void;
-  delete: (id: string) => void;
+  addTask: (newTask: NewTaskItem) => void;
+  updateTask: (id: string, updatedFields: Partial<TaskItem>) => void;
+  deleteTask: (id: string) => void;
+  draggingTask: (id: string) => void;
+  draggingTaskEnd: () => void;
 };
 
 export type { TaskItem };
