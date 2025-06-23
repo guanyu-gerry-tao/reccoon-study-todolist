@@ -27,8 +27,6 @@ type TaskActions = {
   addTask: (newTask: NewTaskItem) => void;
   updateTask: (id: string, updatedFields: Partial<TaskItem>) => void;
   deleteTask: (id: string) => void;
-  draggingTask: (id: string) => void;
-  draggingTaskEnd: () => void;
 };
 
 export type { TaskItem };

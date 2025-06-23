@@ -2,6 +2,7 @@ import { style } from 'motion/react-client';
 import '../App.css'
 import Dashline from './Dashline'
 import type { TaskItem, TaskActions } from './type.ts'
+import { Draggable } from '@hello-pangea/dnd';
 
 
 function Task({ taskInfo, actions, draggingType, draggingTaskId }: 
@@ -42,39 +43,31 @@ function Task({ taskInfo, actions, draggingType, draggingTaskId }:
     }
   }
 
-  const handleDragStart = (e: React.DragEvent<HTMLElement>) => {
-    console.log(`Drag started for task: ${taskInfo.id}`);
-    e.currentTarget.classList.add('pendingCard');
-    actions.draggingTask(taskInfo.id); // Notify the parent component that a task is being dragged    
-    
-    requestAnimationFrame(() => {
-      document.querySelectorAll('.dragZone').forEach(el => (el as HTMLElement).classList.add('active'))
-    });
-  }
-
-  const handleDragEnd = (e: React.DragEvent<HTMLElement>) => {
-    console.log(`Drag ended for task: ${taskInfo.id}`);
-    e.currentTarget.classList.remove('pendingCard');
-    actions.draggingTaskEnd(); // Notify the parent component that dragging has ended
-    requestAnimationFrame(() => {
-      document.querySelectorAll('.dragZone').forEach(el => (el as HTMLElement).classList.remove('active') )
-    })
-  }
-
   return (
-    <div className='Card relative bg-amber-500 rounded-lg ml-0 mr-6 p-2'
-    draggable={true}
-    onDragStart={handleDragStart}
-    onDragEnd={handleDragEnd}>
-      <input 
-      className='cursor-default outline-0'
-      type="text" 
-      defaultValue={taskInfo.title} 
-      onClick={handleClickTitle} 
-      onKeyDown={handleKeyboard} 
-      onBlur={handleLostFocus}/>
-      <span>{taskInfo.order}</span>
-    </div>
+    <Draggable draggableId={taskInfo.id} index={taskInfo.order}>
+      {
+        (provided) => (
+          <div className='Card relative ml-0 mr-6 p-1'
+            ref={provided.innerRef}
+            {...provided.draggableProps}
+            >
+              <div className='bg-white w-full h-full rounded-2xl'
+              {...provided.dragHandleProps}
+              >
+                <input 
+                className='cursor-default outline-0'
+                type="text" 
+                defaultValue={taskInfo.title} 
+                onClick={handleClickTitle} 
+                onKeyDown={handleKeyboard} 
+                onBlur={handleLostFocus}/>
+
+                <span>{taskInfo.order}</span>
+              </div>
+          </div>
+        )
+      }
+    </Draggable>
   )
 }
 

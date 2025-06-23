@@ -16,40 +16,7 @@
 .Card {
     transition: opacity;
     transition-duration: 0.5s;
-    height: var(--cardHeight);
-    margin-top: 0px;
-    margin-bottom: 0px;
-}
-
-.dragZone {
-    height: calc(var(--cardHeight)/2 + var(--cardGapHeight));
-    opacity: 0.5;
-    pointer-events: none;
-    z-index: 10;
-}
-
-.dragZone.active {
-    pointer-events: auto;
-}
-
-.dragZoneT {
-    bottom: calc(var(--cardHeight)/2);
-    background-color: chocolate;
-}
-
-.dragZoneB {
-    top: calc(var(--cardHeight)/2);
-    background-color: brown;
-}
-
-.dragZoneFirst {
-    height: var(--cardGapExtHeight);
-    background-color: blue;
-}
-
-.dragZoneLast {
-    height: var(--cardGapExtHeight);
-    background-color: aqua;
+    height: 60px;
 }
 
 .taskGap {

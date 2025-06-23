@@ -1,20 +1,12 @@
-import { useImmer } from 'use-immer'
 import '../App.css'
 
 import Menubar from './Menubar.tsx'
 import TodoColumn from './TodoColumn.tsx'
-import {loadInitData} from '../data/loadInitData.ts'
 
 import type { TaskItem, NewTaskItem, TaskActions } from './type.ts'
 
-
-function Todolist() {
-
-
-  const testInitData = loadInitData();
-  const [tasks, setTasks] = useImmer<TaskItem[]>(testInitData);
-  const [draggingType, setDraggingType] = useImmer<string | null>(null);
-  const [draggingTaskId, setDraggingTaskId] = useImmer<string | null>(null);
+type setTasks = (updater: (draft: TaskItem[]) => void) => void;
+function Todolist({tasks, setTasks}: {tasks: TaskItem[], setTasks: setTasks} ) {
 
   const addTask = (newTask: NewTaskItem) => {
     setTasks(draft => {
@@ -57,27 +49,13 @@ function Todolist() {
       })
     })
   };
-
-  const draggingTask = (id: string) => {
-    setDraggingTaskId(id);
-    setDraggingType('task');
-    console.log(`Dragging task with id: ${id}`);
-  }
-
-  const draggingTaskEnd = () => {
-    setDraggingTaskId(null);
-    setDraggingType(null);
-    console.log(`Dragging task ended`);
-  }
-
-
+  
   const taskActions: TaskActions = {
     addTask: addTask,
     updateTask: updateTask,
     deleteTask: deleteTask,
-    draggingTask: draggingTask,
-    draggingTaskEnd: draggingTaskEnd,
   };
+  
 
   return (
     <>
@@ -89,8 +67,6 @@ function Todolist() {
         status={1} 
         actions={taskActions} 
         tasks={tasks.filter(task => task.status === 1)} 
-        draggingType={draggingType} 
-        draggingTaskId={draggingTaskId}
         />
         
         <TodoColumn title={"Working"} 
@@ -98,8 +74,6 @@ function Todolist() {
         status={2} 
         actions={taskActions} 
         tasks={tasks.filter(task => task.status === 2)} 
-        draggingType={draggingType} 
-        draggingTaskId={draggingTaskId}
         />
         
         <TodoColumn title={"Finished"} 
@@ -107,8 +81,6 @@ function Todolist() {
         status={3} 
         actions={taskActions} 
         tasks={tasks.filter(task => task.status === 3)} 
-        draggingType={draggingType} 
-        draggingTaskId={draggingTaskId}
         />
 
       </div>

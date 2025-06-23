@@ -14,10 +14,11 @@ function TodoColumn({title, bgColor, status, actions, tasks, draggingType, dragg
     <>
         <div className='relative bg-[#ac7d7d] rounded-2xl m-2 p-8 pr-0 h-[calc(100vh-4rem)] w-80 flex flex-col' style={{backgroundColor: bgColor}}>
             <h1 className='relative text-4xl h-15 '>{title}</h1>
-            <TaskList tasks={tasks}
-             actions={actions}
-             draggingType={draggingType}
-             draggingTaskId={draggingTaskId}/>
+            <TaskList status={status}
+            tasks={tasks}
+            actions={actions}
+            draggingType={draggingType}
+            draggingTaskId={draggingTaskId}/>
             <div>
                 <AddNewTask actions={actions} status={status} newOrder={numTasks}/>
             </div>
