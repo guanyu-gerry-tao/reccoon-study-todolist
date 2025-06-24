@@ -3,7 +3,7 @@ import '../App.css'
 import type { TaskActions } from './type.ts';
 import Dashline from './Dashline.tsx';
 
-import Project from './Project.tsx'
+import Project from './ProjectButton.tsx'
 
 function AddNewTask({ actions, status, newOrder }: { actions: TaskActions, status: number, newOrder: number }) {
 
@@ -17,6 +17,7 @@ function AddNewTask({ actions, status, newOrder }: { actions: TaskActions, statu
           status: status,
           order: newTaskOrder,
           previousStatus: status,
+          project: 'default', // Assuming a default project, you can modify this as needed
         };
         actions.addTask(newTask); // Call the add function from actions with the new task
         e.currentTarget.value = ''; // Clear the input field after adding the task

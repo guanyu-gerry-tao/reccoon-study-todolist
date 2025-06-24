@@ -4,18 +4,21 @@ import Menubar from './Menubar.tsx'
 import TodoColumn from './TodoColumn.tsx'
 import AIChatPanel from './AIChatPanel.tsx'
 
-import type { TaskItem , TaskActions, } from './type.ts'
+import type { TaskItem , TaskActions, Projects, UserStatus } from './type.ts'
+import { useImmer } from 'use-immer'
+import TaskDropArea from './TaskDropArea.tsx'
 
 
-function Todolist({tasks, taskActions, draggedTask}: 
-  {tasks: TaskItem[], taskActions: TaskActions, draggedTask: [string] | null } ) {
+function Todolist({tasks, projects, userStatus, taskActions, draggedTask}: 
+  {tasks: TaskItem[], projects: Projects, userStatus: UserStatus, taskActions: TaskActions, draggedTask: [string] | null } ) {
+
+  const [currentProjectID, setCurrentProjectID] = useImmer<string>(userStatus.project);
 
   return (
     <>
-      <div className='relative flex flex-row h-screen w-screen'>
-        <div className='menubarContainer relative flex flex-col w-65 p-2 mr-5 h-full flex-shrink-0 bg-[#f5f5f5]'>
-          <Menubar draggedTask={draggedTask} />
-        </div>
+      <div className='relative flex flex-row h-screen w-screen overflow-hidden'>
+          <Menubar draggedTask={draggedTask} projects={projects} currentProjectID={currentProjectID} setCurrentProjectID={setCurrentProjectID} />
+
 
         <div className='relative flex flex-row max-w-245 flex-grow overflow-y-auto overflow-x-auto items-start'>
 
@@ -24,6 +27,7 @@ function Todolist({tasks, taskActions, draggedTask}:
           status={1} 
           actions={taskActions} 
           tasks={tasks.filter(task => task.status === 1)} 
+          currentProjectID={currentProjectID}
           />
           
           <TodoColumn title={"Next"} 
@@ -31,6 +35,7 @@ function Todolist({tasks, taskActions, draggedTask}:
           status={2} 
           actions={taskActions} 
           tasks={tasks.filter(task => task.status === 2)} 
+          currentProjectID={currentProjectID}
           />
           
           <TodoColumn title={"Later"} 
@@ -38,6 +43,7 @@ function Todolist({tasks, taskActions, draggedTask}:
           status={3} 
           actions={taskActions} 
           tasks={tasks.filter(task => task.status === 3)} 
+          currentProjectID={currentProjectID}
           />
           </div>
       
@@ -47,6 +53,7 @@ function Todolist({tasks, taskActions, draggedTask}:
 
       </div>
 
+      
 
     </>
   )

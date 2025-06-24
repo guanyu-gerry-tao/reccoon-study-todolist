@@ -5,15 +5,21 @@ import './App.css';
 import Todolist from './components/Todolist.tsx';
 import { DragDropContext } from '@hello-pangea/dnd';
 import type { DragDropContextProps } from '@hello-pangea/dnd';
-import type { TaskItem, NewTaskItem, TaskActions } from './components/type.ts';
-import {loadInitData} from './data/loadInitData.ts'
+import type { TaskItem, NewTaskItem, TaskActions, Projects } from './components/type.ts';
+import { loadInitData, loadProjects, loadTestUserData } from './data/loadInitData.ts'
 
 
 function App() {
 
   const testInitData = loadInitData();
+  const testProjectsData = loadProjects();
+  const testUserData = loadTestUserData(); 
+
   const [tasks, setTasks] = useImmer<TaskItem[]>(testInitData);
+  const [projects, setProjects] = useImmer<Projects>(testProjectsData);
+  const [userStatus, setUserStatus] = useImmer(testUserData);
   const [draggedTask, setDraggedTask] = useImmer<[string] | null>(null);
+  
 
   const addTask = (newTask: NewTaskItem) => {
     setTasks(draft => {
@@ -130,6 +136,7 @@ function App() {
       // If the task was dropped outside of a droppable area, handle it here
     }
     setDraggedTask(null);
+
     console.log('onDragEnd completed');
   }
 
@@ -148,15 +155,13 @@ function App() {
     if (current !== prevDroppableId.current) {
       if (prevDroppableId.current === '-1') { // exit delete-zone
         document.querySelectorAll(`#${update.draggableId}`).forEach(el => {
-          el.classList.remove('overDelete');
-          console.log(`Task with id ${update.draggableId} is no longer over delete area.`);
+          // Remove the class indicating the draggable is over the delete area
         });
       }
 
       if (current === '-1') { // enter delete-zone
         document.querySelectorAll(`#${update.draggableId}`).forEach(el => {
-          el.classList.add('overDelete');
-          console.log(`Task with id ${update.draggableId} is over delete area.`);
+          // Add a class to indicate the draggable is over the delete area
         });
       }
 
@@ -172,7 +177,7 @@ function App() {
   return (
     <DragDropContext
     onDragEnd={onDragEnd} onDragStart={onDragStart} onDragUpdate={onDragUpdate}>
-      <Todolist tasks={tasks} taskActions={taskActions} draggedTask={draggedTask}
+      <Todolist tasks={tasks} projects={projects} userStatus={userStatus} taskActions={taskActions} draggedTask={draggedTask}
        />
     </DragDropContext>
   )

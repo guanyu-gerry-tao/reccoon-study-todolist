@@ -1,33 +1,36 @@
 import { div } from 'motion/react-client';
 import '../App.css'
 import Task from './Task.tsx';
-import type { TaskItem, TaskActions } from './type.ts';
+import type { TaskItem, TaskActions, ProjectItem } from './type.ts';
 import { Droppable } from '@hello-pangea/dnd';
 
 
-function Tasklist({status, tasks, actions}: 
-  {status: number, tasks: TaskItem[], actions: TaskActions}) {
+function Tasklist({status, tasks, actions, currentProjectID}: 
+  {status: number, tasks: TaskItem[], actions: TaskActions, currentProjectID: string}) {
 
-  const tasksSorted = tasks.sort((a, b) => a.order - b.order);
+  const tasksSorted = tasks
+  .filter(t => t.project === currentProjectID)
+  .sort((a, b) => a.order - b.order);
+
+  console.log('test' + tasksSorted);
 
   return (
-    <div className='relative flex flex-col gap-2'>
-          <Droppable droppableId={status.toString()}>
-            {(provided) => (
-              <div
-              className='relative min-h-10'
-                ref={provided.innerRef}
-                {...provided.droppableProps}>
+    <Droppable droppableId={status.toString()} type='task'>
+      {(provided) => (
+        <div className='relative min-h-10 flex flex-col'
+          ref={provided.innerRef}
+          {...provided.droppableProps}>
 
-                {tasksSorted.map((task: TaskItem) => (
-                  <Task key={task.id} taskInfo={task} 
-                  actions={actions} />)
-                )}
-                {provided.placeholder} 
-                </div>
-              )}
-          </Droppable>
-    </div>
+          {tasksSorted.map((task: TaskItem) => (
+            <Task key={task.id} taskInfo={task} 
+            actions={actions} />
+          ))}
+
+          {provided.placeholder} 
+
+        </div>
+        )}
+      </Droppable>
   )
 }
 

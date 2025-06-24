@@ -1,12 +1,33 @@
-{
+{   
+    "userLastState": {
+        "project": "project12345678"
+    },
+    "projectList": {
+        "project12345678": {
+            "title": "Learn Full-stack",
+            "description": "A comprehensive project to learn full-stack web development.",
+            "order": 0
+        },
+        "project87654321": {
+            "title": "Learn English",
+            "description": "A project focused on improving English language skills.",
+            "order": 1
+        },
+        "project23456789": {
+            "title": "Learn Driving",
+            "description": "A project to prepare for driving tests and improve driving skills.",
+            "order": 2
+        }
+    },
     "taskList": {
         "task12345678": {
             "order": 0,
-            "title": "Mastering React Components",
+            "title": "Mastering React Components with Hooks and State Management",
             "dueDate": "2025-01-15",
             "description": "Learn how to build reusable React components for dynamic UIs.",
             "status": 1,
-            "previousStatus": 1
+            "previousStatus": 1,
+            "project": "project12345678"
         },
         "task87654321": {
             "order": 1,
@@ -14,7 +35,8 @@
             "dueDate": "2025-02-10",
             "description": "Explore how to design and consume RESTful APIs effectively.",
             "status": 1,
-            "previousStatus": 1
+            "previousStatus": 1,
+            "project": "project12345678"
         },
         "task23456789": {
             "order": 2,
@@ -22,7 +44,8 @@
             "dueDate": "2025-03-05",
             "description": "Get comfortable with ES6 syntax and features for modern JS development.",
             "status": 1,
-            "previousStatus": 1
+            "previousStatus": 1,
+            "project": "project12345678"
         },
         "task98765432": {
             "order": 3,
@@ -30,7 +53,8 @@
             "dueDate": "2025-04-12",
             "description": "Set up a Node.js server to handle backend logic and routing.",
             "status": 1,
-            "previousStatus": 1
+            "previousStatus": 1,
+            "project": "project12345678"
         },
         "task34567890": {
             "order": 4,
@@ -38,7 +62,8 @@
             "dueDate": "2025-05-20",
             "description": "Learn how to design efficient database schemas for your applications.",
             "status": 1,
-            "previousStatus": 1
+            "previousStatus": 1,
+            "project": "project12345678"
         },
         "task45678901": {
             "order": 0,
@@ -46,7 +71,8 @@
             "dueDate": "2025-06-15",
             "description": "Containerize your applications using Docker for consistent deployments.",
             "status": 2,
-            "previousStatus": 2
+            "previousStatus": 2,
+            "project": "project12345678"
         },
         "task56789012": {
             "order": 1,
@@ -54,7 +80,8 @@
             "dueDate": "2025-07-01",
             "description": "Secure your app by implementing JSON Web Token based authentication.",
             "status": 2,
-            "previousStatus": 2
+            "previousStatus": 2,
+            "project": "project12345678"
         },
         "task67890123": {
             "order": 2,
@@ -62,7 +89,8 @@
             "dueDate": "2025-08-05",
             "description": "Learn how to query data efficiently using GraphQL.",
             "status": 2,
-            "previousStatus": 2
+            "previousStatus": 2,
+            "project": "project12345678"
         },
         "task78901234": {
             "order": 3,
@@ -70,7 +98,8 @@
             "dueDate": "2025-09-10",
             "description": "Manage complex application states using Redux.",
             "status": 2,
-            "previousStatus": 2
+            "previousStatus": 2,
+            "project": "project12345678"
         },
         "task89012345": {
             "order": 4,
@@ -78,7 +107,8 @@
             "dueDate": "2025-10-20",
             "description": "Design responsive web layouts that work on all devices.",
             "status": 2,
-            "previousStatus": 2
+            "previousStatus": 2,
+            "project": "project12345678"
         },
         "task90123456": {
             "order": 0,
@@ -86,7 +116,8 @@
             "dueDate": "2025-01-12",
             "description": "Identify and fix broken API endpoints causing errors.",
             "status": 3,
-            "previousStatus": 3
+            "previousStatus": 3,
+            "project": "project12345678"
         },
         "task01234567": {
             "order": 1,
@@ -94,7 +125,8 @@
             "dueDate": "2025-01-15",
             "description": "Improve and clean up the legacy code for better maintainability.",
             "status": 3,
-            "previousStatus": 3
+            "previousStatus": 3,
+            "project": "project12345678"
         },
         "task11223344": {
             "order": 2,
@@ -102,7 +134,8 @@
             "dueDate": "2025-01-20",
             "description": "Clean up project by removing unused libraries and dependencies.",
             "status": 3,
-            "previousStatus": 3
+            "previousStatus": 3,
+            "project": "project12345678"
         },
         "task22334455": {
             "order": 3,
@@ -110,7 +143,8 @@
             "dueDate": "2025-01-25",
             "description": "Ensure all project documentation is up-to-date and accurate.",
             "status": 3,
-            "previousStatus": 3
+            "previousStatus": 3,
+            "project": "project12345678"
         },
         "task33445566": {
             "order": 4,
@@ -118,7 +152,8 @@
             "dueDate": "2025-02-01",
             "description": "Improve website performance by optimizing image assets.",
             "status": 3,
-            "previousStatus": 3
+            "previousStatus": 3,
+            "project": "project12345678"
         },
         "task44556677": {
             "order": 5,
@@ -126,7 +161,8 @@
             "dueDate": "2025-02-05",
             "description": "Resolve layout issues caused by CSS conflicts.",
             "status": 3,
-            "previousStatus": 3
+            "previousStatus": 3,
+            "project": "project12345678"
         },
         "task55667788": {
             "order": 6,
@@ -134,7 +170,8 @@
             "dueDate": "2025-02-10",
             "description": "Write additional tests to increase unit test coverage.",
             "status": 3,
-            "previousStatus": 3
+            "previousStatus": 3,
+            "project": "project12345678"
         },
         "task66778899": {
             "order": 7,
@@ -142,7 +179,8 @@
             "dueDate": "2025-02-15",
             "description": "Identify and fix memory leaks in the application.",
             "status": 3,
-            "previousStatus": 3
+            "previousStatus": 3,
+            "project": "project12345678"
         },
         "task77889900": {
             "order": 8,
@@ -150,7 +188,8 @@
             "dueDate": "2025-02-20",
             "description": "Handle and resolve code merge conflicts from recent branches.",
             "status": 3,
-            "previousStatus": 3
+            "previousStatus": 3,
+            "project": "project12345678"
         },
         "task88990011": {
             "order": 9,
@@ -158,7 +197,8 @@
             "dueDate": "2025-02-25",
             "description": "Troubleshoot and fix issues with user login authentication.",
             "status": 3,
-            "previousStatus": 3
+            "previousStatus": 3,
+            "project": "project12345678"
         },
         "task99001122": {
             "order": 10,
@@ -166,7 +206,8 @@
             "dueDate": "2025-03-01",
             "description": "Update integrations with third-party APIs to latest versions.",
             "status": 3,
-            "previousStatus": 3
+            "previousStatus": 3,
+            "project": "project12345678"
         },
         "task10111213": {
             "order": 11,
@@ -174,7 +215,8 @@
             "dueDate": "2025-03-05",
             "description": "Correct pagination logic to display items properly.",
             "status": 3,
-            "previousStatus": 3
+            "previousStatus": 3,
+            "project": "project12345678"
         },
         "task12131415": {
             "order": 12,
@@ -182,7 +224,8 @@
             "dueDate": "2025-03-10",
             "description": "Clean up code by removing unnecessary console logs.",
             "status": 3,
-            "previousStatus": 3
+            "previousStatus": 3,
+            "project": "project12345678"
         },
         "task13141516": {
             "order": 13,
@@ -190,7 +233,8 @@
             "dueDate": "2025-03-15",
             "description": "Identify and fix broken hyperlinks on the website.",
             "status": 3,
-            "previousStatus": 3
+            "previousStatus": 3,
+            "project": "project12345678"
         },
         "task14151617": {
             "order": 14,
@@ -198,7 +242,8 @@
             "dueDate": "2025-03-20",
             "description": "Fix conflicting CSS rules that cause styling issues.",
             "status": 3,
-            "previousStatus": 3
+            "previousStatus": 3,
+            "project": "project12345678"
         },
         "task15161718": {
             "order": 15,
@@ -206,7 +251,8 @@
             "dueDate": "2025-03-25",
             "description": "Investigate and fix server timeout issues affecting performance.",
             "status": 3,
-            "previousStatus": 3
+            "previousStatus": 3,
+            "project": "project12345678"
         },
         "task16171819": {
             "order": 16,
@@ -214,7 +260,8 @@
             "dueDate": "2025-03-30",
             "description": "Ensure environment variables are correctly set for all environments.",
             "status": 3,
-            "previousStatus": 3
+            "previousStatus": 3,
+            "project": "project12345678"
         },
         "task17181920": {
             "order": 17,
@@ -222,7 +269,8 @@
             "dueDate": "2025-04-05",
             "description": "Resolve issues with API rate limiting causing request failures.",
             "status": 3,
-            "previousStatus": 3
+            "previousStatus": 3,
+            "project": "project12345678"
         },
         "task18192021": {
             "order": 18,
@@ -230,7 +278,8 @@
             "dueDate": "2025-04-10",
             "description": "Fix errors encountered during application deployment.",
             "status": 3,
-            "previousStatus": 3
+            "previousStatus": 3,
+            "project": "project12345678"
         },
         "task19202122": {
             "order": 19,
@@ -238,7 +287,188 @@
             "dueDate": "2025-04-15",
             "description": "Ensure the app works consistently across different browsers.",
             "status": 3,
-            "previousStatus": 3
+            "previousStatus": 3,
+            "project": "project12345678"
+        },
+        "taskeng001": {
+            "order": 0,
+            "title": "Read an English article",
+            "dueDate": "2025-07-01",
+            "description": "Read a news article in English and summarize the main points.",
+            "status": 1,
+            "previousStatus": 1,
+            "project": "project87654321"
+        },
+        "taskeng002": {
+            "order": 1,
+            "title": "Practice speaking with a partner",
+            "dueDate": "2025-07-02",
+            "description": "Have a 15-minute English conversation with a language partner.",
+            "status": 1,
+            "previousStatus": 1,
+            "project": "project87654321"
+        },
+        "taskeng003": {
+            "order": 2,
+            "title": "Complete grammar exercises",
+            "dueDate": "2025-07-03",
+            "description": "Finish one unit of English grammar workbook.",
+            "status": 1,
+            "previousStatus": 1,
+            "project": "project87654321"
+        },
+        "taskeng004": {
+            "order": 3,
+            "title": "Watch an English movie",
+            "dueDate": "2025-07-04",
+            "description": "Watch a movie in English and write down new vocabulary.",
+            "status": 1,
+            "previousStatus": 1,
+            "project": "project87654321"
+        },
+        "taskeng005": {
+            "order": 4,
+            "title": "Write a short essay",
+            "dueDate": "2025-07-05",
+            "description": "Write a 200-word essay about your weekend in English.",
+            "status": 2,
+            "previousStatus": 2,
+            "project": "project87654321"
+        },
+        "taskeng006": {
+            "order": 5,
+            "title": "Review vocabulary flashcards",
+            "dueDate": "2025-07-06",
+            "description": "Go through 50 English vocabulary flashcards.",
+            "status": 2,
+            "previousStatus": 2,
+            "project": "project87654321"
+        },
+        "taskeng007": {
+            "order": 6,
+            "title": "Listen to an English podcast",
+            "dueDate": "2025-07-07",
+            "description": "Listen to a 20-minute English podcast and note down key phrases.",
+            "status": 3,
+            "previousStatus": 3,
+            "project": "project87654321"
+        },
+        "taskeng008": {
+            "order": 7,
+            "title": "Join an online English class",
+            "dueDate": "2025-07-08",
+            "description": "Participate in a live online English lesson.",
+            "status": 3,
+            "previousStatus": 3,
+            "project": "project87654321"
+        },
+        "taskeng009": {
+            "order": 8,
+            "title": "Translate a short story",
+            "dueDate": "2025-07-09",
+            "description": "Translate a short story from your native language to English.",
+            "status": 3,
+            "previousStatus": 3,
+            "project": "project87654321"
+        },
+        "taskeng010": {
+            "order": 9,
+            "title": "Record yourself reading",
+            "dueDate": "2025-07-10",
+            "description": "Record your voice reading an English passage and check pronunciation.",
+            "status": 3,
+            "previousStatus": 3,
+            "project": "project87654321"
+        },
+        "taskdrive001": {
+            "order": 0,
+            "title": "Read the driving manual",
+            "dueDate": "2025-07-01",
+            "description": "Read one chapter of the local driving manual.",
+            "status": 1,
+            "previousStatus": 1,
+            "project": "project23456789"
+        },
+        "taskdrive002": {
+            "order": 1,
+            "title": "Practice parking",
+            "dueDate": "2025-07-02",
+            "description": "Practice parallel parking in an empty lot.",
+            "status": 1,
+            "previousStatus": 1,
+            "project": "project23456789"
+        },
+        "taskdrive003": {
+            "order": 2,
+            "title": "Take a mock theory test",
+            "dueDate": "2025-07-03",
+            "description": "Complete a practice driving theory test online.",
+            "status": 1,
+            "previousStatus": 1,
+            "project": "project23456789"
+        },
+        "taskdrive004": {
+            "order": 3,
+            "title": "Schedule a driving lesson",
+            "dueDate": "2025-07-04",
+            "description": "Book a session with a certified driving instructor.",
+            "status": 2,
+            "previousStatus": 2,
+            "project": "project23456789"
+        },
+        "taskdrive005": {
+            "order": 4,
+            "title": "Review road signs",
+            "dueDate": "2025-07-05",
+            "description": "Study the meanings of common road signs.",
+            "status": 2,
+            "previousStatus": 2,
+            "project": "project23456789"
+        },
+        "taskdrive006": {
+            "order": 5,
+            "title": "Night driving practice",
+            "dueDate": "2025-07-06",
+            "description": "Practice driving at night with supervision.",
+            "status": 2,
+            "previousStatus": 2,
+            "project": "project23456789"
+        },
+        "taskdrive007": {
+            "order": 6,
+            "title": "Check car maintenance",
+            "dueDate": "2025-07-07",
+            "description": "Learn how to check oil, tires, and basic car maintenance.",
+            "status": 3,
+            "previousStatus": 3,
+            "project": "project23456789"
+        },
+        "taskdrive008": {
+            "order": 7,
+            "title": "Practice emergency stops",
+            "dueDate": "2025-07-08",
+            "description": "Practice making safe emergency stops in a controlled area.",
+            "status": 3,
+            "previousStatus": 3,
+            "project": "project23456789"
+        },
+        "taskdrive009": {
+            "order": 8,
+            "title": "Review traffic laws",
+            "dueDate": "2025-07-09",
+            "description": "Go over the latest updates to local traffic laws.",
+            "status": 3,
+            "previousStatus": 3,
+            "project": "project23456789"
+        },
+        "taskdrive010": {
+            "order": 9,
+            "title": "Simulate driving test",
+            "dueDate": "2025-07-10",
+            "description": "Do a full mock driving test with a friend or instructor.",
+            "status": 3,
+            "previousStatus": 3,
+            "project": "project23456789"
         }
     }
 }

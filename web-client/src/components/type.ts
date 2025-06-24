@@ -11,6 +11,7 @@ type NewTaskItem = {
     description?: string;
     status: number; // 1: Now, 2: Next, 3: Later, 0: Completed, -1: Deleted 
     previousStatus: number;
+    project: string;
 };
 
 type TodoColumnProps = {
@@ -21,6 +22,21 @@ type TodoColumnProps = {
   tasks: TaskItem[];
   draggingType?: string | null;
   draggingTaskId?: string | null;
+  currentProjectID: string;
+}
+
+type Projects = {
+  [id: string]: ProjectItem;
+};
+
+type ProjectItem = {
+  title: string;
+  description?: string;
+  order: number;
+}
+
+type UserStatus = {
+  project: string;
 }
 
 type TaskActions = {
@@ -34,6 +50,9 @@ type setIsOverDeletedTaskArea = React.Dispatch<React.SetStateAction<boolean>>;
 
 export type { TaskItem };
 export type { NewTaskItem };
+export type { Projects };
+export type { UserStatus };
+export type { ProjectItem };
 export type { TodoColumnProps };
 export type { TaskActions };
 export type { setIsOverDeletedTaskArea };

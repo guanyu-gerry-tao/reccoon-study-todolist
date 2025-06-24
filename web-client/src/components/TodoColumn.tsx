@@ -6,7 +6,7 @@ import type { TodoColumnProps, TaskActions } from './type.ts';
 import TaskList from './TaskList.tsx';
 
 
-function TodoColumn({title, bgColor, status, actions, tasks} : TodoColumnProps) {
+function TodoColumn({title, bgColor, status, actions, tasks, currentProjectID} : TodoColumnProps) {
 
   const numTasks = tasks.length;
 
@@ -18,7 +18,9 @@ function TodoColumn({title, bgColor, status, actions, tasks} : TodoColumnProps) 
             <div className='relative flex flex-col'>
               <TaskList status={status}
               tasks={tasks}
-              actions={actions}/>
+              actions={actions}
+              currentProjectID={currentProjectID}
+              />
             <AddNewTask actions={actions} status={status} newOrder={numTasks}/>
             </div>
 
