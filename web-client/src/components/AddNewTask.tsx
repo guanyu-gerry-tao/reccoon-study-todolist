@@ -33,7 +33,7 @@ function AddNewTask({ actions, status, newOrder }: { actions: TaskActions, statu
       <input type="text" 
       placeholder={"+ add new task"} 
       onKeyDown={handleKeyboard}
-      className='cursor-default outline-0'/>
+      className='relative cursor-default outline-0 pl-4 p-2'/>
     </>
   )
 }

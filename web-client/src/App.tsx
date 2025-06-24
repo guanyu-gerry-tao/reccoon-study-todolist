@@ -1,88 +1,179 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useImmer } from 'use-immer';
 import './App.css';
 
 import Todolist from './components/Todolist.tsx';
 import { DragDropContext } from '@hello-pangea/dnd';
 import type { DragDropContextProps } from '@hello-pangea/dnd';
-import type { TaskItem } from './components/type.ts';
+import type { TaskItem, NewTaskItem, TaskActions } from './components/type.ts';
 import {loadInitData} from './data/loadInitData.ts'
-import { filter, pre } from 'motion/react-client';
+
 
 function App() {
 
   const testInitData = loadInitData();
   const [tasks, setTasks] = useImmer<TaskItem[]>(testInitData);
-  const [isDragging, setIsDragging] = useState(false);
+  const [draggedTask, setDraggedTask] = useImmer<[string] | null>(null);
+
+  const addTask = (newTask: NewTaskItem) => {
+    setTasks(draft => {
+      const id = crypto.randomUUID();
+      draft.push({ ...newTask, id });
+      console.log(`Task added with id: ${id}`);
+
+      const filtered = draft.filter(t => t.status === newTask.status).sort((a, b) => a.order - b.order);
+      filtered.forEach((task, index) => {
+        task.order = index;
+      })
+    });
+  };
+
+  const updateTask = (id: string, updatedFields: Partial<TaskItem>) => {
+    setTasks(draft => {
+      const task = draft.find(task => task.id === id);
+      if (task) {
+        Object.assign(task, updatedFields);
+      } else {
+        console.warn(`Task with id ${id} not found.`);
+      }
+      const filtered = draft.filter(t => t.status === task?.status).sort((a, b) => a.order - b.order);
+      filtered.forEach((task, index) => {
+        task.order = index;
+      })
+    });
+  };
+
+  const deleteTask = (id: string) => {
+    setTasks(draft => {
+      const index = draft.findIndex(task => task.id === id);
+      const deletedTask = draft[index];
+      if (index !== -1) {
+        draft[index].status = -2;
+      }
+      const filtered = draft.filter(t => t.status === deletedTask.previousStatus).sort((a, b) => a.order - b.order);
+      filtered.forEach((task, index) => {
+        task.order = index;
+      })
+    })
+  };
+
+  const refreskTasks = () => {
+    // This function can be used to refresh the tasks from the server or local storage
+  };
+  
+
+  const taskActions: TaskActions = {
+    addTask: addTask,
+    updateTask: updateTask,
+    deleteTask: deleteTask,
+    refreshTasks: refreskTasks,
+  };
 
   const onDragEnd: DragDropContextProps['onDragEnd'] = (result) => {
+
     console.log('onDragEnd', result);
-    if (!result.destination) {
-      console.log('No destination found');
-      return;
+    if (result.destination){
+      setTasks(draft => {
+        const task = draft.find(t => t.id === result.draggableId);
+
+        if (task && result.destination) {
+          const previousStatus = task.status;
+          const previousOrder = task.order;
+          const resultStatus = Number(result.destination.droppableId);
+          const resultIndex = result.destination.index;
+  
+  
+          // If the task is moving within the same status
+          if (resultStatus === previousStatus && resultIndex !== previousOrder) {
+            if (resultIndex > previousOrder) { // If moving down (3 to 5 ex.), move 4, 5 to 3, 4
+              draft.filter(t => t.status === resultStatus && 
+                t.order > previousOrder && 
+                t.order <= resultIndex)
+                .forEach(t => {
+                  t.order -= 1
+                })
+            } else { // If moving up (5 to 3 ex.), move 3, 4 to 4, 5
+              draft.filter(t => t.status === resultStatus && 
+                t.order >= resultIndex && 
+                t.order < previousOrder)
+                .forEach(t => {
+                  t.order += 1
+                })
+            }
+          }
+  
+          // If the task is moving to a different status
+          if (resultStatus !== previousStatus) {
+            draft.filter(t => t.status === previousStatus && 
+              t.order > previousOrder)
+              .forEach(t => {
+                t.order -= 1; // Decrease order of tasks in the previous status
+              });
+            draft.filter(t => t.status === resultStatus && 
+              t.order >= resultIndex)
+              .forEach(t => {
+                t.order += 1; // Increase order of tasks in the new status
+              });
+          }
+          
+          // Update the task's order and status
+          task.order = resultIndex; 
+          task.status = resultStatus; 
+          
+          console.log('previousStatus:', previousStatus);
+          console.log('resultStatus:', resultStatus);
+          console.log('previousOrder:', previousOrder);
+          console.log('resultIndex:', resultIndex);
+        }
+      });
+    } else {
+      // If the task was dropped outside of a droppable area, handle it here
     }
-    setTasks(draft => {
-      const task = draft.find(t => t.id === result.draggableId);
-
-      if (task && result.destination){
-
-        // TODO: fix bug of ordering
-
-        const previousStatus = task.status;
-        const previousOrder = task.order;
-        const resultStatus = Number(result.destination.droppableId);
-        const resultIndex = result.destination.index;
-
-
-        if (previousOrder === resultIndex && previousStatus === resultStatus) {
-          console.log('No change in order or status');
-          return; // No change in order or status, do nothing
-        }
-
-        if (resultIndex > previousOrder) {
-          task.order = resultIndex + 0.5; // Adjust order if moving down
-        } else {
-          task.order = resultIndex - 0.5; // Adjust order if moving up
-        }        
-        
-        if (resultStatus !== previousStatus) {
-          task.status = resultStatus; // Update the status of the task
-          const prevFiltered = draft.filter(t => t.status === previousStatus).sort((a, b) => a.order - b.order);
-          prevFiltered.forEach((t, index) => {
-            t.order = index; // Reorder tasks in the previous status
-          });
-        }
-        
-        const filtered = draft.filter(t => t.status === resultStatus).sort((a, b) => a.order - b.order);
-        filtered.forEach((t, index) => {
-          t.order = index; // Reorder tasks in the same status
-        });
-
-        //task.order = resultIndex; // Set the new order based on the destination index
-        //task.status = resultStatus; // Update the status based on the droppableId
-        
-        console.log('previousStatus:', previousStatus);
-        console.log('resultStatus:', resultStatus);
-        console.log('previousOrder:', previousOrder);
-        console.log('resultIndex:', resultIndex);
-      }
-      setIsDragging(false);
-    });
-    // Handle the drag end logic here
-    // For example, update the task order based on the result
+    setDraggedTask(null);
+    console.log('onDragEnd completed');
   }
 
   const onDragStart: DragDropContextProps['onDragStart'] = (start) => {
-    setIsDragging(true);
+    setDraggedTask([start.draggableId]);
   }
-    
+  
+
+
+
+  const prevDroppableId = useRef<string | null>(null);
+
+  const onDragUpdate: DragDropContextProps['onDragUpdate'] = (update) => {
+    const current = update.destination?.droppableId || null;
+
+    if (current !== prevDroppableId.current) {
+      if (prevDroppableId.current === '-1') { // exit delete-zone
+        document.querySelectorAll(`#${update.draggableId}`).forEach(el => {
+          el.classList.remove('overDelete');
+          console.log(`Task with id ${update.draggableId} is no longer over delete area.`);
+        });
+      }
+
+      if (current === '-1') { // enter delete-zone
+        document.querySelectorAll(`#${update.draggableId}`).forEach(el => {
+          el.classList.add('overDelete');
+          console.log(`Task with id ${update.draggableId} is over delete area.`);
+        });
+      }
+
+      if (prevDroppableId.current !== null && current === null) { // exit all Droppable
+        // places to handle when the draggable is not over any droppable area
+      }
+      prevDroppableId.current = current;
+    }
+  }
+  
+
 
   return (
     <DragDropContext
-    onDragEnd={onDragEnd} onDragStart={onDragStart}>
-      <div className='relative bg-[#fbfbfb] m-4 p-2 rounded-3xl [height:calc(100vh-2rem)]'>
-        <Todolist tasks={tasks} setTasks={setTasks}/>
-      </div>
+    onDragEnd={onDragEnd} onDragStart={onDragStart} onDragUpdate={onDragUpdate}>
+      <Todolist tasks={tasks} taskActions={taskActions} draggedTask={draggedTask}
+       />
     </DragDropContext>
   )
 }

@@ -2,12 +2,14 @@ import { useState } from 'react'
 import '../App.css'
 
 import Project from './Project.tsx'
+import TaskDropArea from './TaskDropArea.tsx'
 
-function Menubar() {
 
+
+function Menubar({draggedTask}: 
+  {draggedTask: [string] | null }) {
   return (
     <>
-      <div className='relative w-80 rounded-2xl m-2 p-2 h-[calc(100vh-4rem)] flex flex-col bg-[#f5f5f5]'>
         <div>
           <p className='relative inline-block m-2 font-extrabold text-2xl text-gray-800'>Reccoon Study</p>
         </div>
@@ -21,10 +23,25 @@ function Menubar() {
           <Project />
         </div>
         <div className='relative m-2 p-2 rounded-2xl bottom-0 flex flex-col'>
-          <p className='relative inline-block m-2'>Settings</p>
-          <p className='relative inline-block m-2'>Help</p>
+
+          <TaskDropArea status={-1} draggedTask={draggedTask} />
+          <div className='menubarBottomItems'>
+            <p>Deleted Tasks</p>
+          </div>
+          <div className='menubarBottomItems'>
+            <p>Completed Tasks</p>
+          </div>
+          <div className='menubarBottomItems'>
+            <p>Settings</p>
+          </div>
+
+          <div className='menubarBottomItems'>
+            <p>Help & About</p>
+          </div>
+          <div className='menubarBottomItems'>
+            <p>{draggedTask ? draggedTask.toString() : 'empty'}</p>
+          </div>
         </div>
-      </div>
     </>
   )
 }

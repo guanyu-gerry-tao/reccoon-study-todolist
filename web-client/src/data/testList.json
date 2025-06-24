@@ -1,42 +1,242 @@
 {
-    "taskList":{
-        "testTask1": {
-            "order": 1,
-            "title": "Test Task 1",
-            "dueDate": "2023-10-01",
-            "description": "This is a test task for demonstration purposes.",
-            "status": 1,
-            "previousStatus": 1
-        }, 
-        "testTask2": {
+    "taskList": {
+        "task12345678": {
             "order": 0,
-            "title": "Test Task 2",
-            "dueDate": "2023-10-02",
-            "description": "This is another test task for demonstration purposes.",
+            "title": "Mastering React Components",
+            "dueDate": "2025-01-15",
+            "description": "Learn how to build reusable React components for dynamic UIs.",
             "status": 1,
             "previousStatus": 1
         },
-        "testTask3": {
-            "order": 0,
-            "title": "Test Task 3",
-            "dueDate": "2023-10-03",
-            "description": "This is yet another test task for demonstration purposes.",
-            "status": 2,
-            "previousStatus": 2
-        },
-        "testTask4": {
+        "task87654321": {
             "order": 1,
-            "title": "Test Task 4",
-            "dueDate": "2023-10-04",
-            "description": "This is a test task that is archived.",
+            "title": "Understanding REST APIs",
+            "dueDate": "2025-02-10",
+            "description": "Explore how to design and consume RESTful APIs effectively.",
+            "status": 1,
+            "previousStatus": 1
+        },
+        "task23456789": {
+            "order": 2,
+            "title": "JavaScript ES6 Features",
+            "dueDate": "2025-03-05",
+            "description": "Get comfortable with ES6 syntax and features for modern JS development.",
+            "status": 1,
+            "previousStatus": 1
+        },
+        "task98765432": {
+            "order": 3,
+            "title": "Node.js Server Setup",
+            "dueDate": "2025-04-12",
+            "description": "Set up a Node.js server to handle backend logic and routing.",
+            "status": 1,
+            "previousStatus": 1
+        },
+        "task34567890": {
+            "order": 4,
+            "title": "Database Design Basics",
+            "dueDate": "2025-05-20",
+            "description": "Learn how to design efficient database schemas for your applications.",
+            "status": 1,
+            "previousStatus": 1
+        },
+        "task45678901": {
+            "order": 0,
+            "title": "Deploying with Docker",
+            "dueDate": "2025-06-15",
+            "description": "Containerize your applications using Docker for consistent deployments.",
             "status": 2,
             "previousStatus": 2
         },
-        "testTask5": {
+        "task56789012": {
+            "order": 1,
+            "title": "Implementing JWT Authentication",
+            "dueDate": "2025-07-01",
+            "description": "Secure your app by implementing JSON Web Token based authentication.",
+            "status": 2,
+            "previousStatus": 2
+        },
+        "task67890123": {
+            "order": 2,
+            "title": "GraphQL Query Basics",
+            "dueDate": "2025-08-05",
+            "description": "Learn how to query data efficiently using GraphQL.",
+            "status": 2,
+            "previousStatus": 2
+        },
+        "task78901234": {
+            "order": 3,
+            "title": "State Management with Redux",
+            "dueDate": "2025-09-10",
+            "description": "Manage complex application states using Redux.",
+            "status": 2,
+            "previousStatus": 2
+        },
+        "task89012345": {
+            "order": 4,
+            "title": "Building Responsive Layouts",
+            "dueDate": "2025-10-20",
+            "description": "Design responsive web layouts that work on all devices.",
+            "status": 2,
+            "previousStatus": 2
+        },
+        "task90123456": {
             "order": 0,
-            "title": "Test Task 5",
-            "dueDate": "2023-10-05",
-            "description": "This is a test task that is deleted.",
+            "title": "Fix broken API endpoints",
+            "dueDate": "2025-01-12",
+            "description": "Identify and fix broken API endpoints causing errors.",
+            "status": 3,
+            "previousStatus": 3
+        },
+        "task01234567": {
+            "order": 1,
+            "title": "Refactor legacy codebase",
+            "dueDate": "2025-01-15",
+            "description": "Improve and clean up the legacy code for better maintainability.",
+            "status": 3,
+            "previousStatus": 3
+        },
+        "task11223344": {
+            "order": 2,
+            "title": "Remove unused dependencies",
+            "dueDate": "2025-01-20",
+            "description": "Clean up project by removing unused libraries and dependencies.",
+            "status": 3,
+            "previousStatus": 3
+        },
+        "task22334455": {
+            "order": 3,
+            "title": "Update project documentation",
+            "dueDate": "2025-01-25",
+            "description": "Ensure all project documentation is up-to-date and accurate.",
+            "status": 3,
+            "previousStatus": 3
+        },
+        "task33445566": {
+            "order": 4,
+            "title": "Optimize image loading",
+            "dueDate": "2025-02-01",
+            "description": "Improve website performance by optimizing image assets.",
+            "status": 3,
+            "previousStatus": 3
+        },
+        "task44556677": {
+            "order": 5,
+            "title": "Fix CSS layout bugs",
+            "dueDate": "2025-02-05",
+            "description": "Resolve layout issues caused by CSS conflicts.",
+            "status": 3,
+            "previousStatus": 3
+        },
+        "task55667788": {
+            "order": 6,
+            "title": "Improve unit test coverage",
+            "dueDate": "2025-02-10",
+            "description": "Write additional tests to increase unit test coverage.",
+            "status": 3,
+            "previousStatus": 3
+        },
+        "task66778899": {
+            "order": 7,
+            "title": "Fix memory leaks",
+            "dueDate": "2025-02-15",
+            "description": "Identify and fix memory leaks in the application.",
+            "status": 3,
+            "previousStatus": 3
+        },
+        "task77889900": {
+            "order": 8,
+            "title": "Resolve merge conflicts",
+            "dueDate": "2025-02-20",
+            "description": "Handle and resolve code merge conflicts from recent branches.",
+            "status": 3,
+            "previousStatus": 3
+        },
+        "task88990011": {
+            "order": 9,
+            "title": "Fix login authentication bug",
+            "dueDate": "2025-02-25",
+            "description": "Troubleshoot and fix issues with user login authentication.",
+            "status": 3,
+            "previousStatus": 3
+        },
+        "task99001122": {
+            "order": 10,
+            "title": "Update third-party APIs",
+            "dueDate": "2025-03-01",
+            "description": "Update integrations with third-party APIs to latest versions.",
+            "status": 3,
+            "previousStatus": 3
+        },
+        "task10111213": {
+            "order": 11,
+            "title": "Fix pagination issues",
+            "dueDate": "2025-03-05",
+            "description": "Correct pagination logic to display items properly.",
+            "status": 3,
+            "previousStatus": 3
+        },
+        "task12131415": {
+            "order": 12,
+            "title": "Remove console logs",
+            "dueDate": "2025-03-10",
+            "description": "Clean up code by removing unnecessary console logs.",
+            "status": 3,
+            "previousStatus": 3
+        },
+        "task13141516": {
+            "order": 13,
+            "title": "Fix broken links",
+            "dueDate": "2025-03-15",
+            "description": "Identify and fix broken hyperlinks on the website.",
+            "status": 3,
+            "previousStatus": 3
+        },
+        "task14151617": {
+            "order": 14,
+            "title": "Resolve CSS conflicts",
+            "dueDate": "2025-03-20",
+            "description": "Fix conflicting CSS rules that cause styling issues.",
+            "status": 3,
+            "previousStatus": 3
+        },
+        "task15161718": {
+            "order": 15,
+            "title": "Fix server timeout errors",
+            "dueDate": "2025-03-25",
+            "description": "Investigate and fix server timeout issues affecting performance.",
+            "status": 3,
+            "previousStatus": 3
+        },
+        "task16171819": {
+            "order": 16,
+            "title": "Update environment variables",
+            "dueDate": "2025-03-30",
+            "description": "Ensure environment variables are correctly set for all environments.",
+            "status": 3,
+            "previousStatus": 3
+        },
+        "task17181920": {
+            "order": 17,
+            "title": "Fix API rate limiting",
+            "dueDate": "2025-04-05",
+            "description": "Resolve issues with API rate limiting causing request failures.",
+            "status": 3,
+            "previousStatus": 3
+        },
+        "task18192021": {
+            "order": 18,
+            "title": "Resolve deployment errors",
+            "dueDate": "2025-04-10",
+            "description": "Fix errors encountered during application deployment.",
+            "status": 3,
+            "previousStatus": 3
+        },
+        "task19202122": {
+            "order": 19,
+            "title": "Fix cross-browser compatibility",
+            "dueDate": "2025-04-15",
+            "description": "Ensure the app works consistently across different browsers.",
             "status": 3,
             "previousStatus": 3
         }

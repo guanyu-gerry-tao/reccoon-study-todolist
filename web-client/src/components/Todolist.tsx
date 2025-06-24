@@ -2,88 +2,52 @@ import '../App.css'
 
 import Menubar from './Menubar.tsx'
 import TodoColumn from './TodoColumn.tsx'
+import AIChatPanel from './AIChatPanel.tsx'
 
-import type { TaskItem, NewTaskItem, TaskActions } from './type.ts'
+import type { TaskItem , TaskActions, } from './type.ts'
 
-type setTasks = (updater: (draft: TaskItem[]) => void) => void;
-function Todolist({tasks, setTasks}: {tasks: TaskItem[], setTasks: setTasks} ) {
 
-  const addTask = (newTask: NewTaskItem) => {
-    setTasks(draft => {
-      const id = crypto.randomUUID();
-      draft.push({ ...newTask, id });
-      console.log(`Task added with id: ${id}`);
-
-      const filtered = draft.filter(t => t.status === newTask.status).sort((a, b) => a.order - b.order);
-      filtered.forEach((task, index) => {
-        task.order = index;
-      })
-    });
-  };
-
-  const updateTask = (id: string, updatedFields: Partial<TaskItem>) => {
-    setTasks(draft => {
-      const task = draft.find(task => task.id === id);
-      if (task) {
-        Object.assign(task, updatedFields);
-      } else {
-        console.warn(`Task with id ${id} not found.`);
-      }
-      const filtered = draft.filter(t => t.status === task?.status).sort((a, b) => a.order - b.order);
-      filtered.forEach((task, index) => {
-        task.order = index;
-      })
-    });
-  };
-
-  const deleteTask = (id: string) => {
-    setTasks(draft => {
-      const index = draft.findIndex(task => task.id === id);
-      const deletedTask = draft[index];
-      if (index !== -1) {
-        draft[index].status = -2;
-      }
-      const filtered = draft.filter(t => t.status === deletedTask.previousStatus).sort((a, b) => a.order - b.order);
-      filtered.forEach((task, index) => {
-        task.order = index;
-      })
-    })
-  };
-  
-  const taskActions: TaskActions = {
-    addTask: addTask,
-    updateTask: updateTask,
-    deleteTask: deleteTask,
-  };
-  
+function Todolist({tasks, taskActions, draggedTask}: 
+  {tasks: TaskItem[], taskActions: TaskActions, draggedTask: [string] | null } ) {
 
   return (
     <>
-      <div className='relative flex flex-row'>
-        <Menubar />
+      <div className='relative flex flex-row h-screen w-screen'>
+        <div className='menubarContainer relative flex flex-col w-65 p-2 mr-5 h-full flex-shrink-0 bg-[#f5f5f5]'>
+          <Menubar draggedTask={draggedTask} />
+        </div>
 
-        <TodoColumn title={"Planned"} 
-        bgColor='#fff8e8' 
-        status={1} 
-        actions={taskActions} 
-        tasks={tasks.filter(task => task.status === 1)} 
-        />
-        
-        <TodoColumn title={"Working"} 
-        bgColor='#f0f1fd' 
-        status={2} 
-        actions={taskActions} 
-        tasks={tasks.filter(task => task.status === 2)} 
-        />
-        
-        <TodoColumn title={"Finished"} 
-        bgColor='#e8fdec' 
-        status={3} 
-        actions={taskActions} 
-        tasks={tasks.filter(task => task.status === 3)} 
-        />
+        <div className='relative flex flex-row max-w-245 flex-grow overflow-y-auto overflow-x-auto items-start'>
+
+          <TodoColumn title={"Now"} 
+          bgColor='#e8fdec' 
+          status={1} 
+          actions={taskActions} 
+          tasks={tasks.filter(task => task.status === 1)} 
+          />
+          
+          <TodoColumn title={"Next"} 
+          bgColor='#f0f1fd' 
+          status={2} 
+          actions={taskActions} 
+          tasks={tasks.filter(task => task.status === 2)} 
+          />
+          
+          <TodoColumn title={"Later"} 
+          bgColor='#fff8e8' 
+          status={3} 
+          actions={taskActions} 
+          tasks={tasks.filter(task => task.status === 3)} 
+          />
+          </div>
+      
+      <div className='relative right-0 top-0 flex flex-col w-100 min-w-100 h-screen bg-gray-200 border-l border-gray-300 flex-grow'>
+        <AIChatPanel />
+      </div>
 
       </div>
+
+
     </>
   )
 }
