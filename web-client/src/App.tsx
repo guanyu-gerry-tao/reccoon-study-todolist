@@ -5,7 +5,7 @@ import './App.css';
 import Todolist from './components/Todolist.tsx';
 import { DragDropContext } from '@hello-pangea/dnd';
 import type { DragDropContextProps } from '@hello-pangea/dnd';
-import type { TaskItem, NewTaskItem, TaskActions, Projects, ProjectItem, NewProjectItem } from './components/type.ts';
+import type { TaskItem, NewTaskItem, Actions, Projects, ProjectItem, NewProjectItem } from './components/type.ts';
 import { loadInitData, loadProjects, loadTestUserData } from './data/loadInitData.ts'
 
 
@@ -64,6 +64,16 @@ function App() {
     })
   };
 
+  const hardDeleteTask = (id: string) => {
+    setTasks(draft => {
+      const index = draft.findIndex(task => task.id === id);
+      if (index !== -1) {
+        draft.splice(index, 1);
+      }
+    })
+  };
+
+
   const refreskTasks = () => {
     // This function can be used to refresh the tasks from the server or local storage
   };
@@ -80,13 +90,49 @@ function App() {
     });
   };
 
+  const updateProject = (id: string, updatedFields: Partial<ProjectItem>) => {
+    setProjects(draft => {
+      const project = draft.find(project => project.id === id);
+      if (project) {
+        Object.assign(project, updatedFields);
+      } else {
+        console.warn(`Task with id ${id} not found.`);
+      }
+      draft.forEach((project, index) => {
+        project.order = index;
+      })
+    });
+  };
 
-  const taskActions: TaskActions = {
+  const deleteProject = (id: string) => {
+    setProjects(draft => {
+      const index = draft.findIndex(project => project.id === id);
+      draft.splice(index, 1)
+      draft.forEach((project, index) => {
+        project.order = index;
+      })
+    })
+    
+    setTasks(draft => {
+      draft.forEach(task => {
+        if (task.project === id) {
+          hardDeleteTask(task.id);
+        }
+      })
+    })
+    
+    console.log(projects);
+  };
+
+  const actions: Actions = {
     addTask: addTask,
     updateTask: updateTask,
     deleteTask: deleteTask,
+    hardDeleteTask: hardDeleteTask,
     refreshTasks: refreskTasks,
-    addProject: addProject
+    addProject: addProject,
+    updateProject: updateProject,
+    deleteProject: deleteProject,
   };
 
   const onDragEnd: DragDropContextProps['onDragEnd'] = (result) => {
@@ -229,7 +275,7 @@ function App() {
   return (
     <DragDropContext
       onDragEnd={onDragEnd} onDragStart={onDragStart} onDragUpdate={onDragUpdate}>
-      <Todolist tasks={tasks} projects={projects} userStatus={userStatus} taskActions={taskActions} draggedTask={draggedTask}
+      <Todolist tasks={tasks} projects={projects} userStatus={userStatus} actions={actions} draggedTask={draggedTask}
       />
     </DragDropContext>
   )

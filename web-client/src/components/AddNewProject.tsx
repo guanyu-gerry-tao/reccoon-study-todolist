@@ -1,12 +1,12 @@
 import '../App.css'
 
-import type { TaskActions } from './type.ts';
+import type { Actions } from './type.ts';
 import Dashline from './Dashline.tsx';
 
 import Project from './ProjectButton.tsx'
 
-function AddNewProject({ taskActions, newOrder }: 
-  { taskActions: TaskActions, newOrder: number }) {
+function AddNewProject({ actions, newOrder }: 
+  { actions: Actions, newOrder: number }) {
 
   const handleKeyboard = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') { // Check if the Enter key is pressed: this will add a new task
@@ -18,7 +18,7 @@ function AddNewProject({ taskActions, newOrder }:
           title: newProjectTitle,
           order: newProjectOrder,
         };
-        taskActions.addProject(newProject); // Call the add function from actions with the new task
+        actions.addProject(newProject); // Call the add function from actions with the new task
         e.currentTarget.value = ''; // Clear the input field after adding the task
       }
     }

@@ -1,7 +1,7 @@
 import { div, filter, style, text } from 'motion/react-client';
 import '../App.css'
 import Dashline from './Dashline'
-import type { TaskItem, TaskActions } from './type.ts'
+import type { TaskItem, Actions } from './type.ts'
 import { Draggable } from '@hello-pangea/dnd';
 import React, { useRef, useEffect } from 'react';
 
@@ -37,7 +37,7 @@ function getStyle(style: any, snapshot: any) {
 // TODO: refine style when dropping task 
 
 function Task({ taskInfo, actions }:
-  { taskInfo: TaskItem, actions: TaskActions }) {
+  { taskInfo: TaskItem, actions: Actions }) {
 
   let tempValue = taskInfo.title; // Temporary variable to store the current value of the input field
 

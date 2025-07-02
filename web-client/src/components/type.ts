@@ -16,7 +16,7 @@ type TodoColumnProps = {
   title: React.ReactNode;
   bgColor: string;
   status: number;
-  actions: TaskActions;
+  actions: Actions;
   tasks: TaskItem[];
   draggingType?: string | null;
   draggingTaskId?: string | null;
@@ -41,12 +41,15 @@ type UserStatus = {
   project: string;
 };
 
-type TaskActions = {
+type Actions = {
   addTask: (newTask: NewTaskItem) => void;
   updateTask: (id: string, updatedFields: Partial<TaskItem>) => void;
   deleteTask: (id: string) => void;
+  hardDeleteTask: (id: string) => void;
   refreshTasks: () => void;
   addProject: (newProject: NewProjectItem) => void;
+  updateProject: (id: string, updatedFields: Partial<ProjectItem>) => void;
+  deleteProject: (id: string) => void;
 };
 
 type setIsOverDeletedTaskArea = React.Dispatch<React.SetStateAction<boolean>>;
@@ -57,6 +60,6 @@ export type { Projects };
 export type { UserStatus };
 export type { ProjectItem };
 export type { TodoColumnProps };
-export type { TaskActions };
+export type { Actions };
 export type { setIsOverDeletedTaskArea };
 export type { NewProjectItem };
