@@ -1,40 +1,49 @@
-import { useState } from 'react'
+import { act, useState } from 'react'
 import '../App.css'
 
 import ProjectButton from './ProjectButton.tsx'
 import TaskDropArea from './TaskDropArea.tsx'
-import type { ProjectItem, Projects } from './type.ts'
+import ProjectPanel from './ProjectPanel.tsx'
+import type { ProjectItem, Projects, TaskActions } from './type.ts'
 
 
 
-function Menubar({draggedTask, projects, currentProjectID, setCurrentProjectID}: 
-  {draggedTask: [string] | null , projects: Projects, currentProjectID: string, setCurrentProjectID: (projectID: string) => void}) {
+function Menubar({ taskActions, draggedTask, projects, currentProjectID, setCurrentProjectID }:
+  { taskActions: TaskActions, draggedTask: [string] | null, projects: ProjectItem[], currentProjectID: string, setCurrentProjectID: (projectID: string) => void }) {
 
   const [isMouseOverDropZone, setIsMouseOverDropZone] = useState(false);
 
-  
+
 
   return (
     <>
-        <div className='menubarContainer relative flex flex-col w-65 p-2 mr-5 h-full flex-shrink-0 bg-[#f5f5f5] transition-all duration-300 ease-in-out'
-        style={{transform: isMouseOverDropZone ? 'translateX(-150%)' : 'translateX(0)'}}
-        >
+      <div className='menubarContainer relative flex flex-col w-65 p-2 mr-5 h-full flex-shrink-0 bg-[#f5f5f5] transition-all duration-300 ease-in-out'
+        style={{ transform: isMouseOverDropZone ? 'translateX(-150%)' : 'translateX(0)' }}
+      >
         <div>
           <p className='relative inline-block m-2 font-extrabold text-2xl text-gray-800'>Reccoon Study</p>
         </div>
+        {/*
+          // TODO: make a logo
+          */}
         <div className='relative search-bar todo h-10 flex-shrink-0'>
-          {/* Search bar tbd */}
+          {/* TODO: Search bar tbd */}
         </div>
         <div className='relative flex flex-col flex-grow overflow-hidden'>
-          <p className='relative inline-block m-2'>Projects</p>
-          {
-            Object.entries(projects).map(([key, project]) => (
-              <ProjectButton key={key} project={project} thisID={key} currentProjectID={currentProjectID} setCurrentProjectID={setCurrentProjectID}/>
-            ))
-          }
+
+          <p className='relative inline-block mr-3 text-2xl pl-4'>Projects</p>
+
+          {/*
+          // TODO: make a add button, add to pop new project item with empty title and description, to input
+          */}
+          <ProjectPanel taskActions={taskActions} projects={projects} currentProjectID={currentProjectID} setCurrentProjectID={setCurrentProjectID} />
+
         </div>
         <div className='relative m-2 p-2 rounded-2xl bottom-0 flex flex-col'>
-
+          {/*
+          // TODO: Delete Button, hit to pop column with deleted tasks
+          // TODO: Completed Tasks Button, hit to pop column with completed tasks
+          */}
           <div className='menubarBottomItems'>
             <p>Deleted Tasks</p>
           </div>
@@ -53,20 +62,20 @@ function Menubar({draggedTask, projects, currentProjectID, setCurrentProjectID}:
           </div>
         </div>
       </div>
-        
 
-        <div className='dropArea completeDropArea'>
+
+      <div className='dropArea completeDropArea cursor-pointer pointer-events-none'>
         <TaskDropArea status={0} setIsMouseOverDropZone={setIsMouseOverDropZone} />
         <div className='dropAreaVisual completeDropArea'
-        style={{opacity: isMouseOverDropZone ? '1' : '0', transform: isMouseOverDropZone ? 'translateX(0)' : 'translateX(-150%)'}}
+          style={{ opacity: isMouseOverDropZone ? '1' : '0', transform: isMouseOverDropZone ? 'translateX(0)' : 'translateX(-150%)' }}
         >
           <p>Drop to Complete</p>
         </div>
       </div>
-      <div className='dropArea deleteDropArea'>
+      <div className='dropArea deleteDropArea cursor-pointer pointer-events-none'>
         <TaskDropArea status={-1} setIsMouseOverDropZone={setIsMouseOverDropZone} />
         <div className='dropAreaVisual deleteDropArea'
-        style={{opacity: isMouseOverDropZone ? '1' : '0.5', transform: isMouseOverDropZone ? 'translateX(0)' : 'translateX(-150%)'}}
+          style={{ opacity: isMouseOverDropZone ? '1' : '0.5', transform: isMouseOverDropZone ? 'translateX(0)' : 'translateX(-150%)' }}
         >
           <p>Drop to Delete</p>
         </div>

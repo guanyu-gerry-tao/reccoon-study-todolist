@@ -1,5 +1,5 @@
 import data from './testList.json';
-import type {TaskItem, Projects, UserStatus} from '../components/type.ts';
+import type {TaskItem, Projects, ProjectItem, UserStatus} from '../components/type.ts';
 
 export function loadInitData(): TaskItem[] {
     return Object.entries(data.taskList).map(([key, value]) => {
@@ -11,8 +11,13 @@ export function loadInitData(): TaskItem[] {
     });
 }
 
-export function loadProjects(): Projects {
-    return data.projectList
+export function loadProjects(): ProjectItem[] {
+    return  Object.entries(data.projectList).map(([key, value]) => {
+        return {
+            id: key,
+            ...value
+        }
+    });
 }
 
 export function loadTestUserData(): UserStatus {

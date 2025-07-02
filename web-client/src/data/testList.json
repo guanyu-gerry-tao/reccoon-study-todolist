@@ -5,17 +5,14 @@
     "projectList": {
         "project12345678": {
             "title": "Learn Full-stack",
-            "description": "A comprehensive project to learn full-stack web development.",
             "order": 0
         },
         "project87654321": {
             "title": "Learn English",
-            "description": "A project focused on improving English language skills.",
             "order": 1
         },
         "project23456789": {
             "title": "Learn Driving",
-            "description": "A project to prepare for driving tests and improve driving skills.",
             "order": 2
         }
     },
@@ -23,7 +20,7 @@
         "task12345678": {
             "order": 0,
             "title": "Mastering React Components with Hooks and State Management",
-            "dueDate": "2025-01-15",
+            "dueDate": "",
             "description": "Learn how to build reusable React components for dynamic UIs.",
             "status": 1,
             "previousStatus": 1,

@@ -5,22 +5,20 @@ import Dashline from './Dashline.tsx';
 
 import Project from './ProjectButton.tsx'
 
-function AddNewTask({ actions, status, newOrder, currentProjectID }: 
-  { actions: TaskActions, status: number, newOrder: number, currentProjectID: string }) {
+function AddNewProject({ taskActions, newOrder }: 
+  { taskActions: TaskActions, newOrder: number }) {
 
   const handleKeyboard = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') { // Check if the Enter key is pressed: this will add a new task
-      const newTaskTitle = e.currentTarget.value.trim(); // Get the trimmed value of the input field
-      const newTaskOrder = newOrder;
-      if (newTaskTitle) { // Check if the input is not empty
-        const newTask = {
-          title: newTaskTitle,
-          status: status,
-          order: newTaskOrder,
-          previousStatus: status,
-          project: currentProjectID, // Assuming a default project, you can modify this as needed
+      console.log('Enter pressed');
+      const newProjectTitle = e.currentTarget.value.trim(); // Get the trimmed value of the input field
+      const newProjectOrder = newOrder;
+      if (newProjectTitle) { // Check if the input is not empty
+        const newProject = {
+          title: newProjectTitle,
+          order: newProjectOrder,
         };
-        actions.addTask(newTask); // Call the add function from actions with the new task
+        taskActions.addProject(newProject); // Call the add function from actions with the new task
         e.currentTarget.value = ''; // Clear the input field after adding the task
       }
     }
@@ -33,11 +31,11 @@ function AddNewTask({ actions, status, newOrder, currentProjectID }:
   return (
     <>
       <input type="text" 
-      placeholder={"+ add new task"} 
+      placeholder={"+ add new project"} 
       onKeyDown={handleKeyboard}
       className='relative cursor-default outline-0 pl-4 p-2'/>
     </>
   )
 }
 
-export default AddNewTask
+export default AddNewProject

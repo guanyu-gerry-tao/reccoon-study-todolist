@@ -5,6 +5,8 @@ import type { TaskItem, TaskActions } from './type.ts'
 import { Draggable } from '@hello-pangea/dnd';
 import React, { useRef, useEffect } from 'react';
 
+import draggableIcon from '../assets/draggableHandler.svg';
+
 function getStyle(style: any, snapshot: any) {
   if (snapshot.dropAnimation) {
     const { moveTo, curve, duration } = snapshot.dropAnimation;
@@ -12,8 +14,8 @@ function getStyle(style: any, snapshot: any) {
     const translate = `translate(calc(${moveTo.x}px - 100%), ${moveTo.y}px)`;
     // add a bit of turn for fun
     const rotate = 'rotate(-0.05turn)';
-  
-    if (snapshot.draggingOver === '-1' || snapshot.draggingOver === '0' ) {
+
+    if (snapshot.draggingOver === '-1' || snapshot.draggingOver === '0') {
       return {
         ...style,
         transform: `${translate} ${rotate}`,
@@ -27,15 +29,16 @@ function getStyle(style: any, snapshot: any) {
       ...style,
       backgroundColor: `rgba(255, 0, 0, 0.418)`,
       boxShadow: `0 0 5px 5px rgba(255, 0, 0, 1)`,
-    }}
+    }
+  }
   return style
 }
 
 // TODO: refine style when dropping task 
 
-function Task({ taskInfo, actions }: 
-  {taskInfo: TaskItem, actions: TaskActions}) {
-  
+function Task({ taskInfo, actions }:
+  { taskInfo: TaskItem, actions: TaskActions }) {
+
   let tempValue = taskInfo.title; // Temporary variable to store the current value of the input field
 
   const handleClickTitle = (e: React.MouseEvent<HTMLTextAreaElement>) => {
@@ -59,7 +62,7 @@ function Task({ taskInfo, actions }:
       actions.deleteTask(taskInfo.id); // Call the delete function from actions with the title
       e.currentTarget.blur(); // Remove focus from the input field
     }
-  }; 
+  };
 
   const handleTitleLostFocus = (e: React.FocusEvent<HTMLTextAreaElement>) => {
     if (e.currentTarget.value === '') {
@@ -95,7 +98,7 @@ function Task({ taskInfo, actions }:
       }
     }
   }
-  
+
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const textAreaRef2 = useRef<HTMLTextAreaElement>(null);
 
@@ -107,10 +110,10 @@ function Task({ taskInfo, actions }:
   }, [taskInfo.title, taskInfo.description]);
 
   useEffect(() => {
-  if (textAreaRef2.current) {
-    textAreaRef2.current.style.height = '0px'; // Reset height to auto to calculate scrollHeight correctly
-    textAreaRef2.current.style.height = textAreaRef2.current.scrollHeight + 'px'; // Set height to scrollHeight
-  }
+    if (textAreaRef2.current) {
+      textAreaRef2.current.style.height = '0px'; // Reset height to auto to calculate scrollHeight correctly
+      textAreaRef2.current.style.height = textAreaRef2.current.scrollHeight + 'px'; // Set height to scrollHeight
+    }
   }, [taskInfo.title]);
 
   return (
@@ -118,38 +121,73 @@ function Task({ taskInfo, actions }:
       {
         (provided, snapshot) => (
           <div className='card relative bg-white w-full rounded-2xl bt-2 mb-2'
-          id={taskInfo.id}
-          ref={provided.innerRef}
-          {...provided.draggableProps}
-          {...provided.dragHandleProps}
-          style={getStyle(provided.draggableProps.style, snapshot)}
+            id={taskInfo.id}
+            ref={provided.innerRef}
+            {...provided.draggableProps}
+            {...provided.dragHandleProps}
+            style={getStyle(provided.draggableProps.style, snapshot)}
           >
+
+            <div className='taskDragHandlerIcon' ></div>
+
             <div className='cardTitleContainer relative p-4 flex flex-col gap-1'>
-              <textarea 
-              className='taskTitle relative cursor-default outline-0 font-semibold resize-none'
-              placeholder='Add a title...'
-              defaultValue={taskInfo.title} 
-              ref={textAreaRef2}
-              onChange={(e) => {
-                e.currentTarget.style.height = '0px'; // Reset height to auto to calculate scrollHeight correctly
-                e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; // Set height to scrollHeight
-              }}
-              onClick={handleClickTitle} 
-              onKeyDown={handleTitleKeyboard} 
-              onBlur={handleTitleLostFocus}/>
-              
               <textarea
-              className='taskDesc relative cursor-default outline-0 text-xs font-thin text-gray-500 resize-none'
-              defaultValue={taskInfo.description}
-              placeholder='Add a description...'
-              ref={textAreaRef}
-              onChange={(e) => {
-                e.currentTarget.style.height = '0px'; // Reset height to auto to calculate scrollHeight correctly
-                e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; // Set height to scrollHeight
-              }}
-              onKeyDown={handleDescKeyboard}
-              onBlur={handleDescLostFocus}
+                className='taskTitle relative cursor-default outline-0 font-semibold resize-none'
+                placeholder='Add a title...'
+                defaultValue={taskInfo.title}
+                ref={textAreaRef2}
+                onChange={(e) => {
+                  e.currentTarget.style.height = '0px'; // Reset height to auto to calculate scrollHeight correctly
+                  e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; // Set height to scrollHeight
+                }}
+                onClick={handleClickTitle}
+                onKeyDown={handleTitleKeyboard}
+                onBlur={handleTitleLostFocus} />
+
+              <textarea
+                className='taskDesc relative cursor-default outline-0 text-xs font-thin text-gray-500 resize-none'
+                defaultValue={taskInfo.description}
+                placeholder='Add a description...'
+                ref={textAreaRef}
+                onChange={(e) => {
+                  e.currentTarget.style.height = '0px'; // Reset height to auto to calculate scrollHeight correctly
+                  e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; // Set height to scrollHeight
+                }}
+                onKeyDown={handleDescKeyboard}
+                onBlur={handleDescLostFocus}
               />
+
+              <input type='date'
+                className='taskDueDate relative cursor-default outline-0 text-xs font-thin w-22 opacity-50 resize-none '
+                defaultValue={taskInfo.dueDate ? taskInfo.dueDate.toISOString().slice(0, 10) : undefined}
+                onChange={(e) => {
+                  if (!e.currentTarget.value) {
+                    actions.updateTask(taskInfo.id, { dueDate: undefined });
+                  } else {
+
+                    actions.updateTask(taskInfo.id, { dueDate: new Date(e.currentTarget.value) });
+                    console.log(`Due date updated to: ${e.currentTarget.value}`);
+                  }
+                }}
+                style={{
+                  color: taskInfo.dueDate && taskInfo.dueDate < new Date() ? 'red' : '',
+                  fontWeight: taskInfo.dueDate && taskInfo.dueDate < new Date() ? 'normal' : '',
+                  opacity: taskInfo.dueDate && taskInfo.dueDate < new Date() ? '1' : ''
+                }}
+              />
+              
+              {/* 
+              <p className='cardDebug'>
+                id: {taskInfo.id }<br/>
+              order: {taskInfo.order}
+              </p>
+              */}
+
+              {//TODO: add subtasks function: click to drop down subtasks, subtasks can be added, deleted, updated, dragged
+              }
+
+
+
             </div>
           </div>
         )

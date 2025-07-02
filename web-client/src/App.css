@@ -3,6 +3,7 @@
     box-shadow: rgb(163, 163, 163) 0px 0px 10px 0px;
 }
 
+
 .card {
     box-shadow: rgba(163, 163, 163, 0.295) 0px 2px 5px 0px;
     min-height: 50px;
@@ -31,10 +32,21 @@
 .taskDragHandlerIcon {
     position: absolute;
     top: 50%;
-    left: 50%;
+    right: -10px;
     transform: translate(-50%, -50%);
     width: 30px;
     height: 30px;
+    background-image: url('./assets/draggableHandler.svg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.5;
+}
+
+.cardDebug {
+    font-size: x-small;
+    color: gray;
+    line-height: x-small;
 }
 
 .card:hover > .taskDragHandler {

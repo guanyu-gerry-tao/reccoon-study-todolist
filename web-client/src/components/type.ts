@@ -1,8 +1,6 @@
-import type { RefObject } from "react";
-
 type TaskItem = NewTaskItem & {
   id: string;
-}
+};
 
 type NewTaskItem = {
     title: string;
@@ -23,27 +21,32 @@ type TodoColumnProps = {
   draggingType?: string | null;
   draggingTaskId?: string | null;
   currentProjectID: string;
-}
+};
 
 type Projects = {
   [id: string]: ProjectItem;
 };
 
-type ProjectItem = {
+type ProjectItem = NewProjectItem & {
+  id: string;
+};
+
+type NewProjectItem = {
   title: string;
   description?: string;
   order: number;
-}
+};
 
 type UserStatus = {
   project: string;
-}
+};
 
 type TaskActions = {
   addTask: (newTask: NewTaskItem) => void;
   updateTask: (id: string, updatedFields: Partial<TaskItem>) => void;
   deleteTask: (id: string) => void;
   refreshTasks: () => void;
+  addProject: (newProject: NewProjectItem) => void;
 };
 
 type setIsOverDeletedTaskArea = React.Dispatch<React.SetStateAction<boolean>>;
@@ -56,3 +59,4 @@ export type { ProjectItem };
 export type { TodoColumnProps };
 export type { TaskActions };
 export type { setIsOverDeletedTaskArea };
+export type { NewProjectItem };

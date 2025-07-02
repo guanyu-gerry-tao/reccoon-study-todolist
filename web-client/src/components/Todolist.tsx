@@ -4,20 +4,20 @@ import Menubar from './Menubar.tsx'
 import TodoColumn from './TodoColumn.tsx'
 import AIChatPanel from './AIChatPanel.tsx'
 
-import type { TaskItem , TaskActions, Projects, UserStatus } from './type.ts'
+import type { TaskItem , TaskActions, Projects, UserStatus, ProjectItem } from './type.ts'
 import { useImmer } from 'use-immer'
 import TaskDropArea from './TaskDropArea.tsx'
 
 
 function Todolist({tasks, projects, userStatus, taskActions, draggedTask}: 
-  {tasks: TaskItem[], projects: Projects, userStatus: UserStatus, taskActions: TaskActions, draggedTask: [string] | null } ) {
+  {tasks: TaskItem[], projects: ProjectItem[], userStatus: UserStatus, taskActions: TaskActions, draggedTask: [string] | null } ) {
 
   const [currentProjectID, setCurrentProjectID] = useImmer<string>(userStatus.project);
 
   return (
     <>
       <div className='relative flex flex-row h-screen w-screen overflow-hidden'>
-          <Menubar draggedTask={draggedTask} projects={projects} currentProjectID={currentProjectID} setCurrentProjectID={setCurrentProjectID} />
+          <Menubar taskActions={taskActions} draggedTask={draggedTask} projects={projects} currentProjectID={currentProjectID} setCurrentProjectID={setCurrentProjectID} />
 
 
         <div className='relative flex flex-row max-w-245 flex-grow overflow-y-auto overflow-x-auto items-start'>
@@ -26,7 +26,7 @@ function Todolist({tasks, projects, userStatus, taskActions, draggedTask}:
           bgColor='#e8fdec' 
           status={1} 
           actions={taskActions} 
-          tasks={tasks.filter(task => task.status === 1)} 
+          tasks={tasks.filter(task => task.status === 1 && task.project === currentProjectID)} 
           currentProjectID={currentProjectID}
           />
           
@@ -34,7 +34,7 @@ function Todolist({tasks, projects, userStatus, taskActions, draggedTask}:
           bgColor='#f0f1fd' 
           status={2} 
           actions={taskActions} 
-          tasks={tasks.filter(task => task.status === 2)} 
+          tasks={tasks.filter(task => task.status === 2 && task.project === currentProjectID)} 
           currentProjectID={currentProjectID}
           />
           
@@ -42,7 +42,7 @@ function Todolist({tasks, projects, userStatus, taskActions, draggedTask}:
           bgColor='#fff8e8' 
           status={3} 
           actions={taskActions} 
-          tasks={tasks.filter(task => task.status === 3)} 
+          tasks={tasks.filter(task => task.status === 3 && task.project === currentProjectID)} 
           currentProjectID={currentProjectID}
           />
           </div>

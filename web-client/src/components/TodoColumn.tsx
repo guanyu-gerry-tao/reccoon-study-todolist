@@ -7,7 +7,7 @@ import TaskList from './TaskList.tsx';
 
 
 function TodoColumn({title, bgColor, status, actions, tasks, currentProjectID} : TodoColumnProps) {
-
+  // FIXME: numTasks counted all tasks without filtering by project
   const numTasks = tasks.length;
 
   return (
@@ -21,7 +21,7 @@ function TodoColumn({title, bgColor, status, actions, tasks, currentProjectID} :
               actions={actions}
               currentProjectID={currentProjectID}
               />
-            <AddNewTask actions={actions} status={status} newOrder={numTasks}/>
+            <AddNewTask actions={actions} status={status} newOrder={numTasks} currentProjectID={currentProjectID}/>
             </div>
 
         </div>

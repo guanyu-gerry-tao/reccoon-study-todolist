@@ -5,14 +5,12 @@ import type { TaskItem, TaskActions, ProjectItem } from './type.ts';
 import { Droppable } from '@hello-pangea/dnd';
 
 
-function Tasklist({status, tasks, actions, currentProjectID}: 
-  {status: number, tasks: TaskItem[], actions: TaskActions, currentProjectID: string}) {
+function Tasklist({ status, tasks, actions, currentProjectID }:
+  { status: number, tasks: TaskItem[], actions: TaskActions, currentProjectID: string }) {
 
   const tasksSorted = tasks
-  .filter(t => t.project === currentProjectID)
-  .sort((a, b) => a.order - b.order);
-
-  console.log('test' + tasksSorted);
+    .filter(t => t.project === currentProjectID)
+    .sort((a, b) => a.order - b.order);
 
   return (
     <Droppable droppableId={status.toString()} type='task'>
@@ -22,15 +20,15 @@ function Tasklist({status, tasks, actions, currentProjectID}:
           {...provided.droppableProps}>
 
           {tasksSorted.map((task: TaskItem) => (
-            <Task key={task.id} taskInfo={task} 
-            actions={actions} />
+            <Task key={task.id} taskInfo={task}
+              actions={actions} />
           ))}
 
-          {provided.placeholder} 
+          {provided.placeholder}
 
         </div>
-        )}
-      </Droppable>
+      )}
+    </Droppable>
   )
 }
 

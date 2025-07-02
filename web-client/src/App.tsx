@@ -5,7 +5,7 @@ import './App.css';
 import Todolist from './components/Todolist.tsx';
 import { DragDropContext } from '@hello-pangea/dnd';
 import type { DragDropContextProps } from '@hello-pangea/dnd';
-import type { TaskItem, NewTaskItem, TaskActions, Projects } from './components/type.ts';
+import type { TaskItem, NewTaskItem, TaskActions, Projects, ProjectItem, NewProjectItem } from './components/type.ts';
 import { loadInitData, loadProjects, loadTestUserData } from './data/loadInitData.ts'
 
 
@@ -13,13 +13,13 @@ function App() {
 
   const testInitData = loadInitData();
   const testProjectsData = loadProjects();
-  const testUserData = loadTestUserData(); 
+  const testUserData = loadTestUserData();
 
   const [tasks, setTasks] = useImmer<TaskItem[]>(testInitData);
-  const [projects, setProjects] = useImmer<Projects>(testProjectsData);
+  const [projects, setProjects] = useImmer<ProjectItem[]>(testProjectsData);
   const [userStatus, setUserStatus] = useImmer(testUserData);
   const [draggedTask, setDraggedTask] = useImmer<[string] | null>(null);
-  
+
 
   const addTask = (newTask: NewTaskItem) => {
     setTasks(draft => {
@@ -27,7 +27,7 @@ function App() {
       draft.push({ ...newTask, id });
       console.log(`Task added with id: ${id}`);
 
-      const filtered = draft.filter(t => t.status === newTask.status).sort((a, b) => a.order - b.order);
+      const filtered = draft.filter(t => t.status === newTask.status && t.project === newTask.project).sort((a, b) => a.order - b.order);
       filtered.forEach((task, index) => {
         task.order = index;
       })
@@ -42,7 +42,7 @@ function App() {
       } else {
         console.warn(`Task with id ${id} not found.`);
       }
-      const filtered = draft.filter(t => t.status === task?.status).sort((a, b) => a.order - b.order);
+      const filtered = draft.filter(t => t.status === task?.status && t.project === task.project).sort((a, b) => a.order - b.order);
       filtered.forEach((task, index) => {
         task.order = index;
       })
@@ -54,8 +54,9 @@ function App() {
       const index = draft.findIndex(task => task.id === id);
       const deletedTask = draft[index];
       if (index !== -1) {
-        draft[index].status = -2;
+        draft[index].status = -1; // Mark as deleted
       }
+      // reorder tasks in the previous status, the deleted task was in
       const filtered = draft.filter(t => t.status === deletedTask.previousStatus).sort((a, b) => a.order - b.order);
       filtered.forEach((task, index) => {
         task.order = index;
@@ -66,84 +67,135 @@ function App() {
   const refreskTasks = () => {
     // This function can be used to refresh the tasks from the server or local storage
   };
-  
+
+  const addProject = (newProject: NewProjectItem) => {
+    setProjects(draft => {
+      const id = crypto.randomUUID();
+      draft.push({ ...newProject, id });
+      console.log(`Task added with id: ${id}`);
+
+      draft.forEach((project, index) => {
+        project.order = index;
+      })
+    });
+  };
+
 
   const taskActions: TaskActions = {
     addTask: addTask,
     updateTask: updateTask,
     deleteTask: deleteTask,
     refreshTasks: refreskTasks,
+    addProject: addProject
   };
 
   const onDragEnd: DragDropContextProps['onDragEnd'] = (result) => {
+    if (result.type === 'task') {
+      console.log('onDragEnd', result);
+      if (result.destination) {
+        setTasks(draft => {
+          const task = draft.find(t => t.id === result.draggableId);
 
-    console.log('onDragEnd', result);
-    if (result.destination){
-      setTasks(draft => {
-        const task = draft.find(t => t.id === result.draggableId);
+          if (task && result.destination) {
+            const previousStatus = task.status;
+            const previousOrder = task.order;
+            const resultStatus = Number(result.destination.droppableId);
+            const resultIndex = result.destination.index;
 
-        if (task && result.destination) {
-          const previousStatus = task.status;
-          const previousOrder = task.order;
-          const resultStatus = Number(result.destination.droppableId);
-          const resultIndex = result.destination.index;
-  
-  
-          // If the task is moving within the same status
-          if (resultStatus === previousStatus && resultIndex !== previousOrder) {
-            if (resultIndex > previousOrder) { // If moving down (3 to 5 ex.), move 4, 5 to 3, 4
-              draft.filter(t => t.status === resultStatus && 
-                t.order > previousOrder && 
-                t.order <= resultIndex)
-                .forEach(t => {
-                  t.order -= 1
-                })
-            } else { // If moving up (5 to 3 ex.), move 3, 4 to 4, 5
-              draft.filter(t => t.status === resultStatus && 
-                t.order >= resultIndex && 
-                t.order < previousOrder)
-                .forEach(t => {
-                  t.order += 1
-                })
+
+            // If the task is moving within the same status
+            if (resultStatus === previousStatus && resultIndex !== previousOrder) {
+              if (resultIndex > previousOrder) { // If moving down (3 to 5 ex.), move 4, 5 to 3, 4
+                draft.filter(t => t.status === resultStatus &&
+                  t.order > previousOrder &&
+                  t.order <= resultIndex)
+                  .forEach(t => {
+                    t.order -= 1
+                  })
+              } else { // If moving up (5 to 3 ex.), move 3, 4 to 4, 5
+                draft.filter(t => t.status === resultStatus &&
+                  t.order >= resultIndex &&
+                  t.order < previousOrder)
+                  .forEach(t => {
+                    t.order += 1
+                  })
+              }
             }
-          }
-  
-          // If the task is moving to a different status
-          if (resultStatus !== previousStatus) {
-            draft.filter(t => t.status === previousStatus && 
-              t.order > previousOrder)
-              .forEach(t => {
-                t.order -= 1; // Decrease order of tasks in the previous status
-              });
-            draft.filter(t => t.status === resultStatus && 
-              t.order >= resultIndex)
-              .forEach(t => {
-                t.order += 1; // Increase order of tasks in the new status
-              });
-          }
-          
-          // Update the task's order and status
-          task.order = resultIndex; 
-          task.status = resultStatus; 
-          
-          console.log('previousStatus:', previousStatus);
-          console.log('resultStatus:', resultStatus);
-          console.log('previousOrder:', previousOrder);
-          console.log('resultIndex:', resultIndex);
-        }
-      });
-    } else {
-      // If the task was dropped outside of a droppable area, handle it here
-    }
-    setDraggedTask(null);
 
-    console.log('onDragEnd completed');
-  }
+            // If the task is moving to a different status
+            if (resultStatus !== previousStatus) {
+              draft.filter(t => t.status === previousStatus &&
+                t.order > previousOrder)
+                .forEach(t => {
+                  t.order -= 1; // Decrease order of tasks in the previous status
+                });
+              draft.filter(t => t.status === resultStatus &&
+                t.order >= resultIndex)
+                .forEach(t => {
+                  t.order += 1; // Increase order of tasks in the new status
+                });
+            }
+
+            // Update the task's order and status
+            task.order = resultIndex;
+            task.status = resultStatus;
+
+            console.log('previousStatus:', previousStatus);
+            console.log('resultStatus:', resultStatus);
+            console.log('previousOrder:', previousOrder);
+            console.log('resultIndex:', resultIndex);
+          }
+        });
+      } else {
+        // If the task was dropped outside of a droppable area, handle it here
+      }
+      setDraggedTask(null);
+
+      console.log('onDragEnd completed');
+    }
+
+    if (result.type === 'project') {
+      console.log('onDragEnd for project', result);
+      // Handle project drag and drop logic here
+      // For example, you might want to update the order of projects or their properties
+      if (result.destination) {
+        setProjects(draft => {
+          const project = draft.find(p => p.id === result.draggableId);
+          const resultIndex = result.destination!.index;
+          if (project) {
+            if (result.destination!.index > result.source.index) { // Moving down  3=>5   4,5=>3,4
+              draft.filter((p, index) => p.order > result.source.index && p.order <= result.destination!.index)
+                .forEach((p, index) => {
+                  p.order -= 1; // Decrease order of projects in the range
+                });
+              console.log('Moving project down');
+            } else if (result.destination!.index < result.source.index) { // Moving up   5=>3   3,4=>4,5
+              draft.filter((p, index) => p.order >= result.destination!.index && p.order < result.source.index)
+                .forEach((p, index) => {
+                  p.order += 1; // Increase order of projects in the range
+                });
+              console.log('Moving project up');
+            } else {
+              // Handle the case where the project is not moving
+            }
+            project!.order = resultIndex; // Update the order of the project
+          }
+        })
+      }
+    }
+  };
+
+
 
   const onDragStart: DragDropContextProps['onDragStart'] = (start) => {
-    setDraggedTask([start.draggableId]);
+    if (start.type === 'task') {
+      setDraggedTask([start.draggableId]);
+    }
+    if (start.type === 'project') {
+
+    }
   }
-  
+
 
 
 
@@ -171,14 +223,14 @@ function App() {
       prevDroppableId.current = current;
     }
   }
-  
+
 
 
   return (
     <DragDropContext
-    onDragEnd={onDragEnd} onDragStart={onDragStart} onDragUpdate={onDragUpdate}>
+      onDragEnd={onDragEnd} onDragStart={onDragStart} onDragUpdate={onDragUpdate}>
       <Todolist tasks={tasks} projects={projects} userStatus={userStatus} taskActions={taskActions} draggedTask={draggedTask}
-       />
+      />
     </DragDropContext>
   )
 }
