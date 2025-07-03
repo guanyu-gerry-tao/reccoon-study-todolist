@@ -2,7 +2,7 @@ import { useState } from 'react'
 import '../App.css'
 import Dashline from './Dashline';
 import AddNewTask from './AddNewTask.tsx';
-import type { TodoColumnProps, TaskActions } from './type.ts';
+import type { TodoColumnProps } from './type.ts';
 import TaskList from './TaskList.tsx';
 
 

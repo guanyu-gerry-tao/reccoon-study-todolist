@@ -156,7 +156,12 @@ function Task({ taskInfo, actions }:
                 onKeyDown={handleDescKeyboard}
                 onBlur={handleDescLostFocus}
               />
-
+              {
+                /*
+                FIXME: fix issue that "tomorrow" will marked as red : overdue
+                FIXME: fix new task can't drop to deleted drop area
+                */
+              }
               <input type='date'
                 className='taskDueDate relative cursor-default outline-0 text-xs font-thin w-22 opacity-50 resize-none '
                 defaultValue={taskInfo.dueDate ? taskInfo.dueDate.toISOString().slice(0, 10) : undefined}

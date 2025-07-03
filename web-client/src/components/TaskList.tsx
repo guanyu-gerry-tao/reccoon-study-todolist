@@ -1,12 +1,12 @@
 import { div } from 'motion/react-client';
 import '../App.css'
 import Task from './Task.tsx';
-import type { TaskItem, TaskActions, ProjectItem } from './type.ts';
+import type { TaskItem, Actions, ProjectItem } from './type.ts';
 import { Droppable } from '@hello-pangea/dnd';
 
 
 function Tasklist({ status, tasks, actions, currentProjectID }:
-  { status: number, tasks: TaskItem[], actions: TaskActions, currentProjectID: string }) {
+  { status: number, tasks: TaskItem[], actions: Actions, currentProjectID: string }) {
 
   const tasksSorted = tasks
     .filter(t => t.project === currentProjectID)

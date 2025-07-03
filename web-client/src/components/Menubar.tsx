@@ -48,7 +48,7 @@ function Menubar({ actions, draggedTask, projects, currentProjectID, setCurrentP
         <div className='relative m-2 p-2 rounded-2xl bottom-0 flex flex-col'>
           {/*
           // TODO: Delete Button, hit to pop column with deleted tasks
-          // TODO: Completed Tasks Button, hit to pop column with completed tasks
+          // TODO: Completed Tasks Button, hit to pop column with completed task
           */}
           <div className='menubarBottomItems'>
             <p>Deleted Tasks</p>
@@ -62,9 +62,6 @@ function Menubar({ actions, draggedTask, projects, currentProjectID, setCurrentP
 
           <div className='menubarBottomItems'>
             <p>Help & About</p>
-          </div>
-          <div className='menubarBottomItems'>
-            <p>{draggedTask ? draggedTask.toString() : 'empty'}</p>
           </div>
         </div>
       </div>

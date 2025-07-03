@@ -103,7 +103,7 @@ function App() {
       })
     });
   };
-
+  // test
   const deleteProject = (id: string) => {
     setProjects(draft => {
       const index = draft.findIndex(project => project.id === id);
