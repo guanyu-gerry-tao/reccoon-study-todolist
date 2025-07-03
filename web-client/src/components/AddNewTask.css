@@ -1,0 +1,11 @@
+.addNewTaskInput {
+  position: relative;
+  cursor: default;
+  border: none;
+  outline: none;
+  padding-left: 1rem;
+  /* pl-4 */
+  padding: 0.5rem;
+  /* p-2 */
+  background: transparent;
+}

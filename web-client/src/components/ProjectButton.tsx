@@ -1,8 +1,21 @@
 import { useRef, useState, useEffect, act } from 'react'
+
 import '../App.css'
+import './ProjectButton.css'
+
 import type { ProjectItem, Actions } from './type'
 import { Draggable } from '@hello-pangea/dnd'
 
+function getStyle(style: any, snapshot: any) {
+  if (snapshot.isDragging) {
+    return {
+      ...style,
+      boxShadow: `rgba(114, 114, 114, 0.5) 0px 5px 10px 5px`,
+      opacity: 0.5,
+    }
+  }
+  return style
+}
 
 function ProjectButton(
   { project,
@@ -36,7 +49,8 @@ function ProjectButton(
     if (window.confirm(`Are you sure you want to delete the project: ${project.title}? You cannot undo this action and all tasks will gone!`)) {
       actions.deleteProject(project.id);
       if (projects.length === 1) {
-        actions.addProject({ title: 'New Project',
+        actions.addProject({
+          title: 'New Project',
           order: 0,
         });
         setCurrentProjectID(projects[0].id);
@@ -57,29 +71,33 @@ function ProjectButton(
           (provided, snapshot) => (
 
             <div
-              className='relative'
+              className='projectButton'
               onClick={handleClick}
               id={project.id}
               ref={provided.innerRef}
               {...provided.draggableProps}
               {...provided.dragHandleProps}
+              style={{ ...getStyle(provided.draggableProps.style, snapshot), border: currentProjectID === project.id ? '1px solid #808080' : '1px solid transparent' }}
             >
-              <div className='projectButton relative bg-white w-60 cursor-pointer pl-5 p-3 mt-1 mb-1'
-              style={{border: currentProjectID === project.id ? '1px solid #808080' : '1px solid transparent'}}>
+              <div className="projectButtonContent"
+              >
                 <input
                   type='text'
-                  className='relative w-45 bg-transparent outline-0 cursor-pointer'
+                  className='projectButtonInput'
                   defaultValue={project.title}
                   onChange={handleChange} />
-              </div>
 
-              <div className="deleteProjectButton" style={{
-                opacity: deleteMode ? 1 : 0,
-                visibility: deleteMode ? 'visible' : 'hidden',
-                pointerEvents: deleteMode ? 'auto' : 'none'
-              }} onClick={handleDeleteButton}
+              </div>
+              <div className="deleteProjectButton"
+                style={{
+                  opacity: deleteMode ? 1 : 0,
+                  visibility: deleteMode ? 'visible' : 'hidden',
+                  pointerEvents: deleteMode ? 'auto' : 'none'
+                }}
+                onClick={handleDeleteButton}
               ></div>
               <div className='projectDragHandlerIcon' ></div>
+
             </div>)}
 
       </Draggable >

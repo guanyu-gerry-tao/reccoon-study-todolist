@@ -1,12 +1,12 @@
 import '../App.css'
+import './AddNewTask.css'
 
-import type { TaskActions } from './type.ts';
-import Dashline from './Dashline.tsx';
+import type { Actions } from './type.ts';
 
 import Project from './ProjectButton.tsx'
 
 function AddNewTask({ actions, status, newOrder, currentProjectID }: 
-  { actions: TaskActions, status: number, newOrder: number, currentProjectID: string }) {
+  { actions: Actions, status: number, newOrder: number, currentProjectID: string }) {
 
   const handleKeyboard = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') { // Check if the Enter key is pressed: this will add a new task
@@ -35,7 +35,7 @@ function AddNewTask({ actions, status, newOrder, currentProjectID }:
       <input type="text" 
       placeholder={"+ add new task"} 
       onKeyDown={handleKeyboard}
-      className='relative cursor-default outline-0 pl-4 p-2'/>
+      className='addNewTaskInput'/>
     </>
   )
 }

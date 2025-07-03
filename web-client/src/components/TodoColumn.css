@@ -1,0 +1,36 @@
+.todoColumnCard {
+  position: relative;
+  border-radius: 1rem;
+  /* rounded-2xl */
+  margin: 0.5rem;
+  /* m-2 */
+  margin-top: 2rem;
+  /* mt-8 */
+  padding: 1rem;
+  /* p-4 */
+  padding-left: 0.75rem;
+  /* pl-3 */
+  padding-right: 0.75rem;
+  /* pr-3 */
+  width: 18.75rem;
+  /* w-75 = 75*0.25rem */
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.todoColumnTitle {
+  position: relative;
+  font-size: 2.25rem;
+  /* text-4xl */
+  height: 3.75rem;
+  /* h-15 = 15*0.25rem */
+  padding-left: 1rem;
+  /* pl-4 */
+}
+
+.todoColumnContent {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}

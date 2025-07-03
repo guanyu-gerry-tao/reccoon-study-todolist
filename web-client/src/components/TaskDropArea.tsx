@@ -1,6 +1,8 @@
-
 import { useEffect } from 'react';
+
 import '../App.css'
+import './TaskDropArea.css';
+
 import Tasklist from './TaskList.tsx';
 
 import type { setIsOverDeletedTaskArea } from './type.ts'
@@ -17,8 +19,9 @@ function TaskDropArea({ status, setIsMouseOverDropZone }:
         {(provided, snapshot) => (
           useEffect(() => {
             setIsMouseOverDropZone(snapshot.isDraggingOver);
+            console.log(snapshot.isDraggingOver);
           }, [snapshot.isDraggingOver]),
-          <div className='relative h-full w-full'
+          <div className='taskDropArea'
             ref={provided.innerRef}
             {...provided.droppableProps}>
             {provided.placeholder}

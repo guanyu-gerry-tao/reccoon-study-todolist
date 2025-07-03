@@ -1,6 +1,6 @@
 import { div, filter, style, text } from 'motion/react-client';
 import '../App.css'
-import Dashline from './Dashline'
+import './Task.css'
 import type { TaskItem, Actions } from './type.ts'
 import { Draggable } from '@hello-pangea/dnd';
 import React, { useRef, useEffect } from 'react';
@@ -29,6 +29,13 @@ function getStyle(style: any, snapshot: any) {
       ...style,
       backgroundColor: `rgba(255, 0, 0, 0.418)`,
       boxShadow: `0 0 5px 5px rgba(255, 0, 0, 1)`,
+    }
+  }
+  if (snapshot.isDragging) {
+    return {
+      ...style,
+      boxShadow: `rgba(114, 114, 114, 0.5) 0px 5px 10px 5px`,
+      opacity: 0.5,
     }
   }
   return style
@@ -120,7 +127,7 @@ function Task({ taskInfo, actions }:
     <Draggable draggableId={taskInfo.id} index={taskInfo.order}>
       {
         (provided, snapshot) => (
-          <div className='card relative bg-white w-full rounded-2xl bt-2 mb-2'
+          <div className='card'
             id={taskInfo.id}
             ref={provided.innerRef}
             {...provided.draggableProps}
@@ -128,48 +135,41 @@ function Task({ taskInfo, actions }:
             style={getStyle(provided.draggableProps.style, snapshot)}
           >
 
-            <div className='taskDragHandlerIcon' ></div>
+            <div className='taskDragHandler'></div>
 
-            <div className='cardTitleContainer relative p-4 flex flex-col gap-1'>
+            <div className='cardContent'>
               <textarea
-                className='taskTitle relative cursor-default outline-0 font-semibold resize-none'
+                className='taskTitle'
                 placeholder='Add a title...'
                 defaultValue={taskInfo.title}
                 ref={textAreaRef2}
                 onChange={(e) => {
-                  e.currentTarget.style.height = '0px'; // Reset height to auto to calculate scrollHeight correctly
-                  e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; // Set height to scrollHeight
+                  e.currentTarget.style.height = '0px';
+                  e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px';
                 }}
                 onClick={handleClickTitle}
                 onKeyDown={handleTitleKeyboard}
                 onBlur={handleTitleLostFocus} />
 
               <textarea
-                className='taskDesc relative cursor-default outline-0 text-xs font-thin text-gray-500 resize-none'
+                className='taskDesc'
                 defaultValue={taskInfo.description}
                 placeholder='Add a description...'
                 ref={textAreaRef}
                 onChange={(e) => {
-                  e.currentTarget.style.height = '0px'; // Reset height to auto to calculate scrollHeight correctly
-                  e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px'; // Set height to scrollHeight
+                  e.currentTarget.style.height = '0px';
+                  e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px';
                 }}
                 onKeyDown={handleDescKeyboard}
                 onBlur={handleDescLostFocus}
               />
-              {
-                /*
-                FIXME: fix issue that "tomorrow" will marked as red : overdue
-                FIXME: fix new task can't drop to deleted drop area
-                */
-              }
               <input type='date'
-                className='taskDueDate relative cursor-default outline-0 text-xs font-thin w-22 opacity-50 resize-none '
+                className='taskDueDate'
                 defaultValue={taskInfo.dueDate ? taskInfo.dueDate.toISOString().slice(0, 10) : undefined}
                 onChange={(e) => {
                   if (!e.currentTarget.value) {
                     actions.updateTask(taskInfo.id, { dueDate: undefined });
                   } else {
-
                     actions.updateTask(taskInfo.id, { dueDate: new Date(e.currentTarget.value) });
                     console.log(`Due date updated to: ${e.currentTarget.value}`);
                   }
@@ -180,7 +180,6 @@ function Task({ taskInfo, actions }:
                   opacity: taskInfo.dueDate && taskInfo.dueDate < new Date() ? '1' : ''
                 }}
               />
-              
               {/* 
               <p className='cardDebug'>
                 id: {taskInfo.id }<br/>

@@ -1,4 +1,5 @@
 import '../App.css'
+import './ProjectPanel.css';
 
 import { useImmer } from 'use-immer';
 import { Droppable } from '@hello-pangea/dnd';
@@ -27,31 +28,26 @@ function ProjectPanel({
     // Handle the drag end event to reorder projects
   };
 
-  console.log(projects);
   const projectsSorted = [...projects].sort((a, b) => a.order - b.order);
 
   const newOrder = projects.length;
-  
+
 
   return (
     <>
-
-      <div className='relative flex flex-col flex-grow hide-x-scrollbar scroll-y-auto-fade'>
-
-        <Droppable droppableId='projectPanel' type='project' >
-          {(provided, snapshot) => (
-            <div className='relative flex flex-col mt-3 h-full'
-              ref={provided.innerRef}
-              {...provided.droppableProps}>
-              {projectsSorted.map((project) => (
-                <ProjectButton key={project.id} projects={projects} project={project} currentProjectID={currentProjectID} setCurrentProjectID={setCurrentProjectID} actions={actions} deleteMode={projectDeleteMode} />
-              ))}
-              {provided.placeholder}
-              <AddNewProject actions={actions} newOrder={newOrder} />
-            </div>
-          )}
-        </Droppable>
-      </div>
+      <Droppable droppableId='projectPanel' type='project' >
+        {(provided, snapshot) => (
+          <div className='projectPanelDroppable'
+            ref={provided.innerRef}
+            {...provided.droppableProps}>
+            {projectsSorted.map((project) => (
+              <ProjectButton key={project.id} projects={projects} project={project} currentProjectID={currentProjectID} setCurrentProjectID={setCurrentProjectID} actions={actions} deleteMode={projectDeleteMode} />
+            ))}
+            {provided.placeholder}
+            <AddNewProject actions={actions} newOrder={newOrder} />
+          </div>
+        )}
+      </Droppable>
     </>
   )
 }

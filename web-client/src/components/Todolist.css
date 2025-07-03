@@ -1,0 +1,40 @@
+.todolistContainer {
+  position: absolute;
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+  width: 100vw;
+  top: 0px;
+  left: 0px;
+  overflow: hidden;
+}
+
+.todolistColumns {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  max-width: 61.25rem;
+  /* 245 * 0.25rem = 61.25rem */
+  flex-grow: 1;
+  overflow-y: auto;
+  overflow-x: auto;
+  align-items: flex-start;
+}
+
+.todolistRightPanel {
+  position: relative;
+  right: 0;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  width: 25rem;
+  /* w-100 = 25rem */
+  min-width: 25rem;
+  /* min-w-100 = 25rem */
+  height: 100vh;
+  background-color: #e5e7eb;
+  /* bg-gray-200 */
+  border-left: 1px solid #d1d5db;
+  /* border-l border-gray-300 */
+  flex-grow: 1;
+}

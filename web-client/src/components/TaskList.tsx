@@ -1,5 +1,6 @@
 import { div } from 'motion/react-client';
-import '../App.css'
+import '../App.css';
+import './Tasklist.css';
 import Task from './Task.tsx';
 import type { TaskItem, Actions, ProjectItem } from './type.ts';
 import { Droppable } from '@hello-pangea/dnd';
@@ -15,7 +16,7 @@ function Tasklist({ status, tasks, actions, currentProjectID }:
   return (
     <Droppable droppableId={status.toString()} type='task'>
       {(provided) => (
-        <div className='relative min-h-10 flex flex-col'
+        <div className='taskListContainer'
           ref={provided.innerRef}
           {...provided.droppableProps}>
 

@@ -1,7 +1,7 @@
 import '../App.css'
+import './AddNewProject.css'
 
-import type { Actions } from './type.ts';
-import Dashline from './Dashline.tsx';
+import type { Actions } from './type.ts'
 
 import Project from './ProjectButton.tsx'
 
@@ -33,7 +33,7 @@ function AddNewProject({ actions, newOrder }:
       <input type="text" 
       placeholder={"+ add new project"} 
       onKeyDown={handleKeyboard}
-      className='relative cursor-default outline-0 pl-4 p-2'/>
+      className='addNewProjectInput'/>
     </>
   )
 }

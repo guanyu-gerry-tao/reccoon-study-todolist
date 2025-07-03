@@ -1,0 +1,68 @@
+.projectButton {
+  position: relative;
+  width: calc(100% - 2.5rem);
+  background-color: #fff;
+  /* w-60 = 60*0.25rem */
+  cursor: pointer;
+  border-radius: 8px;
+  margin-top: 0.25rem;
+  /* mt-1 */
+  margin-bottom: 0.25rem;
+  /* mb-1 */
+  padding-left: 1.25rem;
+  /* pl-5 */
+  padding: 0.75rem;
+  /* p-3 */
+  box-shadow: rgba(163, 163, 163, 0.295) 0px 2px 5px 0px;
+}
+
+.projectButtonContent {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.projectButtonInput {
+  position: relative;
+  width: 11.25rem;
+  /* w-45 = 45*0.25rem */
+  background: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+}
+
+.projectDragHandlerIcon {
+  position: absolute;
+  top: 50%;
+  right: 0px;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  background-image: url('../assets/draggableHandler.svg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0.5;
+}
+
+.deleteProjectButton {
+  position: absolute;
+  top: 5px;
+  right: -25px;
+  width: 25px;
+  height: 25px;
+  transform: translate(-50%, -50%);
+  background-color: rgb(255, 255, 255);
+  font-size: large;
+  background-image: url('../assets/remove.svg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  cursor: pointer;
+  border-radius: 50%;
+  border-color: rgba(0, 0, 0, 0.2);
+  box-shadow: rgba(0, 0, 0, 0.2) 0px 1px 3px 0px;
+  transition: all 0.3s;
+}
+

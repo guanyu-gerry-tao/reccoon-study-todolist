@@ -11,13 +11,11 @@
   },
   "dependencies": {
     "@hello-pangea/dnd": "^18.0.1",
-    "@tailwindcss/vite": "^4.1.10",
     "immer": "^10.1.1",
     "motion": "^12.18.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.6.2",
-    "tailwindcss": "^4.1.10",
     "use-immer": "^0.11.0"
   },
   "devDependencies": {

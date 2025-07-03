@@ -466,6 +466,114 @@
             "status": 3,
             "previousStatus": 3,
             "project": "project23456789"
+        },
+        "taskfsdone01": {
+            "order": 24,
+            "title": "Install Node.js and npm",
+            "dueDate": "2024-12-01",
+            "description": "Install Node.js and npm to prepare your development environment.",
+            "status": 0,
+            "previousStatus": 1,
+            "project": "project12345678"
+        },
+        "taskfsdone02": {
+            "order": 25,
+            "title": "Create your first React app",
+            "dueDate": "2024-12-05",
+            "description": "Use create-react-app to scaffold your first React project.",
+            "status": 0,
+            "previousStatus": 1,
+            "project": "project12345678"
+        },
+        "taskfsdel01": {
+            "order": 26,
+            "title": "Count the number of files in the project",
+            "dueDate": "2024-12-10",
+            "description": "Count all files in your project folder and write down the number.",
+            "status": -1,
+            "previousStatus": 1,
+            "project": "project12345678"
+        },
+        "taskfsdel02": {
+            "order": 27,
+            "title": "Write 'Hello World' in Notepad",
+            "dueDate": "2024-12-12",
+            "description": "Open Notepad and write 'Hello World', then close it.",
+            "status": -1,
+            "previousStatus": 1,
+            "project": "project12345678"
+        },
+        "taskengdone01": {
+            "order": 14,
+            "title": "Learn the English alphabet",
+            "dueDate": "2024-12-01",
+            "description": "Memorize all 26 letters of the English alphabet.",
+            "status": 0,
+            "previousStatus": 1,
+            "project": "project87654321"
+        },
+        "taskengdone02": {
+            "order": 15,
+            "title": "Memorize 10 basic English words",
+            "dueDate": "2024-12-03",
+            "description": "Learn and memorize 10 simple English words.",
+            "status": 0,
+            "previousStatus": 1,
+            "project": "project87654321"
+        },
+        "taskengdel01": {
+            "order": 16,
+            "title": "Say 'hello' to yourself in the mirror",
+            "dueDate": "2024-12-05",
+            "description": "Stand in front of a mirror and say 'hello' in English.",
+            "status": -1,
+            "previousStatus": 1,
+            "project": "project87654321"
+        },
+        "taskengdel02": {
+            "order": 17,
+            "title": "Write your name 100 times in English",
+            "dueDate": "2024-12-07",
+            "description": "Write your English name 100 times on a piece of paper.",
+            "status": -1,
+            "previousStatus": 1,
+            "project": "project87654321"
+        },
+        "taskdrivedone01": {
+            "order": 14,
+            "title": "Identify car pedals",
+            "dueDate": "2024-12-01",
+            "description": "Learn to identify the accelerator, brake, and clutch pedals in a car.",
+            "status": 0,
+            "previousStatus": 1,
+            "project": "project23456789"
+        },
+        "taskdrivedone02": {
+            "order": 15,
+            "title": "Learn how to fasten seatbelt",
+            "dueDate": "2024-12-03",
+            "description": "Practice fastening and unfastening the seatbelt in a car.",
+            "status": 0,
+            "previousStatus": 1,
+            "project": "project23456789"
+        },
+        "taskdrivedel01": {
+            "order": 16,
+            "title": "Draw a car on paper",
+            "dueDate": "2024-12-05",
+            "description": "Draw a simple car on a piece of paper and label its parts.",
+            "status": -1,
+            "previousStatus": 1,
+            "project": "project23456789"
+        },
+        "taskdrivedel02": {
+            "order": 17,
+            "title": "Pretend to drive using a chair",
+            "dueDate": "2024-12-07",
+            "description": "Sit on a chair and pretend you are driving a car.",
+            "status": -1,
+            "previousStatus": 1,
+            "project": "project23456789"
         }
     }
 }

@@ -1,0 +1,116 @@
+.taskDragHandlerIcon {
+  position: absolute;
+  top: 50%;
+  right: -10px;
+  transform: translate(-50%, -50%);
+  width: 30px;
+  height: 30px;
+  background-image: url('./assets/draggableHandler.svg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0.5;
+}
+
+.cardContent {
+  position: relative;
+  padding: 1rem;
+  /* p-4 */
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  /* gap-1 */
+}
+
+.taskTitle {
+  position: relative;
+  cursor: default;
+  border: none;
+  outline: none;
+  font-weight: 600;
+  /* font-semibold */
+  resize: none;
+  overflow: hidden !important;
+  text-overflow: ellipsis;
+  min-height: 10px;
+  line-height: 20px;
+  width: calc(100% - 20px);
+  padding: 0px;
+}
+
+.taskDesc {
+  position: relative;
+  cursor: default;
+  border: none;
+  outline: none;
+  font-size: 0.75rem;
+  /* text-xs */
+  font-weight: 100;
+  /* font-thin */
+  color: #6b7280;
+  /* text-gray-500 */
+  resize: none;
+  overflow: hidden !important;
+  width: calc(100% - 20px);
+  padding: 0px;
+}
+
+.taskDueDate {
+  position: relative;
+  cursor: default;
+  border: none;
+  outline: none;
+  font-size: 0.65rem;
+  /* text-xs */
+  font-weight: 100;
+  /* font-thin */
+  width: 5.5rem;
+  /* w-22 = 22*0.25rem */
+  opacity: 0.5;
+  resize: none;
+}
+
+.card {
+  box-shadow: rgba(163, 163, 163, 0.295) 0px 2px 5px 0px;
+  min-height: 50px;
+  position: relative;
+  background-color: #fff;
+  width: 100%;
+  border-radius: 1rem;
+  /* rounded-2xl */
+  border-top-width: 2px;
+  /* bt-2 */
+  margin-bottom: 0.8rem;
+  /* mb-2 */
+}
+
+.card:hover>.taskDragHandler {
+  opacity: 1;
+}
+
+.card:active>.taskDragHandler {
+  opacity: 1;
+}
+
+.card.overDelete {
+  box-shadow: rgba(255, 0, 0, 0.5) 0px 0px 10px 5px;
+  background-color: rgba(255, 0, 0, 0.418);
+  filter: blur(1px);
+  transform: scale(0.5) translateX(45%);
+}
+
+.taskDragHandler {
+  position: absolute;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+  width: 20px;
+  height: 30px;
+  top: 50%;
+  right: 0px;
+  transform: translate(-50%, -50%);
+  background-image: url('./assets/draggableHandler.svg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0.5;
+}
