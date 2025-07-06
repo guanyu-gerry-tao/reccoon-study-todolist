@@ -1,5 +1,6 @@
 import '../App.css'
 
+// Placeholder for AIChatPanel component, adding functionality later
 function AIChatPanel() {
 
   return (

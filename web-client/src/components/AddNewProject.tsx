@@ -3,10 +3,18 @@ import './AddNewProject.css'
 
 import type { Actions } from './type.ts'
 
-import Project from './ProjectButton.tsx'
-
-function AddNewProject({ actions, newOrder }: 
-  { actions: Actions, newOrder: number }) {
+/**
+ * AddNewProject component allows users to add a new project by typing in an input field.
+ * @actions - The actions object containing methods to manipulate projects.
+ * @newOrder - The order number for the new project, used to determine its position in the project list.
+ */
+function AddNewProject({
+  actions,
+  newOrder
+}: {
+  actions: Actions,
+  newOrder: number
+}) {
 
   const handleKeyboard = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') { // Check if the Enter key is pressed: this will add a new task
@@ -30,10 +38,10 @@ function AddNewProject({ actions, newOrder }:
 
   return (
     <>
-      <input type="text" 
-      placeholder={"+ add new project"} 
-      onKeyDown={handleKeyboard}
-      className='addNewProjectInput'/>
+      <input type="text"
+        placeholder={"+ add new project"}
+        onKeyDown={handleKeyboard}
+        className='addNewProjectInput' />
     </>
   )
 }
