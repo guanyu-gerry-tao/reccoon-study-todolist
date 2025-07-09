@@ -1,0 +1,644 @@
+{
+    "userLastState": {
+        "project": "project12345678"
+    },
+    "projectList": {
+        "project12345678": {
+            "title": "Learn Full-stack",
+            "prevProject": null,
+            "nextProject": "project87654321"
+        },
+        "project87654321": {
+            "title": "Learn English",
+            "prevProject": "project12345678",
+            "nextProject": "project23456789"
+        },
+        "project23456789": {
+            "title": "Learn Driving",
+            "prevProject": "project87654321",
+            "nextProject": null
+        }
+    },
+    "taskList": {
+        "task12345678": {
+            "title": "Mastering React Components with Hooks and State Management",
+            "dueDate": "",
+            "description": "Learn how to build reusable React components for dynamic UIs.",
+            "status": 1,
+            "previousStatus": 1,
+            "project": "project12345678",
+            "prevTask": null,
+            "nextTask": "task87654321"
+        },
+        "task87654321": {
+            "title": "Understanding REST APIs",
+            "dueDate": "2025-02-10",
+            "description": "Explore how to design and consume RESTful APIs effectively.",
+            "status": 1,
+            "previousStatus": 1,
+            "project": "project12345678",
+            "prevTask": "task12345678",
+            "nextTask": "task23456789"
+        },
+        "task23456789": {
+            "title": "JavaScript ES6 Features",
+            "dueDate": "2025-03-05",
+            "description": "Get comfortable with ES6 syntax and features for modern JS development.",
+            "status": 1,
+            "previousStatus": 1,
+            "project": "project12345678",
+            "prevTask": "task87654321",
+            "nextTask": "task98765432"
+        },
+        "task98765432": {
+            "title": "Node.js Server Setup",
+            "dueDate": "2025-04-12",
+            "description": "Set up a Node.js server to handle backend logic and routing.",
+            "status": 1,
+            "previousStatus": 1,
+            "project": "project12345678",
+            "prevTask": "task23456789",
+            "nextTask": "task34567890"
+        },
+        "task34567890": {
+            "title": "Database Design Basics",
+            "dueDate": "2025-05-20",
+            "description": "Learn how to design efficient database schemas for your applications.",
+            "status": 1,
+            "previousStatus": 1,
+            "project": "project12345678",
+            "prevTask": "task98765432",
+            "nextTask": null
+        },
+        "task45678901": {
+            "title": "Deploying with Docker",
+            "dueDate": "2025-06-15",
+            "description": "Containerize your applications using Docker for consistent deployments.",
+            "status": 2,
+            "previousStatus": 2,
+            "project": "project12345678",
+            "prevTask": null,
+            "nextTask": "task56789012"
+        },
+        "task56789012": {
+            "title": "Implementing JWT Authentication",
+            "dueDate": "2025-07-01",
+            "description": "Secure your app by implementing JSON Web Token based authentication.",
+            "status": 2,
+            "previousStatus": 2,
+            "project": "project12345678",
+            "prevTask": "task45678901",
+            "nextTask": "task67890123"
+        },
+        "task67890123": {
+            "title": "GraphQL Query Basics",
+            "dueDate": "2025-08-05",
+            "description": "Learn how to query data efficiently using GraphQL.",
+            "status": 2,
+            "previousStatus": 2,
+            "project": "project12345678",
+            "prevTask": "task56789012",
+            "nextTask": "task78901234"
+        },
+        "task78901234": {
+            "title": "State Management with Redux",
+            "dueDate": "2025-09-10",
+            "description": "Manage complex application states using Redux.",
+            "status": 2,
+            "previousStatus": 2,
+            "project": "project12345678",
+            "prevTask": "task67890123",
+            "nextTask": "task89012345"
+        },
+        "task89012345": {
+            "title": "Building Responsive Layouts",
+            "dueDate": "2025-10-20",
+            "description": "Design responsive web layouts that work on all devices.",
+            "status": 2,
+            "previousStatus": 2,
+            "project": "project12345678",
+            "prevTask": "task78901234",
+            "nextTask": null
+        },
+        "task90123456": {
+            "title": "Fix broken API endpoints",
+            "dueDate": "2025-01-12",
+            "description": "Identify and fix broken API endpoints causing errors.",
+            "status": 3,
+            "previousStatus": 3,
+            "project": "project12345678",
+            "prevTask": null,
+            "nextTask": "task01234567"
+        },
+        "task01234567": {
+            "title": "Refactor legacy codebase",
+            "dueDate": "2025-01-15",
+            "description": "Improve and clean up the legacy code for better maintainability.",
+            "status": 3,
+            "previousStatus": 3,
+            "project": "project12345678",
+            "prevTask": "task90123456",
+            "nextTask": "task11223344"
+        },
+        "task11223344": {
+            "title": "Remove unused dependencies",
+            "dueDate": "2025-01-20",
+            "description": "Clean up project by removing unused libraries and dependencies.",
+            "status": 3,
+            "previousStatus": 3,
+            "project": "project12345678",
+            "prevTask": "task01234567",
+            "nextTask": "task22334455"
+        },
+        "task22334455": {
+            "title": "Update project documentation",
+            "dueDate": "2025-01-25",
+            "description": "Ensure all project documentation is up-to-date and accurate.",
+            "status": 3,
+            "previousStatus": 3,
+            "project": "project12345678",
+            "prevTask": "task11223344",
+            "nextTask": "task33445566"
+        },
+        "task33445566": {
+            "title": "Optimize image loading",
+            "dueDate": "2025-02-01",
+            "description": "Improve website performance by optimizing image assets.",
+            "status": 3,
+            "previousStatus": 3,
+            "project": "project12345678",
+            "prevTask": "task22334455",
+            "nextTask": "task44556677"
+        },
+        "task44556677": {
+            "title": "Fix CSS layout bugs",
+            "dueDate": "2025-02-05",
+            "description": "Resolve layout issues caused by CSS conflicts.",
+            "status": 3,
+            "previousStatus": 3,
+            "project": "project12345678",
+            "prevTask": "task33445566",
+            "nextTask": "task55667788"
+        },
+        "task55667788": {
+            "title": "Improve unit test coverage",
+            "dueDate": "2025-02-10",
+            "description": "Write additional tests to increase unit test coverage.",
+            "status": 3,
+            "previousStatus": 3,
+            "project": "project12345678",
+            "prevTask": "task44556677",
+            "nextTask": "task66778899"
+        },
+        "task66778899": {
+            "title": "Fix memory leaks",
+            "dueDate": "2025-02-15",
+            "description": "Identify and fix memory leaks in the application.",
+            "status": 3,
+            "previousStatus": 3,
+            "project": "project12345678",
+            "prevTask": "task55667788",
+            "nextTask": "task77889900"
+        },
+        "task77889900": {
+            "title": "Resolve merge conflicts",
+            "dueDate": "2025-02-20",
+            "description": "Handle and resolve code merge conflicts from recent branches.",
+            "status": 3,
+            "previousStatus": 3,
+            "project": "project12345678",
+            "prevTask": "task66778899",
+            "nextTask": "task88990011"
+        },
+        "task88990011": {
+            "title": "Fix login authentication bug",
+            "dueDate": "2025-02-25",
+            "description": "Troubleshoot and fix issues with user login authentication.",
+            "status": 3,
+            "previousStatus": 3,
+            "project": "project12345678",
+            "prevTask": "task77889900",
+            "nextTask": "task99001122"
+        },
+        "task99001122": {
+            "title": "Update third-party APIs",
+            "dueDate": "2025-03-01",
+            "description": "Update integrations with third-party APIs to latest versions.",
+            "status": 3,
+            "previousStatus": 3,
+            "project": "project12345678",
+            "prevTask": "task88990011",
+            "nextTask": "task10111213"
+        },
+        "task10111213": {
+            "title": "Fix pagination issues",
+            "dueDate": "2025-03-05",
+            "description": "Correct pagination logic to display items properly.",
+            "status": 3,
+            "previousStatus": 3,
+            "project": "project12345678",
+            "prevTask": "task99001122",
+            "nextTask": "task12131415"
+        },
+        "task12131415": {
+            "title": "Remove console logs",
+            "dueDate": "2025-03-10",
+            "description": "Clean up code by removing unnecessary console logs.",
+            "status": 3,
+            "previousStatus": 3,
+            "project": "project12345678",
+            "prevTask": "task10111213",
+            "nextTask": "task13141516"
+        },
+        "task13141516": {
+            "title": "Fix broken links",
+            "dueDate": "2025-03-15",
+            "description": "Identify and fix broken hyperlinks on the website.",
+            "status": 3,
+            "previousStatus": 3,
+            "project": "project12345678",
+            "prevTask": "task12131415",
+            "nextTask": "task14151617"
+        },
+        "task14151617": {
+            "title": "Resolve CSS conflicts",
+            "dueDate": "2025-03-20",
+            "description": "Fix conflicting CSS rules that cause styling issues.",
+            "status": 3,
+            "previousStatus": 3,
+            "project": "project12345678",
+            "prevTask": "task13141516",
+            "nextTask": "task15161718"
+        },
+        "task15161718": {
+            "title": "Fix server timeout errors",
+            "dueDate": "2025-03-25",
+            "description": "Investigate and fix server timeout issues affecting performance.",
+            "status": 3,
+            "previousStatus": 3,
+            "project": "project12345678",
+            "prevTask": "task14151617",
+            "nextTask": "task16171819"
+        },
+        "task16171819": {
+            "title": "Update environment variables",
+            "dueDate": "2025-03-30",
+            "description": "Ensure environment variables are correctly set for all environments.",
+            "status": 3,
+            "previousStatus": 3,
+            "project": "project12345678",
+            "prevTask": "task15161718",
+            "nextTask": "task17181920"
+        },
+        "task17181920": {
+            "title": "Fix API rate limiting",
+            "dueDate": "2025-04-05",
+            "description": "Resolve issues with API rate limiting causing request failures.",
+            "status": 3,
+            "previousStatus": 3,
+            "project": "project12345678",
+            "prevTask": "task16171819",
+            "nextTask": "task18192021"
+        },
+        "task18192021": {
+            "title": "Resolve deployment errors",
+            "dueDate": "2025-04-10",
+            "description": "Fix errors encountered during application deployment.",
+            "status": 3,
+            "previousStatus": 3,
+            "project": "project12345678",
+            "prevTask": "task17181920",
+            "nextTask": "task19202122"
+        },
+        "task19202122": {
+            "title": "Fix cross-browser compatibility",
+            "dueDate": "2025-04-15",
+            "description": "Ensure the app works consistently across different browsers.",
+            "status": 3,
+            "previousStatus": 3,
+            "project": "project12345678",
+            "prevTask": "task18192021",
+            "nextTask": null
+        },
+        "taskeng001": {
+            "title": "Read an English article",
+            "dueDate": "2025-07-01",
+            "description": "Read a news article in English and summarize the main points.",
+            "status": 1,
+            "previousStatus": 1,
+            "project": "project87654321",
+            "prevTask": null,
+            "nextTask": "taskeng002"
+        },
+        "taskeng002": {
+            "title": "Practice speaking with a partner",
+            "dueDate": "2025-07-02",
+            "description": "Have a 15-minute English conversation with a language partner.",
+            "status": 1,
+            "previousStatus": 1,
+            "project": "project87654321",
+            "prevTask": "taskeng001",
+            "nextTask": "taskeng003"
+        },
+        "taskeng003": {
+            "title": "Complete grammar exercises",
+            "dueDate": "2025-07-03",
+            "description": "Finish one unit of English grammar workbook.",
+            "status": 1,
+            "previousStatus": 1,
+            "project": "project87654321",
+            "prevTask": "taskeng002",
+            "nextTask": "taskeng004"
+        },
+        "taskeng004": {
+            "title": "Watch an English movie",
+            "dueDate": "2025-07-04",
+            "description": "Watch a movie in English and write down new vocabulary.",
+            "status": 1,
+            "previousStatus": 1,
+            "project": "project87654321",
+            "prevTask": "taskeng003",
+            "nextTask": null
+        },
+        "taskeng005": {
+            "title": "Write a short essay",
+            "dueDate": "2025-07-05",
+            "description": "Write a 200-word essay about your weekend in English.",
+            "status": 2,
+            "previousStatus": 2,
+            "project": "project87654321",
+            "prevTask": null,
+            "nextTask": "taskeng006"
+        },
+        "taskeng006": {
+            "title": "Review vocabulary flashcards",
+            "dueDate": "2025-07-06",
+            "description": "Go through 50 English vocabulary flashcards.",
+            "status": 2,
+            "previousStatus": 2,
+            "project": "project87654321",
+            "prevTask": "taskeng005",
+            "nextTask": null
+        },
+        "taskeng007": {
+            "title": "Listen to an English podcast",
+            "dueDate": "2025-07-07",
+            "description": "Listen to a 20-minute English podcast and note down key phrases.",
+            "status": 3,
+            "previousStatus": 3,
+            "project": "project87654321",
+            "prevTask": null,
+            "nextTask": "taskeng008"
+        },
+        "taskeng008": {
+            "title": "Join an online English class",
+            "dueDate": "2025-07-08",
+            "description": "Participate in a live online English lesson.",
+            "status": 3,
+            "previousStatus": 3,
+            "project": "project87654321",
+            "prevTask": "taskeng007",
+            "nextTask": "taskeng009"
+        },
+        "taskeng009": {
+            "title": "Translate a short story",
+            "dueDate": "2025-07-09",
+            "description": "Translate a short story from your native language to English.",
+            "status": 3,
+            "previousStatus": 3,
+            "project": "project87654321",
+            "prevTask": "taskeng008",
+            "nextTask": "taskeng010"
+        },
+        "taskeng010": {
+            "title": "Record yourself reading",
+            "dueDate": "2025-07-10",
+            "description": "Record your voice reading an English passage and check pronunciation.",
+            "status": 3,
+            "previousStatus": 3,
+            "project": "project87654321",
+            "prevTask": "taskeng009",
+            "nextTask": null
+        },
+        "taskdrive001": {
+            "title": "Read the driving manual",
+            "dueDate": "2025-07-01",
+            "description": "Read one chapter of the local driving manual.",
+            "status": 1,
+            "previousStatus": 1,
+            "project": "project23456789",
+            "prevTask": null,
+            "nextTask": "taskdrive002"
+        },
+        "taskdrive002": {
+            "title": "Practice parking",
+            "dueDate": "2025-07-02",
+            "description": "Practice parallel parking in an empty lot.",
+            "status": 1,
+            "previousStatus": 1,
+            "project": "project23456789",
+            "prevTask": "taskdrive001",
+            "nextTask": "taskdrive003"
+        },
+        "taskdrive003": {
+            "title": "Take a mock theory test",
+            "dueDate": "2025-07-03",
+            "description": "Complete a practice driving theory test online.",
+            "status": 1,
+            "previousStatus": 1,
+            "project": "project23456789",
+            "prevTask": "taskdrive002",
+            "nextTask": null
+        },
+        "taskdrive004": {
+            "title": "Schedule a driving lesson",
+            "dueDate": "2025-07-04",
+            "description": "Book a session with a certified driving instructor.",
+            "status": 2,
+            "previousStatus": 2,
+            "project": "project23456789",
+            "prevTask": null,
+            "nextTask": "taskdrive005"
+        },
+        "taskdrive005": {
+            "title": "Review road signs",
+            "dueDate": "2025-07-05",
+            "description": "Study the meanings of common road signs.",
+            "status": 2,
+            "previousStatus": 2,
+            "project": "project23456789",
+            "prevTask": "taskdrive004",
+            "nextTask": "taskdrive006"
+        },
+        "taskdrive006": {
+            "title": "Night driving practice",
+            "dueDate": "2025-07-06",
+            "description": "Practice driving at night with supervision.",
+            "status": 2,
+            "previousStatus": 2,
+            "project": "project23456789",
+            "prevTask": "taskdrive005",
+            "nextTask": null
+        },
+        "taskdrive007": {
+            "title": "Check car maintenance",
+            "dueDate": "2025-07-07",
+            "description": "Learn how to check oil, tires, and basic car maintenance.",
+            "status": 3,
+            "previousStatus": 3,
+            "project": "project23456789",
+            "prevTask": null,
+            "nextTask": "taskdrive008"
+        },
+        "taskdrive008": {
+            "title": "Practice emergency stops",
+            "dueDate": "2025-07-08",
+            "description": "Practice making safe emergency stops in a controlled area.",
+            "status": 3,
+            "previousStatus": 3,
+            "project": "project23456789",
+            "prevTask": "taskdrive007",
+            "nextTask": "taskdrive009"
+        },
+        "taskdrive009": {
+            "title": "Review traffic laws",
+            "dueDate": "2025-07-09",
+            "description": "Go over the latest updates to local traffic laws.",
+            "status": 3,
+            "previousStatus": 3,
+            "project": "project23456789",
+            "prevTask": "taskdrive008",
+            "nextTask": "taskdrive010"
+        },
+        "taskdrive010": {
+            "title": "Simulate driving test",
+            "dueDate": "2025-07-10",
+            "description": "Do a full mock driving test with a friend or instructor.",
+            "status": 3,
+            "previousStatus": 3,
+            "project": "project23456789",
+            "prevTask": "taskdrive009",
+            "nextTask": null
+        },
+        "taskfsdone01": {
+            "title": "Install Node.js and npm",
+            "dueDate": "2024-12-01",
+            "description": "Install Node.js and npm to prepare your development environment.",
+            "status": 0,
+            "previousStatus": 1,
+            "project": "project12345678",
+            "prevTask": null,
+            "nextTask": "taskfsdone02"
+        },
+        "taskfsdone02": {
+            "title": "Create your first React app",
+            "dueDate": "2024-12-05",
+            "description": "Use create-react-app to scaffold your first React project.",
+            "status": 0,
+            "previousStatus": 1,
+            "project": "project12345678",
+            "prevTask": "taskfsdone01",
+            "nextTask": null
+        },
+        "taskfsdel01": {
+            "title": "Count the number of files in the project",
+            "dueDate": "2024-12-10",
+            "description": "Count all files in your project folder and write down the number.",
+            "status": -1,
+            "previousStatus": 1,
+            "project": "project12345678",
+            "prevTask": null,
+            "nextTask": "taskfsdel02"
+        },
+        "taskfsdel02": {
+            "title": "Write 'Hello World' in Notepad",
+            "dueDate": "2024-12-12",
+            "description": "Open Notepad and write 'Hello World', then close it.",
+            "status": -1,
+            "previousStatus": 1,
+            "project": "project12345678",
+            "prevTask": "taskfsdel01",
+            "nextTask": null
+        },
+        "taskengdone01": {
+            "title": "Learn the English alphabet",
+            "dueDate": "2024-12-01",
+            "description": "Memorize all 26 letters of the English alphabet.",
+            "status": 0,
+            "previousStatus": 1,
+            "project": "project87654321",
+            "prevTask": null,
+            "nextTask": "taskengdone02"
+        },
+        "taskengdone02": {
+            "title": "Memorize 10 basic English words",
+            "dueDate": "2024-12-03",
+            "description": "Learn and memorize 10 simple English words.",
+            "status": 0,
+            "previousStatus": 1,
+            "project": "project87654321",
+            "prevTask": "taskengdone01",
+            "nextTask": null
+        },
+        "taskengdel01": {
+            "title": "Say 'hello' to yourself in the mirror",
+            "dueDate": "2024-12-05",
+            "description": "Stand in front of a mirror and say 'hello' in English.",
+            "status": -1,
+            "previousStatus": 1,
+            "project": "project87654321",
+            "prevTask": null,
+            "nextTask": "taskengdel02"
+        },
+        "taskengdel02": {
+            "title": "Write your name 100 times in English",
+            "dueDate": "2024-12-07",
+            "description": "Write your English name 100 times on a piece of paper.",
+            "status": -1,
+            "previousStatus": 1,
+            "project": "project87654321",
+            "prevTask": "taskengdel01",
+            "nextTask": null
+        },
+        "taskdrivedone01": {
+            "title": "Identify car pedals",
+            "dueDate": "2024-12-01",
+            "description": "Learn to identify the accelerator, brake, and clutch pedals in a car.",
+            "status": 0,
+            "previousStatus": 1,
+            "project": "project23456789",
+            "prevTask": null,
+            "nextTask": "taskdrivedone02"
+        },
+        "taskdrivedone02": {
+            "title": "Learn how to fasten seatbelt",
+            "dueDate": "2024-12-03",
+            "description": "Practice fastening and unfastening the seatbelt in a car.",
+            "status": 0,
+            "previousStatus": 1,
+            "project": "project23456789",
+            "prevTask": "taskdrivedone01",
+            "nextTask": null
+        },
+        "taskdrivedel01": {
+            "title": "Draw a car on paper",
+            "dueDate": "2024-12-05",
+            "description": "Draw a simple car on a piece of paper and label its parts.",
+            "status": -1,
+            "previousStatus": 1,
+            "project": "project23456789",
+            "prevTask": null,
+            "nextTask": "taskdrivedel02"
+        },
+        "taskdrivedel02": {
+            "title": "Pretend to drive using a chair",
+            "dueDate": "2024-12-07",
+            "description": "Sit on a chair and pretend you are driving a car.",
+            "status": -1,
+            "previousStatus": 1,
+            "project": "project23456789",
+            "prevTask": "taskdrivedel01",
+            "nextTask": null
+        }
+    }
+}
