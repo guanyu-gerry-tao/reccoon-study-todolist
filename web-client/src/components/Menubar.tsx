@@ -30,7 +30,7 @@ function Menubar({
 }: {
   actions: Actions,
   draggedTask: [string] | null,
-  projects: ProjectItem[],
+  projects: Record<string, ProjectItem>,
   currentProjectID: string,
   setCurrentProjectID: (projectID: string) => void,
   isMouseOverDropZone: boolean
