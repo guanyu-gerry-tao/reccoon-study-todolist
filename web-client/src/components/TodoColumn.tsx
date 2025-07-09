@@ -4,8 +4,10 @@ import '../App.css'
 import './TodoColumn.css';
 
 import AddNewTask from './AddNewTask.tsx';
-import type { TodoColumnProps } from './type.ts';
-import TaskList from './TaskList.tsx';
+import type { TodoColumnProps, TaskItem } from './type.ts';
+import Task from './Task.tsx';
+import { Droppable } from '@hello-pangea/dnd';
+import { sortChain } from './utils.ts';
 
 /**
  * TodoColumn component represents a single column in the Kanban board.
@@ -25,8 +27,9 @@ function TodoColumn({
   tasks,
   currentProjectID }: TodoColumnProps) {
 
+  const tasksSorted = sortChain(tasks) as [string, TaskItem][];
+
   // This counts the number of tasks in the current column, which is used to determine the order of the new task.
-  const numTasks = tasks.filter(task => task.project === currentProjectID).length;
 
   return (
     <>
@@ -34,12 +37,26 @@ function TodoColumn({
         <h1 className='todoColumnTitle'>{title}</h1>
 
         <div className='todoColumnContent'>
-          <TaskList status={status}
-            tasks={tasks}
-            actions={actions}
-            currentProjectID={currentProjectID}
-          />
-          <AddNewTask actions={actions} status={status} newOrder={numTasks} currentProjectID={currentProjectID} />
+
+          <Droppable droppableId={status.toString()} type='task'>
+            {(provided) => (
+              <div className='taskListContainer'
+                ref={provided.innerRef}
+                {...provided.droppableProps}>
+
+                {/* Render the tasks in the task list */}
+                {/* tasksSorted.map: this maps over the sorted tasks and renders a Task for each */}
+                {tasksSorted.map((task) => (
+                  <Task key={task[0]} task={task} tasks={tasksSorted}
+                    actions={actions} />
+                ))}
+
+                {provided.placeholder}
+
+                <AddNewTask actions={actions} status={status} tasksSorted={tasksSorted} currentProjectID={currentProjectID} />
+              </div>
+            )}
+          </Droppable>
         </div>
 
       </div>

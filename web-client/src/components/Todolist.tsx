@@ -25,8 +25,8 @@ function Todolist({
   userStatus,
   actions,
   draggedTask }: {
-    tasks: TaskItem[],
-    projects: ProjectItem[],
+    tasks: Record<string, TaskItem>,
+    projects: Record<string, ProjectItem>,
     userStatus: UserStatus,
     actions: Actions,
     draggedTask: [string] | null
@@ -76,29 +76,11 @@ function Todolist({
         {/* The task columns */}
         <div className='todolistColumns'>
 
-          {/* Completed Tasks, @Bestpart-Irene finish the part */}
-          <TodoColumn title={"Completed"}
-            bgColor='#e8fdec'
-            status={0}
-            actions={actions}
-            tasks={tasks.filter(task => task.status === 0 && task.project === currentProjectID)}
-            currentProjectID={currentProjectID}
-          />
-
-          {/* Deleted Tasks, @Bestpart-Irene finish the part */}
-          <TodoColumn title={"Deleted"}
-            bgColor='#f0f1fd'
-            status={-1}
-            actions={actions}
-            tasks={tasks.filter(task => task.status === -1 && task.project === currentProjectID)}
-            currentProjectID={currentProjectID}
-          />
-
           <TodoColumn title={"Now"}
             bgColor='#e8fdec'
             status={1}
             actions={actions}
-            tasks={tasks.filter(task => task.status === 1 && task.project === currentProjectID)}
+            tasks={Object.fromEntries(Object.entries(tasks).filter(([_, task]) => task.status === 1 && task.project === currentProjectID))}
             currentProjectID={currentProjectID}
           />
 
@@ -106,7 +88,7 @@ function Todolist({
             bgColor='#f0f1fd'
             status={2}
             actions={actions}
-            tasks={tasks.filter(task => task.status === 2 && task.project === currentProjectID)}
+            tasks={Object.fromEntries(Object.entries(tasks).filter(([_, task]) => task.status === 2 && task.project === currentProjectID))}
             currentProjectID={currentProjectID}
           />
 
@@ -114,7 +96,7 @@ function Todolist({
             bgColor='#fff8e8'
             status={3}
             actions={actions}
-            tasks={tasks.filter(task => task.status === 3 && task.project === currentProjectID)}
+            tasks={Object.fromEntries(Object.entries(tasks).filter(([_, task]) => task.status === 3 && task.project === currentProjectID))}
             currentProjectID={currentProjectID}
           />
         </div>

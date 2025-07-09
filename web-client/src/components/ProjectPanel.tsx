@@ -6,6 +6,7 @@ import { Droppable } from '@hello-pangea/dnd';
 import ProjectButton from './ProjectButton.tsx';
 import type { ProjectItem, Actions } from './type';
 import AddNewProject from './AddNewProject.tsx';
+import { sortChain } from './utils.ts';
 
 /**
  * ProjectPanel component displays a list of project buttons in a draggable panel.
@@ -20,7 +21,7 @@ function ProjectPanel({
 }:
   {
     actions: Actions,
-    projects: ProjectItem[],
+    projects: Record<string, ProjectItem>,
     currentProjectID: string,
     projectDeleteMode: boolean,
     setCurrentProjectID: (projectID: string) => void
@@ -31,12 +32,16 @@ function ProjectPanel({
     // placeholder for drag end logic, not implemented yet
   };
 
-  // Sort projects by their order property
-  // This ensures that the projects are displayed in the correct order
-  const projectsSorted = [...projects].sort((a, b) => a.order - b.order);
+  
+  /**
+   * Get the projects sorted
+   * This function find the first project that has no previous project (prev === null),
+   * and then iteratively find the next project by following the next link.
+   * @returns An array of ProjectItem sorted.
+   */
 
-  // Calculate the new order for the new project button
-  const newOrder = projects.length;
+  const projectsSorted = sortChain(projects);
+
 
   // Note: ref: it is specially required by the Droppable component.
   // {...provided.droppableProps}: these are the props required by the Droppable component to make the project panel droppable.
@@ -52,12 +57,12 @@ function ProjectPanel({
             ref={provided.innerRef}
             {...provided.droppableProps}>
             {projectsSorted.map((project) => (
-              <ProjectButton key={project.id} projects={projects} project={project} currentProjectID={currentProjectID} setCurrentProjectID={setCurrentProjectID} actions={actions} deleteMode={projectDeleteMode} />
+              <ProjectButton key={project[0]} projects={projectsSorted} project={project} currentProjectID={currentProjectID} setCurrentProjectID={setCurrentProjectID} actions={actions} deleteMode={projectDeleteMode} />
             ))}
             {provided.placeholder}
 
             {/* AddNewProject is added at the end of the project list */}
-            <AddNewProject actions={actions} newOrder={newOrder} />
+            <AddNewProject actions={actions} projects={projectsSorted} />
           </div>
         )}
       </Droppable>

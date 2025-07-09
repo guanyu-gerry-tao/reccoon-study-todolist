@@ -1,7 +1,0 @@
-.taskListContainer {
-  position: relative;
-  min-height: 2.5rem;
-  /* min-h-10 = 10*0.25rem */
-  display: flex;
-  flex-direction: column;
-}
