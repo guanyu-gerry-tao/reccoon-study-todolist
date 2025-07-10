@@ -47,6 +47,8 @@ type Actions = {
   deleteProject: (id: string) => void;
   setCurrentProjectID: (projectID: string | null) => void;
   setEditMode: (editMode: boolean) => void;
+  setShowDeleted: (showDeleted: boolean) => void; // Action to toggle the visibility of deleted tasks
+  setShowCompleted: (showCompleted: boolean) => void; // Optional action to toggle the visibility of completed tasks, for future use
 };
 
 type States = {
@@ -56,6 +58,8 @@ type States = {
   draggedTask: [string] | null;
   currentProjectID: string | null;
   editMode: boolean;
+  showDeleted: boolean; // State to manage the visibility of deleted tasks
+  showCompleted: boolean; // State to manage the visibility of completed tasks, optional for future use
 };
 
 type setIsOverDeletedTaskArea = React.Dispatch<React.SetStateAction<boolean>>;
