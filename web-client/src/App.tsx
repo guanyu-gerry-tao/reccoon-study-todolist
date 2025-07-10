@@ -5,8 +5,10 @@ import './App.css';
 import Todolist from './components/Todolist.tsx';
 import { DragDropContext } from '@hello-pangea/dnd';
 import type { DragDropContextProps } from '@hello-pangea/dnd';
-import type { TaskItem, NewTaskItem, Actions, Projects, ProjectItem, NewProjectItem } from './components/type.ts';
+import type { TaskItem, Actions, Projects, ProjectItem } from './components/type.ts';
 import { loadInitData, loadProjects, loadTestUserData } from './data/loadInitData.ts'
+import { source } from 'motion/react-client';
+import { sortChain } from './components/utils.ts';
 
 /**
  * Main application component.
@@ -20,9 +22,10 @@ function App() {
   const testProjectsData = loadProjects();
   const testUserData = loadTestUserData();
 
+
   // State management using useImmer for tasks, projects, user status, and dragged task
-  const [tasks, setTasks] = useImmer<TaskItem[]>(testInitData); // Initial tasks data loaded from testInitData
-  const [projects, setProjects] = useImmer<ProjectItem[]>(testProjectsData); // Initial projects data loaded from testProjectsData
+  const [tasks, setTasks] = useImmer<Record<string, TaskItem>>(testInitData); // Initial tasks data loaded from testInitData
+  const [projects, setProjects] = useImmer<Record<string, ProjectItem>>(testProjectsData); // Initial projects data loaded from testProjectsData
   const [userStatus, setUserStatus] = useImmer(testUserData); // Initial user status data loaded from testUserData. It is not finished yet.
   const [draggedTask, setDraggedTask] = useImmer<[string] | null>(null); // State to track the currently dragged task, if any
 
@@ -32,16 +35,11 @@ function App() {
    * and reindexs the tasks based on their status and project after the addition.
    * @param newTask - The new task item to be added - without an ID - ID will be generated automatically.
    */
-  const addTask = (newTask: NewTaskItem) => {
+  const addTask = (newTask: TaskItem) => {
     setTasks(draft => {
       const id = crypto.randomUUID();
-      draft.push({ ...newTask, id });
+      draft[id] = {...newTask,};
       console.log(`Task added with id: ${id}`);
-
-      const filtered = draft.filter(t => t.status === newTask.status && t.project === newTask.project).sort((a, b) => a.order - b.order);
-      filtered.forEach((task, index) => {
-        task.order = index;
-      })
     });
   };
 
@@ -54,16 +52,12 @@ function App() {
    */
   const updateTask = (id: string, updatedFields: Partial<TaskItem>) => {
     setTasks(draft => {
-      const task = draft.find(task => task.id === id);
+      const task = draft[id];
       if (task) {
         Object.assign(task, updatedFields);
       } else {
         console.warn(`Task with id ${id} not found.`);
       }
-      const filtered = draft.filter(t => t.status === task?.status && t.project === task.project).sort((a, b) => a.order - b.order);
-      filtered.forEach((task, index) => {
-        task.order = index;
-      })
     });
   };
 
@@ -77,16 +71,10 @@ function App() {
    */
   const deleteTask = (id: string) => {
     setTasks(draft => {
-      const index = draft.findIndex(task => task.id === id);
-      const deletedTask = draft[index];
-      if (index !== -1) {
-        draft[index].status = -1; // Mark as deleted
-      }
-      // reorder tasks in the previous status, the deleted task was in
-      const filtered = draft.filter(t => t.status === deletedTask.previousStatus).sort((a, b) => a.order - b.order);
-      filtered.forEach((task, index) => {
-        task.order = index;
-      })
+      const task = draft[id];
+      task.previousStatus = task.status; // Save the previous status before deletion
+      task.status = -1; // Mark the task as deleted
+      //FIXME: think about how to reindex the tasks in the previous status after deletion
     })
   };
 
@@ -99,10 +87,8 @@ function App() {
    */
   const hardDeleteTask = (id: string) => {
     setTasks(draft => {
-      const index = draft.findIndex(task => task.id === id);
-      if (index !== -1) {
-        draft.splice(index, 1);
-      }
+      delete draft[id]; // Remove the task from the tasks state
+      console.log(`Task with id ${id} has been hard deleted.`);
     })
   };
 
@@ -121,15 +107,11 @@ function App() {
    * and reindexs the projects based on their order.
    * @param newProject - The new project item to be added.
    */
-  const addProject = (newProject: NewProjectItem) => {
+  const addProject = (newProject: ProjectItem) => {
     setProjects(draft => {
       const id = crypto.randomUUID();
-      draft.push({ ...newProject, id });
-      console.log(`Task added with id: ${id}`);
-
-      draft.forEach((project, index) => {
-        project.order = index;
-      })
+      draft[id] = { ...newProject };
+      console.log(`Project added with id: ${id}`);
     });
   };
 
@@ -142,15 +124,12 @@ function App() {
    */
   const updateProject = (id: string, updatedFields: Partial<ProjectItem>) => {
     setProjects(draft => {
-      const project = draft.find(project => project.id === id);
+      const project = draft[id];
       if (project) {
         Object.assign(project, updatedFields);
       } else {
-        console.warn(`Task with id ${id} not found.`);
+        console.warn(`Project with id ${id} not found.`);
       }
-      draft.forEach((project, index) => {
-        project.order = index;
-      })
     });
   };
 
@@ -162,20 +141,16 @@ function App() {
    */
   const deleteProject = (id: string) => {
     setProjects(draft => {
-      const index = draft.findIndex(project => project.id === id);
-      draft.splice(index, 1)
-      draft.forEach((project, index) => {
-        project.order = index;
-      })
+      delete draft[id];
     });
 
     // Also delete all tasks in the project
     setTasks(draft => {
-      draft.forEach(task => {
+      Object.entries(draft).forEach(([taskId, task]) => {
         if (task.project === id) {
-          hardDeleteTask(task.id);
+          hardDeleteTask(taskId);
         }
-      })
+      });
     });
   };
 
@@ -196,7 +171,7 @@ function App() {
 
   /**
    * Function to handle the end of a drag and drop event for the DragDropContext - hello-pangea/dnd.
-   * It updates the task or project order based on the drag result.
+   * It updates the task or project chain based on the drag result.
    */
   const onDragEnd: DragDropContextProps['onDragEnd'] = (result) => {
     // handle "task" type drag and drop
@@ -204,57 +179,47 @@ function App() {
       console.log('onDragEnd', result); // Log the drag result for debugging
       if (result.destination) { // If true, the task was dropped in a valid droppable area. If false, it means the task was dropped outside of a droppable area.
         setTasks(draft => {
-          const task = draft.find(t => t.id === result.draggableId); // Find the task being dragged by its ID
+          const task = draft[result.draggableId]; // Find the task being dragged by its ID
+          if (task) { // If the task was found and task was moved
+            const originStatus = task.status;
+            const resultStatus = Number(result.destination!.droppableId); // the status === droppableId, as defined in the TodoColumn component
 
-          if (task && result.destination) {
-            // Get the previous and new status and order
-            const previousStatus = task.status;
-            const previousOrder = task.order;
-            const resultStatus = Number(result.destination.droppableId);
-            const resultIndex = result.destination.index;
+            // handle original and result task's previous and next tasks:
 
-            // If the task is moving within the same status
-            if (resultStatus === previousStatus && resultIndex !== previousOrder) {
-              if (resultIndex > previousOrder) { // If moving down (3 to 5 ex.), change 4, 5 to 3, 4  for example
-                draft.filter(t => t.status === resultStatus &&
-                  t.order > previousOrder &&
-                  t.order <= resultIndex)
-                  .forEach(t => {
-                    t.order -= 1
-                  })
-              } else { // If moving up (5 to 3 ex.), change 3, 4 to 4, 5  for example
-                draft.filter(t => t.status === resultStatus &&
-                  t.order >= resultIndex &&
-                  t.order < previousOrder)
-                  .forEach(t => {
-                    t.order += 1
-                  })
-              }
+            // handle original task's previous and next tasks
+            const originPrevTask = task.prev;
+            const originNextTask = task.next;
+            if (originPrevTask) { // If the original task is not the first task, update its previous task to the original's next task (skip the original task)
+              draft[originPrevTask].next = originNextTask;
+            } 
+            if (originNextTask) { // If the original task is not the last task, update its next task to the original's previous task (skip the original task)
+              draft[originNextTask].prev = originPrevTask;
             }
 
-            // If the task is moving to a different status
-            if (resultStatus !== previousStatus) {
-              draft.filter(t => t.status === previousStatus &&
-                t.order > previousOrder)
-                .forEach(t => {
-                  t.order -= 1; // Decrease order of tasks in the previous status
-                });
-              draft.filter(t => t.status === resultStatus &&
-                t.order >= resultIndex)
-                .forEach(t => {
-                  t.order += 1; // Increase order of tasks in the new status
-                });
+            // handle result task's previous and next tasks and the dragged task
+            const resultTasks = Object.fromEntries(Object.entries(draft)
+            .filter(([id, t]) => t.status === resultStatus &&
+             t.project === task.project &&
+            id !== result.draggableId)); // Get all tasks in the result status
+            const sortedTasks = sortChain(resultTasks); 
+
+            const resultPrevTask = sortedTasks[result.destination!.index - 1]?.[0] ?? null; // Get the previous task in the result status
+            const resultNextTask = sortedTasks[result.destination!.index]?.[0] ?? null; // Get the next task in the result status
+
+            if (resultPrevTask) { // If the result task is not the first task, handle A task and result task, [A(null), B(A)] -> [A(null), Result(A), B(Result)], B is handled in the next step
+              draft[resultPrevTask].next = result.draggableId; // Update the previous task's next task to the dragged task
             }
-
-            // Update the task's order and status
-            task.order = resultIndex;
-            task.status = resultStatus;
-
-            // Log the changes for debugging
-            console.log('previousStatus:', previousStatus);
-            console.log('resultStatus:', resultStatus);
-            console.log('previousOrder:', previousOrder);
-            console.log('resultIndex:', resultIndex);
+            if (resultNextTask) { // If the result task is not the last task, handle B task and result task, [A(B), B(null)] -> [A(Result), Result(null), B(Result)], A is handled in the previous step
+              draft[resultNextTask].prev = result.draggableId; // Update the next task's previous task to the dragged task
+            }
+            
+            task.prev = resultPrevTask;
+            task.next = resultNextTask;
+            
+            if (originStatus !== resultStatus) { // If the task's status has changed (i.e., it was moved to a different column)
+              task.previousStatus = originStatus; // Save the previous status of the task before updating it
+              task.status = resultStatus; // Update the task's status to the result status
+            } // else do nothing
           }
         });
       } else {
@@ -272,29 +237,38 @@ function App() {
       console.log('onDragEnd for project', result); // Log the drag result for debugging
       if (result.destination) { // Check if the destination is valid. If true, the project was dropped in a valid droppable area. If false, it means the project was dropped outside of a droppable area.
         setProjects(draft => {
-          const project = draft.find(p => p.id === result.draggableId);
-          const resultIndex = result.destination!.index;
-          if (project) { // If the project was found
-            if (result.destination!.index > result.source.index) { // Moving down  if project move 3=>5  change 4,5=>3,4 for example
-              draft.filter((p, index) => p.order > result.source.index && p.order <= result.destination!.index)
-                .forEach((p, index) => {
-                  p.order -= 1; // Decrease order of projects in the range
-                });
-              console.log('Moving project down');
-            } else if (result.destination!.index < result.source.index) { // Moving up  if project move 5=>3  change 3,4=>4,5 for example
-              draft.filter((p, index) => p.order >= result.destination!.index && p.order < result.source.index)
-                .forEach((p, index) => {
-                  p.order += 1; // Increase order of projects in the range
-                });
-              console.log('Moving project up');
-            } else {
-              // Handle the case where the project is not moving
-              // Doing nothing here for now
+          const project = draft[result.draggableId]; // Find the project being dragged by its ID
+          if (project) { // If the project was found and project was moved
+            const originPrevProject = project.prev;
+            const originNextProject = project.next;
+            if (originPrevProject) { // If the original task is not the first task, update its previous task to the original's next task (skip the original task)
+              draft[originPrevProject].next = originNextProject;
+            } 
+            if (originNextProject) { // If the original task is not the last task, update its next task to the original's previous task (skip the original task)
+              draft[originNextProject].prev = originPrevProject;
             }
-            project!.order = resultIndex; // Update the order of the project
+
+            // handle result task's previous and next tasks and the dragged task
+            const resultProjects = Object.fromEntries(Object.entries(draft)
+            .filter(([id, t]) => id !== result.draggableId)); // Get all tasks in the result status
+            const sortedProjects = sortChain(resultProjects); 
+
+            const resultPrevProject = sortedProjects[result.destination!.index - 1]?.[0] ?? null; // Get the previous project in the result status
+            const resultNextProject = sortedProjects[result.destination!.index]?.[0] ?? null; // Get the next project in the result status
+
+            if (resultPrevProject) { // If the result project is not the first project, handle A project and result project, [A(null), B(A)] -> [A(null), Result(A), B(Result)], B is handled in the next step
+              draft[resultPrevProject].next = result.draggableId; // Update the previous project's next project to the dragged project
+            }
+            if (resultNextProject) { // If the result project is not the last project, handle B project and result project, [A(B), B(null)] -> [A(Result), Result(null), B(Result)], A is handled in the previous step
+              draft[resultNextProject].prev = result.draggableId; // Update the next project's previous project to the dragged project
+            }
+
+            project.prev = resultPrevProject;
+            project.next = resultNextProject;
           }
         })
       }
+      console.log(projects)
     }
   };
 

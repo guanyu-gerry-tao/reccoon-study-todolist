@@ -41,8 +41,8 @@ function ProjectButton({
   actions,
   deleteMode }:
   {
-    project: ProjectItem,
-    projects: ProjectItem[],
+    project: [string, ProjectItem],
+    projects: [string, ProjectItem][],
     currentProjectID: string,
     setCurrentProjectID: (projectID: string) => void,
     actions: Actions,
@@ -51,9 +51,9 @@ function ProjectButton({
 
   /** Handle click event on the project button. */
   const handleClick = () => {
-    setCurrentProjectID(project.id);
-    console.log(`Project ${project.title} selected with ID: ${project.id}`);
-    console.log(`Current project ID is now: ${project.id}`);
+    setCurrentProjectID(project[0]);
+    console.log(`Project ${project[1].title} selected with ID: ${project[0]}`);
+    console.log(`Current project ID is now: ${project[0]}`);
   }
   // TODO: make project buttons scrollable.
 
@@ -73,20 +73,14 @@ function ProjectButton({
    */
   const handleDeleteButton = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation(); // Prevent the click event from propagating to the parent div
-    if (window.confirm(`Are you sure you want to delete the project: ${project.title}? You cannot undo this action and all tasks will gone!`)) {
-      actions.deleteProject(project.id);
-      if (projects.length === 1) {
-        actions.addProject({
-          title: 'New Project',
-          order: 0,
-        });
-        setCurrentProjectID(projects[0].id);
-        console.log(`Delete button clicked for project: ${project.title}, but it was the last project. A new project has been created.`);
-      } else {
-        const index = projects.indexOf(project);
-        setCurrentProjectID(projects[index > 0 ? index - 1 : 0].id);
-        console.log(`Delete button clicked for project: ${project.title}`);
-      }
+    if (window.confirm(`Are you sure you want to delete the project: ${project[1].title}? You cannot undo this action and all tasks will gone!`)) {
+      
+      const index = projects.indexOf(project);
+      setCurrentProjectID(projects[index > 0 ? index - 1 : 0][0]);
+
+      actions.deleteProject(project[0]);
+      console.log(`Delete button clicked for project: ${project[1].title}`);
+
     }
   }
 
@@ -99,17 +93,17 @@ function ProjectButton({
   // style: this is used to apply the draggable styles to the task element. See getStyle function above.
   return (
     <>
-      <Draggable draggableId={project.id} index={project.order}>
+      <Draggable draggableId={project[0]} index={projects.indexOf(project)}>
         {
           (provided, snapshot) => (
 
             <div
               className='projectButton'
-              id={project.id}
+              id={project[0]}
               ref={provided.innerRef}
               {...provided.draggableProps}
               {...provided.dragHandleProps}
-              style={{ ...getStyle(provided.draggableProps.style, snapshot), border: currentProjectID === project.id ? '1px solid #808080' : '1px solid transparent' }}
+              style={{ ...getStyle(provided.draggableProps.style, snapshot), border: currentProjectID === project[0] ? '1px solid #808080' : '1px solid transparent' }}
               onClick={handleClick}
             >
               <div className="projectButtonContent"
@@ -117,7 +111,7 @@ function ProjectButton({
                 <input
                   type='text'
                   className='projectButtonInput'
-                  defaultValue={project.title}
+                  defaultValue={project[1].title}
                   onChange={handleChange} />
 
               </div>
