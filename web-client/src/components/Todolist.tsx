@@ -49,6 +49,26 @@ function Todolist({
         {/* The task columns */}
         <div className='todolistColumns'>
 
+          {states.showDeleted && (
+            <TodoColumn title={"Deleted"}
+            bgColor='#ffcce6'
+            status={-1}
+            actions={actions}
+            tasks={Object.fromEntries(Object.entries(states.tasks).filter(([_, task]) => task.status === -1 && task.project === states.currentProjectID))}
+            states={states}
+            />
+          )}
+
+          {states.showCompleted && (
+            <TodoColumn title={"Completed"}
+              bgColor='#e6f2ff'
+              status={0}
+              actions={actions}
+              tasks={Object.fromEntries(Object.entries(states.tasks).filter(([_, task]) => task.status === 0 && task.project === states.currentProjectID))}
+              states={states}
+            />
+          )}
+          
           <TodoColumn title={"Now"}
             bgColor='#e8fdec'
             status={1}

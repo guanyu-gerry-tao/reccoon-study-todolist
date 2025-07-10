@@ -36,7 +36,22 @@ function Menubar({
     console.log("edit mode clicked: " + states.editMode);
     actions.setEditMode(!states.editMode);
   };
-  
+
+  /**
+   * Handle click event for the delete tasks button.
+   */
+  const handleDeleteTasksClick = () => {
+    console.log("delete tasks clicked");
+    actions.setShowDeleted(!states.showDeleted);
+    console.log("show deleted tasks: " + states.showDeleted);
+  };
+
+  const handleCompletedTasksClick = () => {
+    console.log("completed tasks clicked");
+    actions.setShowCompleted(!states.showCompleted);
+    console.log("show completed tasks: " + states.showCompleted);
+  };
+
   return (
     <>
       <div className='menubarContainer'>
@@ -66,10 +81,12 @@ function Menubar({
           // TODO: Delete Button, hit to pop column with deleted tasks
           // TODO: Completed Tasks Button, hit to pop column with completed task
           */}
-          <div className='menubarBottomItems'>
+          <div className='menubarBottomItems'
+            onClick={handleDeleteTasksClick}>
             <p>Deleted Tasks</p>
           </div>
-          <div className='menubarBottomItems'>
+          <div className='menubarBottomItems'
+            onClick={handleCompletedTasksClick}>
             <p>Completed Tasks</p>
           </div>
           <div className='menubarBottomItems'>
