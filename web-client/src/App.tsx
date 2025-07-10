@@ -6,8 +6,8 @@ import Todolist from './components/Todolist.tsx';
 import ResetTestButton from './components/ResetTestButton.tsx';
 import { DragDropContext } from '@hello-pangea/dnd';
 import type { DragDropContextProps } from '@hello-pangea/dnd';
-import type { TaskItem, Actions, States, Projects, ProjectItem, UserStatus } from './components/type.ts';
-import { loadInitData, loadProjects, loadTestUserData } from './data/loadInitData.ts'
+import type { TaskItem, Actions, States, Projects, ProjectItem } from './components/type.ts';
+import { loadInitData, loadProjects } from './data/loadInitData.ts'
 import { source } from 'motion/react-client';
 import { sortChain } from './utils/utils.ts';
 
@@ -21,15 +21,16 @@ function App() {
   // DEBUG: Load initial data for tasks, projects, and user status
   const testInitData = loadInitData();
   const testProjectsData = loadProjects();
-  const testUserData = loadTestUserData();
-  const testData = { testInitData, testProjectsData, testUserData };
+  //TODO: load status
+  const testData = { testInitData, testProjectsData };
+  console.log('testData', testData);
 
   // State management using useImmer for tasks, projects, user status, and dragged task
   const [tasks, setTasks] = useImmer<Record<string, TaskItem>>(testData.testInitData); // Initial tasks data loaded from testInitData
   const [projects, setProjects] = useImmer<Record<string, ProjectItem>>(testData.testProjectsData); // Initial projects data loaded from testProjectsData
-  const [userStatus, setUserStatus] = useImmer<UserStatus>(testData.testUserData); // Initial user status data loaded from testUserData. It is not finished yet.
+  //TODO: useImmer, status
   const [draggedTask, setDraggedTask] = useImmer<[string] | null>(null); // State to track the currently dragged task, if any
-  const [currentProjectID, setCurrentProjectID] = useImmer<string | null>(userStatus.project); // State to manage the current project ID, which is used to filter tasks by project.
+  const [currentProjectID, setCurrentProjectID] = useImmer<string | null>("project0"); // State to manage the current project ID, which is used to filter tasks by project.
   const [editMode, setEditMode] = useImmer<boolean>(false);
   const [showDeleted, setShowDeleted] = useImmer<boolean>(false);
   const [showCompleted, setShowCompleted] = useImmer<boolean>(false);
@@ -37,7 +38,7 @@ function App() {
   const states: States = {
     tasks,
     projects,
-    userStatus,
+    //TODO: status
     draggedTask,
     currentProjectID,
     editMode,
@@ -103,7 +104,6 @@ function App() {
       const task = draft[id];
       task.previousStatus = task.status; // Save the previous status before deletion
       task.status = -1; // Mark the task as deleted
-      //FIXME: think about how to reindex the tasks in the previous status after deletion
     })
   };
 

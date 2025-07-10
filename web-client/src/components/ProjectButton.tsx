@@ -51,8 +51,6 @@ function ProjectButton({
   /** Handle click event on the project button. */
   const handleClick = () => {
     actions.setCurrentProjectID(project[0]);
-    console.log(`Project ${project[1].title} selected with ID: ${project[0]}`);
-    console.log(`Current project ID is now: ${project[0]}`);
   }
   // TODO: make project buttons scrollable.
 

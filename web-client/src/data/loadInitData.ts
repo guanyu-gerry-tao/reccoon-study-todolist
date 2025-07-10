@@ -1,5 +1,5 @@
 import data from './testListChain.json';
-import type { TaskItem, Projects, ProjectItem, UserStatus } from '../components/type.ts';
+import type { TaskItem, Projects, ProjectItem } from '../components/type.ts';
 
 export function loadInitData(): Record<string, TaskItem> {
   const rawdata = data.taskList;
@@ -17,6 +17,7 @@ export function loadInitData(): Record<string, TaskItem> {
   )
 
   return taskList;
+  // FIXME
 
   // return Object.entries(data.taskList).map(([key, value]) => {
   //     return {
@@ -38,7 +39,4 @@ export function loadProjects(): Record<string, ProjectItem> {
   // });
 }
 
-export function loadTestUserData(): UserStatus {
-  const userData = data.userLastState;
-  return userData
-}
+//TODO: load status
