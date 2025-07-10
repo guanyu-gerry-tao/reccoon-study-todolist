@@ -3,8 +3,9 @@ import { useRef, useState, useEffect, act } from 'react'
 import '../App.css'
 import './ProjectButton.css'
 
-import type { ProjectItem, Actions } from './type'
+import type { ProjectItem, Actions, States } from './type'
 import { Draggable } from '@hello-pangea/dnd'
+import { removeItemFromList } from '../utils/actions'
 
 /**
  * This function is used to get the style of the project button when it is being dragged
@@ -31,27 +32,25 @@ function getStyle(style: any, snapshot: any) {
  * @param currentProjectID - The ID of the currently selected/showing project.
  * @param setCurrentProjectID - Function to set the currently selected project ID.
  * @param actions - The actions object containing methods to manipulate projects. Defined in App.tsx.
- * @param deleteMode - Boolean indicating if the delete mode is active. Delete mode allows the user to delete projects by clicking the delete button on the X button.
+ * @param editMode - Boolean indicating if the editMode is active. Edit mode allows the user to edit project titles.
  */
 function ProjectButton({
   project,
   projects,
   currentProjectID,
-  setCurrentProjectID,
   actions,
-  deleteMode }:
+  states }:
   {
     project: [string, ProjectItem],
     projects: [string, ProjectItem][],
-    currentProjectID: string,
-    setCurrentProjectID: (projectID: string) => void,
+    currentProjectID: string | null,
     actions: Actions,
-    deleteMode: boolean
+    states: States
   }) {
 
   /** Handle click event on the project button. */
   const handleClick = () => {
-    setCurrentProjectID(project[0]);
+    actions.setCurrentProjectID(project[0]);
     console.log(`Project ${project[1].title} selected with ID: ${project[0]}`);
     console.log(`Current project ID is now: ${project[0]}`);
   }
@@ -74,11 +73,21 @@ function ProjectButton({
   const handleDeleteButton = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation(); // Prevent the click event from propagating to the parent div
     if (window.confirm(`Are you sure you want to delete the project: ${project[1].title}? You cannot undo this action and all tasks will gone!`)) {
-      
-      const index = projects.indexOf(project);
-      setCurrentProjectID(projects[index > 0 ? index - 1 : 0][0]);
 
-      actions.deleteProject(project[0]);
+      // handle changing of the current project ID
+      // if project deleted and there are still projects left,
+      // set the current project ID to the previous project.
+      if (states.currentProjectID === project[0]) {
+        if (projects.length > 0) {
+          actions.setCurrentProjectID(project[1].prev || project[1].next);
+          console.log(states.currentProjectID);
+        } else { // if no projects left, set the current project ID to an empty string
+          actions.setCurrentProjectID(null);
+        }
+      }
+
+      removeItemFromList(projects, project, actions.deleteProject, actions.updateProject);
+
       console.log(`Delete button clicked for project: ${project[1].title}`);
 
     }
@@ -98,7 +107,7 @@ function ProjectButton({
           (provided, snapshot) => (
 
             <div
-              className='projectButton'
+              className={`projectButton`}
               id={project[0]}
               ref={provided.innerRef}
               {...provided.draggableProps}
@@ -117,9 +126,9 @@ function ProjectButton({
               </div>
               <div className="deleteProjectButton"
                 style={{
-                  opacity: deleteMode ? 1 : 0,
-                  visibility: deleteMode ? 'visible' : 'hidden',
-                  pointerEvents: deleteMode ? 'auto' : 'none'
+                  opacity: states.editMode ? 1 : 0,
+                  visibility: states.editMode ? 'visible' : 'hidden',
+                  pointerEvents: states.editMode ? 'auto' : 'none',
                 }}
                 onClick={handleDeleteButton}
               ></div>

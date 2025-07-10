@@ -6,7 +6,7 @@ import ProjectButton from './ProjectButton.tsx'
 import { useImmer } from 'use-immer'
 import TaskDropArea from './TaskDropArea.tsx'
 import ProjectPanel from './ProjectPanel.tsx'
-import type { ProjectItem, Projects, Actions } from './type.ts'
+import type { ProjectItem, Projects, Actions, States } from './type.ts'
 
 
 
@@ -22,36 +22,24 @@ import type { ProjectItem, Projects, Actions } from './type.ts'
  */
 function Menubar({
   actions,
-  draggedTask,
-  projects,
-  currentProjectID,
-  setCurrentProjectID,
-  isMouseOverDropZone
+  states
 }: {
   actions: Actions,
-  draggedTask: [string] | null,
-  projects: Record<string, ProjectItem>,
-  currentProjectID: string,
-  setCurrentProjectID: (projectID: string) => void,
-  isMouseOverDropZone: boolean
+  states: States
 }) {
 
-  // State to manage the delete mode for projects
-  const [projectDeleteMode, setProjectDeleteMode] = useImmer<boolean>(false);
 
   /**
-   * Handle click event for the delete mode toggle.
+   * Handle click event for the edit mode toggle.
    */
-  const handleDeleteModeClick = () => {
-    console.log("delete mode clicked: " + projectDeleteMode);
-    setProjectDeleteMode(!projectDeleteMode);
+  const handleEditModeClick = () => {
+    console.log("edit mode clicked: " + states.editMode);
+    actions.setEditMode(!states.editMode);
   };
-
+  
   return (
     <>
-      <div className='menubarContainer'
-        style={{ transform: isMouseOverDropZone ? 'translateX(-150%)' : 'translateX(0)' }}
-      >
+      <div className='menubarContainer'>
         {/* Logo part 
         // TODO: make a logo */}
         <div>
@@ -66,11 +54,11 @@ function Menubar({
         {/* The project list */}
         <div className='menubarProjectsHeader'>
           <p className='menubarProjectsTitle'>Projects</p>
-          <div className="delSwitch" onClick={handleDeleteModeClick}>Del</div>
+          <div className="delSwitch" onClick={handleEditModeClick}>Edit</div>
         </div>
 
         {/* The actual project buttons components, a droppable */}
-        <ProjectPanel actions={actions} projects={projects} currentProjectID={currentProjectID} projectDeleteMode={projectDeleteMode} setCurrentProjectID={setCurrentProjectID} />
+        <ProjectPanel actions={actions} states={states} />
 
         {/* Places for additional actions, such as call deleted and completed tasks, settings and Help+About */}
         <div className='menubarBottom'>

@@ -3,12 +3,13 @@ import { useImmer } from 'use-immer';
 import './App.css';
 
 import Todolist from './components/Todolist.tsx';
+import ResetTestButton from './components/ResetTestButton.tsx';
 import { DragDropContext } from '@hello-pangea/dnd';
 import type { DragDropContextProps } from '@hello-pangea/dnd';
-import type { TaskItem, Actions, Projects, ProjectItem } from './components/type.ts';
+import type { TaskItem, Actions, States, Projects, ProjectItem, UserStatus } from './components/type.ts';
 import { loadInitData, loadProjects, loadTestUserData } from './data/loadInitData.ts'
 import { source } from 'motion/react-client';
-import { sortChain } from './components/utils.ts';
+import { sortChain } from './utils/utils.ts';
 
 /**
  * Main application component.
@@ -17,17 +18,29 @@ import { sortChain } from './components/utils.ts';
  */
 function App() {
 
-  // Load initial data for tasks, projects, and user status
+  // DEBUG: Load initial data for tasks, projects, and user status
   const testInitData = loadInitData();
   const testProjectsData = loadProjects();
   const testUserData = loadTestUserData();
-
+  const testData = { testInitData, testProjectsData, testUserData };
 
   // State management using useImmer for tasks, projects, user status, and dragged task
-  const [tasks, setTasks] = useImmer<Record<string, TaskItem>>(testInitData); // Initial tasks data loaded from testInitData
-  const [projects, setProjects] = useImmer<Record<string, ProjectItem>>(testProjectsData); // Initial projects data loaded from testProjectsData
-  const [userStatus, setUserStatus] = useImmer(testUserData); // Initial user status data loaded from testUserData. It is not finished yet.
+  const [tasks, setTasks] = useImmer<Record<string, TaskItem>>(testData.testInitData); // Initial tasks data loaded from testInitData
+  const [projects, setProjects] = useImmer<Record<string, ProjectItem>>(testData.testProjectsData); // Initial projects data loaded from testProjectsData
+  const [userStatus, setUserStatus] = useImmer<UserStatus>(testData.testUserData); // Initial user status data loaded from testUserData. It is not finished yet.
   const [draggedTask, setDraggedTask] = useImmer<[string] | null>(null); // State to track the currently dragged task, if any
+  const [currentProjectID, setCurrentProjectID] = useImmer<string | null>(userStatus.project); // State to manage the current project ID, which is used to filter tasks by project.
+  const [editMode, setEditMode] = useImmer<boolean>(false);
+
+
+  const states: States = {
+    tasks,
+    projects,
+    userStatus,
+    draggedTask,
+    currentProjectID,
+    editMode,
+  }
 
   /**
    * Function to add a new task to the task list.
@@ -36,11 +49,12 @@ function App() {
    * @param newTask - The new task item to be added - without an ID - ID will be generated automatically.
    */
   const addTask = (newTask: TaskItem) => {
+    const id = crypto.randomUUID();
     setTasks(draft => {
-      const id = crypto.randomUUID();
-      draft[id] = {...newTask,};
+      draft[id] = { ...newTask, };
       console.log(`Task added with id: ${id}`);
     });
+    return id; // Return the ID of the newly added task
   };
 
   /**
@@ -60,6 +74,18 @@ function App() {
       }
     });
   };
+
+  const completeTask = (id: string) => {
+    setTasks(draft => {
+      const task = draft[id];
+      const previousStatus = task.status; // Save the previous status before completing the task
+      if (task) {
+        Object.assign(task, { status: 0, previousStatus: previousStatus }); // Mark the task as completed (status 0)
+      } else {
+        console.warn(`Task with id ${id} not found.`);
+      }
+    });
+  }
 
   /**
    * Function to soft delete a task by marking it as deleted.
@@ -106,13 +132,15 @@ function App() {
    * It generates a unique ID for the new project, adds it to the projects state,
    * and reindexs the projects based on their order.
    * @param newProject - The new project item to be added.
+   * @returns The ID of the newly added project.
    */
   const addProject = (newProject: ProjectItem) => {
+    const id = crypto.randomUUID();
     setProjects(draft => {
-      const id = crypto.randomUUID();
       draft[id] = { ...newProject };
       console.log(`Project added with id: ${id}`);
     });
+    return id; // Return the ID of the newly added project
   };
 
   /**
@@ -137,19 +165,17 @@ function App() {
    * Function to delete a project from the project list.
    * This function will permanently remove the project list, and permanently delete all tasks in the project.
    * It finds the project by its ID and removes it from the projects state.
-   * @param id - The ID of the project to be deleted.
+   * @param projectId - The ID of the project to be deleted.
    */
-  const deleteProject = (id: string) => {
+  const deleteProject = (projectId: string) => {
     setProjects(draft => {
-      delete draft[id];
+      delete draft[projectId];
     });
 
     // Also delete all tasks in the project
     setTasks(draft => {
-      Object.entries(draft).forEach(([taskId, task]) => {
-        if (task.project === id) {
-          hardDeleteTask(taskId);
-        }
+      Object.entries(draft).filter(([_, task]) => task.project === projectId).forEach(([taskId, _]) => {
+        hardDeleteTask(taskId);
       });
     });
   };
@@ -162,12 +188,16 @@ function App() {
     addTask,
     updateTask,
     deleteTask,
+    completeTask,
     hardDeleteTask,
     refreshTasks,
     addProject,
     updateProject,
     deleteProject,
+    setCurrentProjectID,
+    setEditMode,
   };
+
 
   /**
    * Function to handle the end of a drag and drop event for the DragDropContext - hello-pangea/dnd.
@@ -191,17 +221,17 @@ function App() {
             const originNextTask = task.next;
             if (originPrevTask) { // If the original task is not the first task, update its previous task to the original's next task (skip the original task)
               draft[originPrevTask].next = originNextTask;
-            } 
+            }
             if (originNextTask) { // If the original task is not the last task, update its next task to the original's previous task (skip the original task)
               draft[originNextTask].prev = originPrevTask;
             }
 
             // handle result task's previous and next tasks and the dragged task
             const resultTasks = Object.fromEntries(Object.entries(draft)
-            .filter(([id, t]) => t.status === resultStatus &&
-             t.project === task.project &&
-            id !== result.draggableId)); // Get all tasks in the result status
-            const sortedTasks = sortChain(resultTasks); 
+              .filter(([id, t]) => t.status === resultStatus &&
+                t.project === task.project &&
+                id !== result.draggableId)); // Get all tasks in the result status
+            const sortedTasks = sortChain(resultTasks);
 
             const resultPrevTask = sortedTasks[result.destination!.index - 1]?.[0] ?? null; // Get the previous task in the result status
             const resultNextTask = sortedTasks[result.destination!.index]?.[0] ?? null; // Get the next task in the result status
@@ -212,10 +242,10 @@ function App() {
             if (resultNextTask) { // If the result task is not the last task, handle B task and result task, [A(B), B(null)] -> [A(Result), Result(null), B(Result)], A is handled in the previous step
               draft[resultNextTask].prev = result.draggableId; // Update the next task's previous task to the dragged task
             }
-            
+
             task.prev = resultPrevTask;
             task.next = resultNextTask;
-            
+
             if (originStatus !== resultStatus) { // If the task's status has changed (i.e., it was moved to a different column)
               task.previousStatus = originStatus; // Save the previous status of the task before updating it
               task.status = resultStatus; // Update the task's status to the result status
@@ -243,15 +273,15 @@ function App() {
             const originNextProject = project.next;
             if (originPrevProject) { // If the original task is not the first task, update its previous task to the original's next task (skip the original task)
               draft[originPrevProject].next = originNextProject;
-            } 
+            }
             if (originNextProject) { // If the original task is not the last task, update its next task to the original's previous task (skip the original task)
               draft[originNextProject].prev = originPrevProject;
             }
 
             // handle result task's previous and next tasks and the dragged task
             const resultProjects = Object.fromEntries(Object.entries(draft)
-            .filter(([id, t]) => id !== result.draggableId)); // Get all tasks in the result status
-            const sortedProjects = sortChain(resultProjects); 
+              .filter(([id, t]) => id !== result.draggableId)); // Get all tasks in the result status
+            const sortedProjects = sortChain(resultProjects);
 
             const resultPrevProject = sortedProjects[result.destination!.index - 1]?.[0] ?? null; // Get the previous project in the result status
             const resultNextProject = sortedProjects[result.destination!.index]?.[0] ?? null; // Get the next project in the result status
@@ -321,8 +351,8 @@ function App() {
   return (
     <DragDropContext
       onDragEnd={onDragEnd} onDragStart={onDragStart} onDragUpdate={onDragUpdate}>
-      <Todolist tasks={tasks} projects={projects} userStatus={userStatus} actions={actions} draggedTask={draggedTask}
-      />
+      <Todolist states={states} actions={actions} />
+      <ResetTestButton resetData={testData} />
     </DragDropContext>
   )
 }

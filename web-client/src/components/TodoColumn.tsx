@@ -4,10 +4,10 @@ import '../App.css'
 import './TodoColumn.css';
 
 import AddNewTask from './AddNewTask.tsx';
-import type { TodoColumnProps, TaskItem } from './type.ts';
+import type { TodoColumnProps, TaskItem, Actions, States } from './type.ts';
 import Task from './Task.tsx';
 import { Droppable } from '@hello-pangea/dnd';
-import { sortChain } from './utils.ts';
+import { sortChain } from '../utils/utils.ts';
 
 /**
  * TodoColumn component represents a single column in the Kanban board.
@@ -25,7 +25,14 @@ function TodoColumn({
   status,
   actions,
   tasks,
-  currentProjectID }: TodoColumnProps) {
+  states }: {
+    title: string;
+    bgColor: string;
+    status: number;
+    actions: Actions;
+    tasks: Record<string, TaskItem>;
+    states: States;
+  }) {
 
   const tasksSorted = sortChain(tasks) as [string, TaskItem][];
 
@@ -48,12 +55,12 @@ function TodoColumn({
                 {/* tasksSorted.map: this maps over the sorted tasks and renders a Task for each */}
                 {tasksSorted.map((task) => (
                   <Task key={task[0]} task={task} tasks={tasksSorted}
-                    actions={actions} />
+                    actions={actions} states={states} />
                 ))}
 
                 {provided.placeholder}
 
-                <AddNewTask actions={actions} status={status} tasksSorted={tasksSorted} currentProjectID={currentProjectID} />
+                <AddNewTask actions={actions} status={status} tasksSorted={tasksSorted} states={states} />
               </div>
             )}
           </Droppable>

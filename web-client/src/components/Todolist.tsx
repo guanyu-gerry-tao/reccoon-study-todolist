@@ -6,7 +6,7 @@ import Menubar from './Menubar.tsx'
 import TodoColumn from './TodoColumn.tsx'
 import AIChatPanel from './AIChatPanel.tsx'
 
-import type { TaskItem, Actions, Projects, UserStatus, ProjectItem } from './type.ts'
+import type { Actions, States } from './type.ts'
 import { useImmer } from 'use-immer'
 import TaskDropArea from './TaskDropArea.tsx'
 
@@ -20,20 +20,13 @@ import TaskDropArea from './TaskDropArea.tsx'
  * @param draggedTask - The currently dragged task information.
  */
 function Todolist({
-  tasks,
-  projects,
-  userStatus,
+  states,
   actions,
-  draggedTask }: {
-    tasks: Record<string, TaskItem>,
-    projects: Record<string, ProjectItem>,
-    userStatus: UserStatus,
-    actions: Actions,
-    draggedTask: [string] | null
-  }) {
+}: {
+  states: States,
+  actions: Actions,
+}) {
 
-  // State to manage the current project ID, which is used to filter tasks by project.
-  const [currentProjectID, setCurrentProjectID] = useImmer<string>(userStatus.project);
 
   // State to manage the visibility of the delete and complete task drop areas.
   // Not used yet. // TODO: @Bestpart-Irene add the functionality to show/hide the delete and complete task drop areas when the user clicks on the delete or complete task buttons.
@@ -48,30 +41,10 @@ function Todolist({
 
   return (
     <>
-
-      <div className='dropArea completeDropArea'>
-        <TaskDropArea status={0} setIsMouseOverDropZone={setIsMouseOverDropZone} />
-        <div className='dropAreaVisual completeDropArea'
-          style={{ opacity: isMouseOverDropZone ? '1' : '0', transform: isMouseOverDropZone ? 'translateX(0)' : 'translateX(-150%)' }}
-        >
-          <p>Drop to Complete</p>
-        </div>
-      </div>
-      <div className='dropArea deleteDropArea'
-      >
-        <TaskDropArea status={-1} setIsMouseOverDropZone={setIsMouseOverDropZone} />
-        <div className='dropAreaVisual deleteDropArea'
-          style={{ opacity: isMouseOverDropZone ? '1' : '0.5', transform: isMouseOverDropZone ? 'translateX(0)' : 'translateX(-150%)' }}
-        >
-          <p>Drop to Delete</p>
-        </div>
-      </div>
-
-
       <div className='todolistContainer'>
         {/* The top menu bar */}
         {/* Contains logos, project, user information */}
-        <Menubar actions={actions} draggedTask={draggedTask} projects={projects} currentProjectID={currentProjectID} setCurrentProjectID={setCurrentProjectID} isMouseOverDropZone={isMouseOverDropZone} />
+        <Menubar actions={actions} states={states} />
 
         {/* The task columns */}
         <div className='todolistColumns'>
@@ -80,24 +53,24 @@ function Todolist({
             bgColor='#e8fdec'
             status={1}
             actions={actions}
-            tasks={Object.fromEntries(Object.entries(tasks).filter(([_, task]) => task.status === 1 && task.project === currentProjectID))}
-            currentProjectID={currentProjectID}
+            tasks={Object.fromEntries(Object.entries(states.tasks).filter(([_, task]) => task.status === 1 && task.project === states.currentProjectID))}
+            states={states}
           />
 
           <TodoColumn title={"Next"}
             bgColor='#f0f1fd'
             status={2}
             actions={actions}
-            tasks={Object.fromEntries(Object.entries(tasks).filter(([_, task]) => task.status === 2 && task.project === currentProjectID))}
-            currentProjectID={currentProjectID}
+            tasks={Object.fromEntries(Object.entries(states.tasks).filter(([_, task]) => task.status === 2 && task.project === states.currentProjectID))}
+            states={states}
           />
 
           <TodoColumn title={"Later"}
             bgColor='#fff8e8'
             status={3}
             actions={actions}
-            tasks={Object.fromEntries(Object.entries(tasks).filter(([_, task]) => task.status === 3 && task.project === currentProjectID))}
-            currentProjectID={currentProjectID}
+            tasks={Object.fromEntries(Object.entries(states.tasks).filter(([_, task]) => task.status === 3 && task.project === states.currentProjectID))}
+            states={states}
           />
         </div>
 
