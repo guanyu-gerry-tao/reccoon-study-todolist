@@ -31,7 +31,8 @@ function App() {
   const [draggedTask, setDraggedTask] = useImmer<[string] | null>(null); // State to track the currently dragged task, if any
   const [currentProjectID, setCurrentProjectID] = useImmer<string | null>(userStatus.project); // State to manage the current project ID, which is used to filter tasks by project.
   const [editMode, setEditMode] = useImmer<boolean>(false);
-
+  const [showDeleted, setShowDeleted] = useImmer<boolean>(false);
+  const [showCompleted, setShowCompleted] = useImmer<boolean>(false);
 
   const states: States = {
     tasks,
@@ -40,6 +41,8 @@ function App() {
     draggedTask,
     currentProjectID,
     editMode,
+    showDeleted,
+    showCompleted
   }
 
   /**
@@ -196,6 +199,8 @@ function App() {
     deleteProject,
     setCurrentProjectID,
     setEditMode,
+    setShowDeleted,
+    setShowCompleted
   };
 
 
