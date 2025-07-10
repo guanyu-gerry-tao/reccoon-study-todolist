@@ -19,7 +19,7 @@ function AddNewTask({ actions,
     actions: Actions,
     status: number,
     tasksSorted: [string, TaskItem][],
-    currentProjectID: string
+    currentProjectID: string | null
   }) {
 
   /**
@@ -35,11 +35,14 @@ function AddNewTask({ actions,
           title: newTaskTitle,
           status: status,
           previousStatus: status, // for new task, the previous status is the same as the current status
-          project: currentProjectID, // Assuming a default project, you can modify this as needed
+          project: currentProjectID as string, // Assuming a default project, you can modify this as needed
           prev: tasksSorted.length > 0 ? tasksSorted[tasksSorted.length - 1][0] : null, // Get the last task ID as the previous task
           next: null, // For a new task, new task is the last one, next are null
         };
-        actions.addTask(newTask); // Call the add function from actions with the new task
+        const id = actions.addTask(newTask); // Call the add function from actions with the new task
+        if (tasksSorted.length > 0) { // If there are existing tasks, update the last task to point to the new task
+          actions.updateTask(tasksSorted[tasksSorted.length - 1][0], { next: id }); // Update the last task to point to the new task
+        }
         e.currentTarget.value = ''; // Clear the input field after adding the task
       }
     }

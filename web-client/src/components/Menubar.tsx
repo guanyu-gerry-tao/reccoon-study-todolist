@@ -25,14 +25,12 @@ function Menubar({
   draggedTask,
   projects,
   currentProjectID,
-  setCurrentProjectID,
   isMouseOverDropZone
 }: {
   actions: Actions,
   draggedTask: [string] | null,
   projects: Record<string, ProjectItem>,
-  currentProjectID: string,
-  setCurrentProjectID: (projectID: string) => void,
+  currentProjectID: string | null,
   isMouseOverDropZone: boolean
 }) {
 
@@ -70,7 +68,7 @@ function Menubar({
         </div>
 
         {/* The actual project buttons components, a droppable */}
-        <ProjectPanel actions={actions} projects={projects} currentProjectID={currentProjectID} projectDeleteMode={projectDeleteMode} setCurrentProjectID={setCurrentProjectID} />
+        <ProjectPanel actions={actions} projects={projects} currentProjectID={currentProjectID} projectDeleteMode={projectDeleteMode} />
 
         {/* Places for additional actions, such as call deleted and completed tasks, settings and Help+About */}
         <div className='menubarBottom'>

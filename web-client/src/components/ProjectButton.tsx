@@ -37,21 +37,19 @@ function ProjectButton({
   project,
   projects,
   currentProjectID,
-  setCurrentProjectID,
   actions,
   deleteMode }:
   {
     project: [string, ProjectItem],
     projects: [string, ProjectItem][],
-    currentProjectID: string,
-    setCurrentProjectID: (projectID: string) => void,
+    currentProjectID: string | null,
     actions: Actions,
     deleteMode: boolean
   }) {
 
   /** Handle click event on the project button. */
   const handleClick = () => {
-    setCurrentProjectID(project[0]);
+    actions.setCurrentProjectID(project[0]);
     console.log(`Project ${project[1].title} selected with ID: ${project[0]}`);
     console.log(`Current project ID is now: ${project[0]}`);
   }
@@ -74,11 +72,57 @@ function ProjectButton({
   const handleDeleteButton = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation(); // Prevent the click event from propagating to the parent div
     if (window.confirm(`Are you sure you want to delete the project: ${project[1].title}? You cannot undo this action and all tasks will gone!`)) {
-      
+
       const index = projects.indexOf(project);
-      setCurrentProjectID(projects[index > 0 ? index - 1 : 0][0]);
 
       actions.deleteProject(project[0]);
+      projects.splice(index, 1); // Remove the project from the projects array
+
+      // 1. [A, B, C] -> [A, C] when deleting B,, C.prev = A, A.next = C,, 
+      // 2. [A, B, C] -> [A, B] when deleting C,, B.next = null,, index === 2 === projects.length - 1
+      // 3. [A, B, C] -> [B, C] when deleting A,, B.prev = null,, index === 0
+      // 4. [A, B] -> [B] when deleting A,, B.prev = null
+      // 5. [A, B] -> [A] when deleting B,, A.next = null
+      // 6. [A] -> [] when deleting A, do nothing, as there is no next or previous project
+
+      // if the first project is deleted, and there is project left,
+      // index===0 is the next one of the deleted project,
+      // set the index===0 project.prev to null
+      // scenario 3, 4
+      if (index === 0 && projects.length > 0) {
+        actions.updateProject(projects[0][0], { prev: null });
+      }
+
+      // if the last project is deleted, and there is still project left,
+      // set the index===last project.next to null
+      // index===length- is the previous one of the deleted project,
+      // scenario 2, 5
+      if (index === projects.length && projects.length > 0) {
+        actions.updateProject(projects[index - 1][0], { next: null });
+      }
+
+      // if the project is in the middle of the list,
+      // set the previous project's next to the next project,
+      // and the next project's prev to the previous project.
+      // scenario 1
+      if (index > 0 && index < projects.length) {
+        actions.updateProject(projects[index - 1][0], { next: projects[index][0] });
+        actions.updateProject(projects[index][0], { prev: projects[index - 1][0] });
+      }
+
+      // if the project was the only project in the list,
+      // do nothing, as there is no next or previous project.
+      // scenario 6
+
+      // handle changing of the current project ID
+      // if project deleted and there are still projects left,
+      // set the current project ID to the previous project.
+      if (projects.length > 0) {
+        actions.setCurrentProjectID(projects[index > 0 ? index - 1 : 0][0]);
+      } else { // if no projects left, set the current project ID to an empty string
+        actions.setCurrentProjectID(null);
+      }
+
       console.log(`Delete button clicked for project: ${project[1].title}`);
 
     }

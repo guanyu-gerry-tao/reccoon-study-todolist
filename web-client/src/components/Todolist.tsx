@@ -24,16 +24,17 @@ function Todolist({
   projects,
   userStatus,
   actions,
-  draggedTask }: {
-    tasks: Record<string, TaskItem>,
-    projects: Record<string, ProjectItem>,
-    userStatus: UserStatus,
-    actions: Actions,
-    draggedTask: [string] | null
-  }) {
+  draggedTask,
+  currentProjectID,
+}: {
+  tasks: Record<string, TaskItem>,
+  projects: Record<string, ProjectItem>,
+  userStatus: UserStatus,
+  actions: Actions,
+  draggedTask: [string] | null,
+  currentProjectID: string | null
+}) {
 
-  // State to manage the current project ID, which is used to filter tasks by project.
-  const [currentProjectID, setCurrentProjectID] = useImmer<string>(userStatus.project);
 
   // State to manage the visibility of the delete and complete task drop areas.
   // Not used yet. // TODO: @Bestpart-Irene add the functionality to show/hide the delete and complete task drop areas when the user clicks on the delete or complete task buttons.
@@ -48,30 +49,10 @@ function Todolist({
 
   return (
     <>
-
-      <div className='dropArea completeDropArea'>
-        <TaskDropArea status={0} setIsMouseOverDropZone={setIsMouseOverDropZone} />
-        <div className='dropAreaVisual completeDropArea'
-          style={{ opacity: isMouseOverDropZone ? '1' : '0', transform: isMouseOverDropZone ? 'translateX(0)' : 'translateX(-150%)' }}
-        >
-          <p>Drop to Complete</p>
-        </div>
-      </div>
-      <div className='dropArea deleteDropArea'
-      >
-        <TaskDropArea status={-1} setIsMouseOverDropZone={setIsMouseOverDropZone} />
-        <div className='dropAreaVisual deleteDropArea'
-          style={{ opacity: isMouseOverDropZone ? '1' : '0.5', transform: isMouseOverDropZone ? 'translateX(0)' : 'translateX(-150%)' }}
-        >
-          <p>Drop to Delete</p>
-        </div>
-      </div>
-
-
       <div className='todolistContainer'>
         {/* The top menu bar */}
         {/* Contains logos, project, user information */}
-        <Menubar actions={actions} draggedTask={draggedTask} projects={projects} currentProjectID={currentProjectID} setCurrentProjectID={setCurrentProjectID} isMouseOverDropZone={isMouseOverDropZone} />
+        <Menubar actions={actions} draggedTask={draggedTask} projects={projects} currentProjectID={currentProjectID} isMouseOverDropZone={isMouseOverDropZone} />
 
         {/* The task columns */}
         <div className='todolistColumns'>

@@ -27,7 +27,11 @@ function AddNewProject({
           prev: projects.length > 0 ? projects[projects.length - 1][0] : null, // Set the previous project to the last project in the list or null if no projects exist
           next: null, // Set the next project to null initially
         };
-        actions.addProject(newProject); // Call the add function from actions with the new task
+        const id = actions.addProject(newProject); // Call the add function from actions with the new task
+        if (projects.length > 0) { // If there are existing projects, update the last project to point to the new project
+          actions.updateProject(projects[projects.length - 1][0], { next: id }); // Update the last project to point to the new project
+        }
+        actions.setCurrentProjectID(id); // Set the current project ID to the newly added project
         e.currentTarget.value = ''; // Clear the input field after adding the task
       }
     }

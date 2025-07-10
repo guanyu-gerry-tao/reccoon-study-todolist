@@ -10,11 +10,16 @@ export const sortChain = (chain: Record<string, TaskItem | ProjectItem>) => {
     const firstItem = Object.entries(chain).find(([_, chainInfo]) => chainInfo.prev === null)?.[0] ?? null;
     const sortedChain: [string, TaskItem | ProjectItem][] = [];
     if (firstItem) {
+        let index = 0;
         let currentItemID: string | null = firstItem;
         while (currentItemID) {
             const itemInfo: any = chain[currentItemID];
             sortedChain.push([currentItemID, itemInfo] as [string, TaskItem | ProjectItem]);
             currentItemID = itemInfo.next;
+            index++;
+        }
+        if (index !== Object.keys(chain).length) {
+            console.warn(`sortChain: The chain is not complete. Expected ${Object.keys(chain).length} items, but found ${index} items.`);
         }
     }
     return sortedChain;

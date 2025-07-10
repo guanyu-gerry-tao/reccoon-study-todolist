@@ -3,6 +3,7 @@ import { useImmer } from 'use-immer';
 import './App.css';
 
 import Todolist from './components/Todolist.tsx';
+import ResetTestButton from './components/ResetTestButton.tsx';
 import { DragDropContext } from '@hello-pangea/dnd';
 import type { DragDropContextProps } from '@hello-pangea/dnd';
 import type { TaskItem, Actions, Projects, ProjectItem } from './components/type.ts';
@@ -17,18 +18,19 @@ import { sortChain } from './components/utils.ts';
  */
 function App() {
 
-  // Load initial data for tasks, projects, and user status
+  // DEBUG: Load initial data for tasks, projects, and user status
   const testInitData = loadInitData();
   const testProjectsData = loadProjects();
   const testUserData = loadTestUserData();
-
+  const testData = {testInitData, testProjectsData, testUserData};
 
   // State management using useImmer for tasks, projects, user status, and dragged task
-  const [tasks, setTasks] = useImmer<Record<string, TaskItem>>(testInitData); // Initial tasks data loaded from testInitData
-  const [projects, setProjects] = useImmer<Record<string, ProjectItem>>(testProjectsData); // Initial projects data loaded from testProjectsData
-  const [userStatus, setUserStatus] = useImmer(testUserData); // Initial user status data loaded from testUserData. It is not finished yet.
+  const [tasks, setTasks] = useImmer<Record<string, TaskItem>>(testData.testInitData); // Initial tasks data loaded from testInitData
+  const [projects, setProjects] = useImmer<Record<string, ProjectItem>>(testData.testProjectsData); // Initial projects data loaded from testProjectsData
+  const [userStatus, setUserStatus] = useImmer(testData.testUserData); // Initial user status data loaded from testUserData. It is not finished yet.
   const [draggedTask, setDraggedTask] = useImmer<[string] | null>(null); // State to track the currently dragged task, if any
-
+  const [currentProjectID, setCurrentProjectID] = useImmer<string | null>(userStatus.project); // State to manage the current project ID, which is used to filter tasks by project.
+  
   /**
    * Function to add a new task to the task list.
    * It generates a unique ID for the new task, adds it to the tasks state,
@@ -36,11 +38,12 @@ function App() {
    * @param newTask - The new task item to be added - without an ID - ID will be generated automatically.
    */
   const addTask = (newTask: TaskItem) => {
+    const id = crypto.randomUUID();
     setTasks(draft => {
-      const id = crypto.randomUUID();
       draft[id] = {...newTask,};
       console.log(`Task added with id: ${id}`);
     });
+    return id; // Return the ID of the newly added task
   };
 
   /**
@@ -106,13 +109,15 @@ function App() {
    * It generates a unique ID for the new project, adds it to the projects state,
    * and reindexs the projects based on their order.
    * @param newProject - The new project item to be added.
+   * @returns The ID of the newly added project.
    */
   const addProject = (newProject: ProjectItem) => {
+    const id = crypto.randomUUID();
     setProjects(draft => {
-      const id = crypto.randomUUID();
       draft[id] = { ...newProject };
       console.log(`Project added with id: ${id}`);
     });
+    return id; // Return the ID of the newly added project
   };
 
   /**
@@ -137,19 +142,17 @@ function App() {
    * Function to delete a project from the project list.
    * This function will permanently remove the project list, and permanently delete all tasks in the project.
    * It finds the project by its ID and removes it from the projects state.
-   * @param id - The ID of the project to be deleted.
+   * @param projectId - The ID of the project to be deleted.
    */
-  const deleteProject = (id: string) => {
+  const deleteProject = (projectId: string) => {
     setProjects(draft => {
-      delete draft[id];
+      delete draft[projectId];
     });
 
     // Also delete all tasks in the project
     setTasks(draft => {
-      Object.entries(draft).forEach(([taskId, task]) => {
-        if (task.project === id) {
-          hardDeleteTask(taskId);
-        }
+      Object.entries(draft).filter(([taskId, task]) => task.project === projectId).forEach(([taskId, task]) => {
+        hardDeleteTask(taskId);
       });
     });
   };
@@ -167,6 +170,7 @@ function App() {
     addProject,
     updateProject,
     deleteProject,
+    setCurrentProjectID,
   };
 
   /**
@@ -321,8 +325,8 @@ function App() {
   return (
     <DragDropContext
       onDragEnd={onDragEnd} onDragStart={onDragStart} onDragUpdate={onDragUpdate}>
-      <Todolist tasks={tasks} projects={projects} userStatus={userStatus} actions={actions} draggedTask={draggedTask}
-      />
+      <Todolist tasks={tasks} projects={projects} userStatus={userStatus} actions={actions} draggedTask={draggedTask} currentProjectID={currentProjectID} />
+      <ResetTestButton resetData={testData}/>
     </DragDropContext>
   )
 }

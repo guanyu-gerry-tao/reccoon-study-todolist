@@ -17,14 +17,12 @@ function ProjectPanel({
   projects,
   currentProjectID,
   projectDeleteMode,
-  setCurrentProjectID,
 }:
   {
     actions: Actions,
     projects: Record<string, ProjectItem>,
-    currentProjectID: string,
+    currentProjectID: string | null,
     projectDeleteMode: boolean,
-    setCurrentProjectID: (projectID: string) => void
   }) {
 
   const handleDragEnd = (result: any) => {
@@ -57,7 +55,7 @@ function ProjectPanel({
             ref={provided.innerRef}
             {...provided.droppableProps}>
             {projectsSorted.map((project) => (
-              <ProjectButton key={project[0]} projects={projectsSorted} project={project} currentProjectID={currentProjectID} setCurrentProjectID={setCurrentProjectID} actions={actions} deleteMode={projectDeleteMode} />
+              <ProjectButton key={project[0]} projects={projectsSorted} project={project} currentProjectID={currentProjectID} actions={actions} deleteMode={projectDeleteMode} />
             ))}
             {provided.placeholder}
 

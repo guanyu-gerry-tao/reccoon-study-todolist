@@ -17,7 +17,7 @@ type TodoColumnProps = {
   tasks: Record<string, TaskItem>;
   draggingType?: string | null;
   draggingTaskId?: string | null;
-  currentProjectID: string;
+  currentProjectID: string | null;
 };
 
 type Projects = {
@@ -36,14 +36,15 @@ type UserStatus = {
 };
 
 type Actions = {
-  addTask: (newTask: TaskItem) => void;
+  addTask: (newTask: TaskItem) => string; // Returns the ID of the newly added task
   updateTask: (id: string, updatedFields: Partial<TaskItem>) => void;
   deleteTask: (id: string) => void;
   hardDeleteTask: (id: string) => void;
   refreshTasks: () => void;
-  addProject: (newProject: ProjectItem) => void;
+  addProject: (newProject: ProjectItem) => string; // Returns the ID of the newly added project
   updateProject: (id: string, updatedFields: Partial<ProjectItem>) => void;
   deleteProject: (id: string) => void;
+  setCurrentProjectID: (projectID: string | null) => void;
 };
 
 type setIsOverDeletedTaskArea = React.Dispatch<React.SetStateAction<boolean>>;
