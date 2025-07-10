@@ -39,12 +39,23 @@ type Actions = {
   addTask: (newTask: TaskItem) => string; // Returns the ID of the newly added task
   updateTask: (id: string, updatedFields: Partial<TaskItem>) => void;
   deleteTask: (id: string) => void;
+  completeTask: (id: string) => void;
   hardDeleteTask: (id: string) => void;
   refreshTasks: () => void;
   addProject: (newProject: ProjectItem) => string; // Returns the ID of the newly added project
   updateProject: (id: string, updatedFields: Partial<ProjectItem>) => void;
   deleteProject: (id: string) => void;
   setCurrentProjectID: (projectID: string | null) => void;
+  setEditMode: (editMode: boolean) => void;
+};
+
+type States = {
+  tasks: Record<string, TaskItem>;
+  projects: Record<string, ProjectItem>;
+  userStatus: UserStatus;
+  draggedTask: [string] | null;
+  currentProjectID: string | null;
+  editMode: boolean;
 };
 
 type setIsOverDeletedTaskArea = React.Dispatch<React.SetStateAction<boolean>>;
@@ -55,4 +66,5 @@ export type { UserStatus };
 export type { ProjectItem };
 export type { TodoColumnProps };
 export type { Actions };
+export type { States };
 export type { setIsOverDeletedTaskArea };

@@ -1,7 +1,7 @@
 import '../App.css'
 import './AddNewTask.css'
 
-import type { Actions, TaskItem } from './type.ts';
+import type { Actions, States, TaskItem } from './type.ts';
 
 import Project from './ProjectButton.tsx'
 
@@ -15,11 +15,11 @@ import Project from './ProjectButton.tsx'
 function AddNewTask({ actions,
   status,
   tasksSorted,
-  currentProjectID }: {
+  states }: {
     actions: Actions,
     status: number,
     tasksSorted: [string, TaskItem][],
-    currentProjectID: string | null
+    states: States
   }) {
 
   /**
@@ -35,7 +35,7 @@ function AddNewTask({ actions,
           title: newTaskTitle,
           status: status,
           previousStatus: status, // for new task, the previous status is the same as the current status
-          project: currentProjectID as string, // Assuming a default project, you can modify this as needed
+          project: states.userStatus.project as string, // Assuming a default project, you can modify this as needed
           prev: tasksSorted.length > 0 ? tasksSorted[tasksSorted.length - 1][0] : null, // Get the last task ID as the previous task
           next: null, // For a new task, new task is the last one, next are null
         };

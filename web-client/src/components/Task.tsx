@@ -1,9 +1,10 @@
 import { div, filter, style, text } from 'motion/react-client';
 import '../App.css'
 import './Task.css'
-import type { TaskItem, Actions } from './type.ts'
+import type { TaskItem, Actions, States } from './type.ts'
 import { Draggable } from '@hello-pangea/dnd';
 import React, { useRef, useEffect } from 'react';
+import { removeItemFromList } from '../utils/actions.ts'; // Importing sortChain function, but not used in this file.
 
 /**
  * This function is used to get the style of the task when it is being dragged
@@ -30,8 +31,15 @@ function getStyle(style: any, snapshot: any) {
  * @param taskInfo - The information of the task, defined in App.tsx.
  * @param actions - The object containing actions, defined in App.tsx.
  */
-function Task({ task, tasks, actions }:
-  { task: [string, TaskItem], tasks: [string, TaskItem][], actions: Actions }) {
+function Task({ task,
+  tasks,
+  actions,
+  states }:
+  {
+    task: [string, TaskItem],
+    tasks: [string, TaskItem][],
+    actions: Actions, states: States
+  }) {
 
   let tempValue = task[1].title; // Temporary variable to store the current value of the input field
 
@@ -120,6 +128,16 @@ function Task({ task, tasks, actions }:
     }
   }
 
+  const handleDeleteButton = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation(); // Prevent the click event from propagating to the parent div
+    removeItemFromList(tasks, task, actions.deleteTask, actions.updateTask);
+  }
+
+  const handleCompleteButton = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation(); // Prevent the click event from propagating to the parent div
+    removeItemFromList(tasks, task, actions.completeTask, actions.updateTask);
+  }
+
   const textAreaRefDesc = useRef<HTMLTextAreaElement>(null);
   const textAreaRefTitle = useRef<HTMLTextAreaElement>(null);
 
@@ -152,12 +170,15 @@ function Task({ task, tasks, actions }:
     <Draggable draggableId={task[0]} index={tasks.indexOf(task)}>
       {
         (provided, snapshot) => (
-          <div className='card'
+          <div
+            className={`card`}
             id={task[0]}
             ref={provided.innerRef}
             {...provided.draggableProps}
             {...provided.dragHandleProps}
-            style={getStyle(provided.draggableProps.style, snapshot)}
+            style={{
+              ...getStyle(provided.draggableProps.style, snapshot),
+            }}
           >
 
             <div className='taskDragHandler'></div>
@@ -208,7 +229,25 @@ function Task({ task, tasks, actions }:
               />
 
               {/* TODO: add subtasks function: click to drop down subtasks, subtasks can be added, deleted, updated, dragged */}
-              
+
+            </div>
+            <div className="deleteTaskButton"
+              style={{
+                opacity: states.editMode ? 1 : 0,
+                visibility: states.editMode ? 'visible' : 'hidden',
+                pointerEvents: states.editMode ? 'auto' : 'none'
+              }}
+              onClick={handleDeleteButton}
+            >
+            </div>
+            <div className="completeTaskButton"
+              style={{
+                opacity: states.editMode ? 1 : 0,
+                visibility: states.editMode ? 'visible' : 'hidden',
+                pointerEvents: states.editMode ? 'auto' : 'none'
+              }}
+              onClick={handleCompleteButton}
+            >
             </div>
           </div>
         )

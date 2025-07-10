@@ -6,7 +6,7 @@ import Menubar from './Menubar.tsx'
 import TodoColumn from './TodoColumn.tsx'
 import AIChatPanel from './AIChatPanel.tsx'
 
-import type { TaskItem, Actions, Projects, UserStatus, ProjectItem } from './type.ts'
+import type { Actions, States } from './type.ts'
 import { useImmer } from 'use-immer'
 import TaskDropArea from './TaskDropArea.tsx'
 
@@ -20,19 +20,11 @@ import TaskDropArea from './TaskDropArea.tsx'
  * @param draggedTask - The currently dragged task information.
  */
 function Todolist({
-  tasks,
-  projects,
-  userStatus,
+  states,
   actions,
-  draggedTask,
-  currentProjectID,
 }: {
-  tasks: Record<string, TaskItem>,
-  projects: Record<string, ProjectItem>,
-  userStatus: UserStatus,
+  states: States,
   actions: Actions,
-  draggedTask: [string] | null,
-  currentProjectID: string | null
 }) {
 
 
@@ -52,7 +44,7 @@ function Todolist({
       <div className='todolistContainer'>
         {/* The top menu bar */}
         {/* Contains logos, project, user information */}
-        <Menubar actions={actions} draggedTask={draggedTask} projects={projects} currentProjectID={currentProjectID} isMouseOverDropZone={isMouseOverDropZone} />
+        <Menubar actions={actions} states={states} />
 
         {/* The task columns */}
         <div className='todolistColumns'>
@@ -61,24 +53,24 @@ function Todolist({
             bgColor='#e8fdec'
             status={1}
             actions={actions}
-            tasks={Object.fromEntries(Object.entries(tasks).filter(([_, task]) => task.status === 1 && task.project === currentProjectID))}
-            currentProjectID={currentProjectID}
+            tasks={Object.fromEntries(Object.entries(states.tasks).filter(([_, task]) => task.status === 1 && task.project === states.currentProjectID))}
+            states={states}
           />
 
           <TodoColumn title={"Next"}
             bgColor='#f0f1fd'
             status={2}
             actions={actions}
-            tasks={Object.fromEntries(Object.entries(tasks).filter(([_, task]) => task.status === 2 && task.project === currentProjectID))}
-            currentProjectID={currentProjectID}
+            tasks={Object.fromEntries(Object.entries(states.tasks).filter(([_, task]) => task.status === 2 && task.project === states.currentProjectID))}
+            states={states}
           />
 
           <TodoColumn title={"Later"}
             bgColor='#fff8e8'
             status={3}
             actions={actions}
-            tasks={Object.fromEntries(Object.entries(tasks).filter(([_, task]) => task.status === 3 && task.project === currentProjectID))}
-            currentProjectID={currentProjectID}
+            tasks={Object.fromEntries(Object.entries(states.tasks).filter(([_, task]) => task.status === 3 && task.project === states.currentProjectID))}
+            states={states}
           />
         </div>
 

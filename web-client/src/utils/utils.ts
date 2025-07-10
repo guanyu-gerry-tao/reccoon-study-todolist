@@ -1,4 +1,4 @@
-import type { TaskItem, ProjectItem } from './type.ts';
+import type { TaskItem, ProjectItem } from '../components/type.ts';
 
 
 /**

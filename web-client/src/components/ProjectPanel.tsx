@@ -4,9 +4,9 @@ import './ProjectPanel.css';
 import { useImmer } from 'use-immer';
 import { Droppable } from '@hello-pangea/dnd';
 import ProjectButton from './ProjectButton.tsx';
-import type { ProjectItem, Actions } from './type';
+import type { ProjectItem, Actions, States } from './type';
 import AddNewProject from './AddNewProject.tsx';
-import { sortChain } from './utils.ts';
+import { sortChain } from '../utils/utils.ts';
 
 /**
  * ProjectPanel component displays a list of project buttons in a draggable panel.
@@ -14,15 +14,11 @@ import { sortChain } from './utils.ts';
  */
 function ProjectPanel({
   actions,
-  projects,
-  currentProjectID,
-  projectDeleteMode,
+  states,
 }:
   {
     actions: Actions,
-    projects: Record<string, ProjectItem>,
-    currentProjectID: string | null,
-    projectDeleteMode: boolean,
+    states: States
   }) {
 
   const handleDragEnd = (result: any) => {
@@ -38,7 +34,7 @@ function ProjectPanel({
    * @returns An array of ProjectItem sorted.
    */
 
-  const projectsSorted = sortChain(projects);
+  const projectsSorted = sortChain(states.projects);
 
 
   // Note: ref: it is specially required by the Droppable component.
@@ -55,7 +51,7 @@ function ProjectPanel({
             ref={provided.innerRef}
             {...provided.droppableProps}>
             {projectsSorted.map((project) => (
-              <ProjectButton key={project[0]} projects={projectsSorted} project={project} currentProjectID={currentProjectID} actions={actions} deleteMode={projectDeleteMode} />
+              <ProjectButton key={project[0]} projects={projectsSorted} project={project} currentProjectID={states.currentProjectID} actions={actions} states={states} />
             ))}
             {provided.placeholder}
 
