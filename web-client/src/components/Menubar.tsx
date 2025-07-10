@@ -51,7 +51,7 @@ function Menubar({
     actions.setShowCompleted(!states.showCompleted);
     console.log("show completed tasks: " + states.showCompleted);
   };
-
+  
   return (
     <>
       <div className='menubarContainer'>
