@@ -54,7 +54,6 @@ function Todolist({
             bgColor='#ffcce6'
             status={-1}
             actions={actions}
-            tasks={Object.fromEntries(Object.entries(states.tasks).filter(([_, task]) => task.status === -1 && task.project === states.currentProjectID))}
             states={states}
             />
           )}
@@ -64,7 +63,7 @@ function Todolist({
               bgColor='#e6f2ff'
               status={0}
               actions={actions}
-              tasks={Object.fromEntries(Object.entries(states.tasks).filter(([_, task]) => task.status === 0 && task.project === states.currentProjectID))}
+        
               states={states}
             />
           )}
@@ -73,7 +72,6 @@ function Todolist({
             bgColor='#e8fdec'
             status={1}
             actions={actions}
-            tasks={Object.fromEntries(Object.entries(states.tasks).filter(([_, task]) => task.status === 1 && task.project === states.currentProjectID))}
             states={states}
           />
 
@@ -81,7 +79,6 @@ function Todolist({
             bgColor='#f0f1fd'
             status={2}
             actions={actions}
-            tasks={Object.fromEntries(Object.entries(states.tasks).filter(([_, task]) => task.status === 2 && task.project === states.currentProjectID))}
             states={states}
           />
 
@@ -89,7 +86,6 @@ function Todolist({
             bgColor='#fff8e8'
             status={3}
             actions={actions}
-            tasks={Object.fromEntries(Object.entries(states.tasks).filter(([_, task]) => task.status === 3 && task.project === states.currentProjectID))}
             states={states}
           />
         </div>

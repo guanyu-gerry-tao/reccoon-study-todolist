@@ -16,7 +16,6 @@ import { sortChain } from '../utils/utils.ts';
  * @param bgColor - The background color of the column.
  * @param status - The status of the tasks in this column (e.g., 0 for "To Do", 1 for "In Progress", 2 for "Done").
  * @param actions - The actions object containing methods to manipulate tasks (e.g., add, update, delete tasks).
- * @param tasks - The list of tasks to be displayed in this column.
  * @param currentProjectID - The ID of the current project to which the tasks belong.
  */
 function TodoColumn({
@@ -24,16 +23,16 @@ function TodoColumn({
   bgColor,
   status,
   actions,
-  tasks,
   states }: {
     title: string;
     bgColor: string;
     status: number;
     actions: Actions;
-    tasks: Record<string, TaskItem>;
     states: States;
   }) {
+  
 
+  const tasks = Object.fromEntries(Object.entries(states.tasks).filter(([_, task]) => task.status === status && task.project === states.currentProjectID));
   const tasksSorted = sortChain(tasks) as [string, TaskItem][];
 
   // This counts the number of tasks in the current column, which is used to determine the order of the new task.
