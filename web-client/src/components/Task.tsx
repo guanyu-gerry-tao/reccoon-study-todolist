@@ -1,7 +1,11 @@
 import { div, filter, style, text } from 'motion/react-client';
 import '../App.css'
 import './Task.css'
+<<<<<<< HEAD
 import type { TaskType, Actions, States, TaskId } from './type.ts'
+=======
+import type { TaskItem, Actions, States } from './type.ts'
+>>>>>>> origin/Irene-change
 import { Draggable } from '@hello-pangea/dnd';
 import React, { useRef, useEffect } from 'react';
 import { removeItemFromList } from '../utils/actions.ts'; // Importing sortChain function, but not used in this file.
@@ -36,8 +40,13 @@ function Task({ task,
   actions,
   states }:
   {
+<<<<<<< HEAD
     task: [TaskId, TaskType],
     tasks: [TaskId, TaskType][],
+=======
+    task: [string, TaskItem],
+    tasks: [string, TaskItem][],
+>>>>>>> origin/Irene-change
     actions: Actions, states: States
   }) {
 

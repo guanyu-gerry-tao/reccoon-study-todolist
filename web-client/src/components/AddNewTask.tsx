@@ -1,7 +1,11 @@
 import '../App.css'
 import './AddNewTask.css'
 
+<<<<<<< HEAD
 import type { Actions, ProjectId, States, TaskId, TaskType } from './type.ts';
+=======
+import type { Actions, States, TaskItem } from './type.ts';
+>>>>>>> origin/Irene-change
 
 import Project from './ProjectButton.tsx'
 
@@ -17,8 +21,13 @@ function AddNewTask({ actions,
   tasksSorted,
   states }: {
     actions: Actions,
+<<<<<<< HEAD
     status: string,
     tasksSorted: [TaskId, TaskType][],
+=======
+    status: number,
+    tasksSorted: [string, TaskItem][],
+>>>>>>> origin/Irene-change
     states: States
   }) {
 
@@ -35,7 +44,11 @@ function AddNewTask({ actions,
           title: newTaskTitle,
           status: status,
           previousStatus: status, // for new task, the previous status is the same as the current status
+<<<<<<< HEAD
           project: states.currentProjectID as ProjectId, // Assuming a default project, you can modify this as needed
+=======
+          project: states.userStatus.project as string, // Assuming a default project, you can modify this as needed
+>>>>>>> origin/Irene-change
           prev: tasksSorted.length > 0 ? tasksSorted[tasksSorted.length - 1][0] : null, // Get the last task ID as the previous task
           next: null, // For a new task, new task is the last one, next are null
           userId: states.userProfile.id,

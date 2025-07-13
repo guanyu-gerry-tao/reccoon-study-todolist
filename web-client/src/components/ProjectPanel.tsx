@@ -4,7 +4,11 @@ import './ProjectPanel.css';
 import { useImmer } from 'use-immer';
 import { Droppable } from '@hello-pangea/dnd';
 import ProjectButton from './ProjectButton.tsx';
+<<<<<<< HEAD
 import type { Actions, States } from './type';
+=======
+import type { ProjectItem, Actions, States } from './type';
+>>>>>>> origin/Irene-change
 import AddNewProject from './AddNewProject.tsx';
 import { sortChain } from '../utils/utils.ts';
 

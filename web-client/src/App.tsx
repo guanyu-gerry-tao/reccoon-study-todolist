@@ -195,7 +195,6 @@ function App() {
   const deleteProject = (projectId: string) => {
     setProjects(draft => {
       delete draft[projectId];
-      delete draft[projectId];
     });
 
     // Also delete all tasks in the project

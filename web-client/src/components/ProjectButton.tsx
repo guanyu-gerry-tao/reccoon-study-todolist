@@ -3,7 +3,11 @@ import { useRef, useState, useEffect, act } from 'react'
 import '../App.css'
 import './ProjectButton.css'
 
+<<<<<<< HEAD
 import type { ProjectType, Actions, States, ProjectId } from './type'
+=======
+import type { ProjectItem, Actions, States } from './type'
+>>>>>>> origin/Irene-change
 import { Draggable } from '@hello-pangea/dnd'
 import { removeItemFromList } from '../utils/actions'
 
@@ -41,9 +45,15 @@ function ProjectButton({
   actions,
   states }:
   {
+<<<<<<< HEAD
     project: [ProjectId, ProjectType],
     projects: [ProjectId, ProjectType][],
     currentProjectID: ProjectId | null,
+=======
+    project: [string, ProjectItem],
+    projects: [string, ProjectItem][],
+    currentProjectID: string | null,
+>>>>>>> origin/Irene-change
     actions: Actions,
     states: States
   }) {
@@ -51,6 +61,11 @@ function ProjectButton({
   /** Handle click event on the project button. */
   const handleClick = () => {
     actions.setCurrentProjectID(project[0]);
+<<<<<<< HEAD
+=======
+    console.log(`Project ${project[1].title} selected with ID: ${project[0]}`);
+    console.log(`Current project ID is now: ${project[0]}`);
+>>>>>>> origin/Irene-change
   }
   // TODO: make project buttons scrollable.
 
