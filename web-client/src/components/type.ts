@@ -62,22 +62,16 @@ export type ProjectData = Record<ProjectId, ProjectType>;
 /**
  * UserId represents a unique identifier for a user in the todo list application.
  */
-export type UserType = {
+export type UserProfileData = {
   id: UserId; // Unique identifier for the user
   nickname: string;
-  email: string;
-  pwHash: string;
-  pwVersion: string;
-  salt: string;
-  createdIP: string;
-  createdAt: Date;
-  lastLoginIP: string;
-  lastLoginAt: Date;
-  isVerified: boolean;
   lastProjectId: ProjectId | null; // The last project ID the user interacted with
+  avatarUrl: string;
+  language: string;
 };
+
+// UserId is a semantic identifier that uniquely identifies a user in the application.
 export type UserId = string;
-export type UserData = Record<UserId, UserType>;
 
 /**
  * Status represents a single status in the todo list.
@@ -116,7 +110,7 @@ export type States = {
   tasks: TaskData;
   projects: ProjectData;
   statuses: StatusData;
-  users: UserData;
+  userProfile: UserProfileData;
   draggedTask: [TaskId] | null;
   currentProjectID: ProjectId | null;
   editMode: boolean;

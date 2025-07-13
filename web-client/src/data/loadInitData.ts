@@ -1,5 +1,5 @@
 import data from './testListChain.json';
-import type { ProjectData, StatusData, TaskData, UserData } from '../components/type.ts';
+import type { ProjectData, StatusData, TaskData, UserId, UserProfileData } from '../components/type.ts';
 
 export function loadTestTasks(): TaskData {
   const rawdata = data.taskList;
@@ -27,21 +27,7 @@ export function loadTestStatuses(): StatusData {
   return data.status;
 }
 
-export function loadTestUsers(): UserData {
-  const rawdata = data.user;
-
-  const userList = Object.fromEntries(
-    Object.entries(rawdata).map(([key, value]) => {
-      return [
-        key,
-        {
-          ...value,
-          lastLoginAt: new Date(value.lastLoginAt),
-          createdAt: new Date(value.createdAt),
-        }
-      ];
-    })
-  );
-
-  return userList;
+export function loadTestUserProfile(): UserProfileData {
+  const userId = import.meta.env.VITE_DEV_USERID as string;
+  return (data.userProfile as Record<UserId, UserProfileData>)[userId];
 }

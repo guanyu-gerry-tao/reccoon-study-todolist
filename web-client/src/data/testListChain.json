@@ -1,32 +1,44 @@
 {
-    "user": {
-        "user001": {
-            "id": "user001",
-            "nickname": "testUser",
+    "userAuth": {
+        "adminUser001": {
+            "id": "adminUser001",
             "email": "testUser@example.com",
             "pwHash": "hashed_password",
             "pwVersion": "v1",
             "salt": "random_salt",
             "createdIP": "192.168.1.1",
-            "createdAt": "2025-01-01T12:00:00Z",
+            "createdAt": "2025-01-02T12:00:00Z",
             "lastLoginIP": "192.168.1.1",
             "lastLoginAt": "2025-01-01T12:00:00Z",
-            "isVerified": true,
-            "lastProjectId": "project0"
+            "isVerified": true
         },
-        "user002": {
-            "id": "user002",
-            "nickname": "testUser2",
+        "adminUser002": {
+            "id": "adminUser002",
             "email": "testUser2@example.com",
             "pwHash": "hashed_password",
             "pwVersion": "v1",
             "salt": "random_salt",
             "createdIP": "192.168.1.2",
-            "createdAt": "2025-01-01T12:00:00Z",
+            "createdAt": "2025-01-02T12:00:00Z",
             "lastLoginIP": "192.168.1.2",
             "lastLoginAt": "2025-01-02T12:00:00Z",
-            "isVerified": true,
-            "lastProjectId": "project0"
+            "isVerified": true
+        }
+    },
+    "userProfile": {
+        "adminUser001": {
+            "id": "adminUser001",
+            "nickname": "testUser",
+            "lastProjectId": "project0",
+            "avatarUrl": "https://example.com/avatar/user001.png",
+            "language": "en-US"
+        },
+        "adminUser002": {
+            "id": "adminUser002",
+            "nickname": "testUser2",
+            "lastProjectId": "project0",
+            "avatarUrl": "https://example.com/avatar/user002.png",
+            "language": "en-US"
         }
     },
     "status": {

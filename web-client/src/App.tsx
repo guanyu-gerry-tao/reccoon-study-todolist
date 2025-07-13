@@ -16,9 +16,9 @@ import type {
   TaskData,
   ProjectData,
   StatusData,
-  UserData,
+  UserProfileData,
 } from './components/type.ts';
-import { loadTestTasks, loadTestProjects, loadTestUsers, loadTestStatuses } from './data/loadInitData.ts'
+import { loadTestTasks, loadTestProjects, loadTestUserProfile, loadTestStatuses } from './data/loadInitData.ts'
 import { source } from 'motion/react-client';
 import { sortChain } from './utils/utils.ts';
 
@@ -32,16 +32,16 @@ function App() {
   // DEBUG: Load initial data for tasks, projects, and user status
   const testTaskData = loadTestTasks();
   const testProjectData = loadTestProjects();
-  const testUserData = loadTestUsers();
+  const testUserProfileData = loadTestUserProfile();
   const testStatusData = loadTestStatuses();
-  const testData = { testTaskData, testProjectData, testUserData, testStatusData };
+  const testData = { testTaskData, testProjectData, testUserProfileData, testStatusData };
   console.log('testData', testData);
 
   // State management using useImmer for tasks, projects, user status, and dragged task
   const [tasks, setTasks] = useImmer<TaskData>(testData.testTaskData); // Initial tasks data loaded from testTaskData
   const [projects, setProjects] = useImmer<ProjectData>(testData.testProjectData); // Initial projects data loaded from testProjectData
   const [statuses, setStatuses] = useImmer<StatusData>(testData.testStatusData); // Initial statuses data loaded from testStatusData
-  const [users, setUsers] = useImmer<UserData>(testData.testUserData); // Initial users data loaded from testUserData
+  const [userProfile, setUserProfile] = useImmer<UserProfileData>(testData.testUserProfileData); // Initial users data loaded from testUserData
   const [draggedTask, setDraggedTask] = useImmer<[string] | null>(null); // State to track the currently dragged task, if any
   const [currentProjectID, setCurrentProjectID] = useImmer<string | null>("project0"); // State to manage the current project ID, which is used to filter tasks by project.
   const [editMode, setEditMode] = useImmer<boolean>(false);
@@ -52,7 +52,7 @@ function App() {
     tasks,
     projects,
     statuses,
-    users,
+    userProfile,
     draggedTask,
     currentProjectID,
     editMode,
@@ -72,6 +72,7 @@ function App() {
       draft[id] = { ...newTask, id: id };
       console.log(`Task added with id: ${id}`);
     });
+    return id; // Return the ID of the newly added task
     return id; // Return the ID of the newly added task
   };
 
@@ -154,6 +155,7 @@ function App() {
    * and reindexs the projects based on their order.
    * @param newProject - The new project item to be added.
    * @returns The ID of the newly added project.
+   * @returns The ID of the newly added project.
    */
   const addProject = (newProject: Omit<ProjectType, 'id'>) => {
     const id = crypto.randomUUID();
@@ -161,6 +163,7 @@ function App() {
       draft[id] = { ...newProject, id: id };
       console.log(`Project added with id: ${id}`);
     });
+    return id; // Return the ID of the newly added project
     return id; // Return the ID of the newly added project
   };
 
@@ -187,9 +190,11 @@ function App() {
    * This function will permanently remove the project list, and permanently delete all tasks in the project.
    * It finds the project by its ID and removes it from the projects state.
    * @param projectId - The ID of the project to be deleted.
+   * @param projectId - The ID of the project to be deleted.
    */
   const deleteProject = (projectId: string) => {
     setProjects(draft => {
+      delete draft[projectId];
       delete draft[projectId];
     });
 
@@ -197,192 +202,200 @@ function App() {
     setTasks(draft => {
       Object.entries(draft).filter(([_, task]) => task.project === projectId).forEach(([taskId, _]) => {
         hardDeleteTask(taskId);
+        Object.entries(draft).filter(([_, task]) => task.project === projectId).forEach(([taskId, _]) => {
+          hardDeleteTask(taskId);
+        });
       });
     });
-  };
 
-  // Define the actions that can be performed on tasks and projects.
-  // These actions will be passed down to the Todolist component.
-  // They include functions to add, update, delete tasks and projects, and refresh tasks.
-  // It is just convenient to put all the actions in one place.
-  const actions: Actions = {
-    addTask,
-    updateTask,
-    deleteTask,
-    completeTask,
-    hardDeleteTask,
-    refreshTasks,
-    addProject,
-    updateProject,
-    deleteProject,
-    setCurrentProjectID,
-    setEditMode,
-    setShowDeleted,
-    setShowCompleted
-  };
+    // Define the actions that can be performed on tasks and projects.
+    // These actions will be passed down to the Todolist component.
+    // They include functions to add, update, delete tasks and projects, and refresh tasks.
+    // It is just convenient to put all the actions in one place.
+    const actions: Actions = {
+      addTask,
+      updateTask,
+      deleteTask,
+      completeTask,
+      hardDeleteTask,
+      refreshTasks,
+      addProject,
+      updateProject,
+      deleteProject,
+      setCurrentProjectID,
+      setEditMode,
+      setShowDeleted,
+      setShowCompleted
+    };
 
 
-  /**
-   * Function to handle the end of a drag and drop event for the DragDropContext - hello-pangea/dnd.
-   * It updates the task or project chain based on the drag result.
-   */
-  const onDragEnd: DragDropContextProps['onDragEnd'] = (result) => {
-    // handle "task" type drag and drop
-    if (result.type === 'task') {
-      console.log('onDragEnd', result); // Log the drag result for debugging
-      if (result.destination) { // If true, the task was dropped in a valid droppable area. If false, it means the task was dropped outside of a droppable area.
-        setTasks(draft => {
-          const task = draft[result.draggableId]; // Find the task being dragged by its ID
-          if (task) { // If the task was found and task was moved
-            const originStatus = task.status;
-            const resultStatus = result.destination!.droppableId; // the status === droppableId, as defined in the TodoColumn component
 
-            // handle original and result task's previous and next tasks:
+    /**
+     * Function to handle the end of a drag and drop event for the DragDropContext - hello-pangea/dnd.
+     * It updates the task or project chain based on the drag result.
+     */
+    const onDragEnd: DragDropContextProps['onDragEnd'] = (result) => {
+      // handle "task" type drag and drop
+      if (result.type === 'task') {
+        console.log('onDragEnd', result); // Log the drag result for debugging
+        if (result.destination) { // If true, the task was dropped in a valid droppable area. If false, it means the task was dropped outside of a droppable area.
+          setTasks(draft => {
+            const task = draft[result.draggableId]; // Find the task being dragged by its ID
+            if (task) { // If the task was found and task was moved
+              const originStatus = task.status;
+              const resultStatus = result.destination!.droppableId; // the status === droppableId, as defined in the TodoColumn component
 
-            // handle original task's previous and next tasks
-            const originPrevTask = task.prev;
-            const originNextTask = task.next;
-            if (originPrevTask) { // If the original task is not the first task, update its previous task to the original's next task (skip the original task)
-              draft[originPrevTask].next = originNextTask;
+              // handle original and result task's previous and next tasks:
+
+              // handle original task's previous and next tasks
+              const originPrevTask = task.prev;
+              const originNextTask = task.next;
+              if (originPrevTask) { // If the original task is not the first task, update its previous task to the original's next task (skip the original task)
+                draft[originPrevTask].next = originNextTask;
+              }
+              if (originNextTask) { // If the original task is not the last task, update its next task to the original's previous task (skip the original task)
+                draft[originNextTask].prev = originPrevTask;
+              }
+
+              // handle result task's previous and next tasks and the dragged task
+              const resultTasks = Object.fromEntries(Object.entries(draft)
+                .filter(([id, t]) => t.status === resultStatus &&
+                  t.project === task.project &&
+                  id !== result.draggableId)); // Get all tasks in the result status
+              const sortedTasks = sortChain(resultTasks);
+
+              const resultPrevTask = sortedTasks[result.destination!.index - 1]?.[0] ?? null; // Get the previous task in the result status
+              const resultNextTask = sortedTasks[result.destination!.index]?.[0] ?? null; // Get the next task in the result status
+
+              if (resultPrevTask) { // If the result task is not the first task, handle A task and result task, [A(null), B(A)] -> [A(null), Result(A), B(Result)], B is handled in the next step
+                draft[resultPrevTask].next = result.draggableId; // Update the previous task's next task to the dragged task
+              }
+              if (resultNextTask) { // If the result task is not the last task, handle B task and result task, [A(B), B(null)] -> [A(Result), Result(null), B(Result)], A is handled in the previous step
+                draft[resultNextTask].prev = result.draggableId; // Update the next task's previous task to the dragged task
+              }
+
+
+              task.prev = resultPrevTask;
+              task.next = resultNextTask;
+
+
+              if (originStatus !== resultStatus) { // If the task's status has changed (i.e., it was moved to a different column)
+                task.previousStatus = originStatus; // Save the previous status of the task before updating it
+                task.status = resultStatus; // Update the task's status to the result status
+              } // else do nothing
             }
-            if (originNextTask) { // If the original task is not the last task, update its next task to the original's previous task (skip the original task)
-              draft[originNextTask].prev = originPrevTask;
-            }
-
-            // handle result task's previous and next tasks and the dragged task
-            const resultTasks = Object.fromEntries(Object.entries(draft)
-              .filter(([id, t]) => t.status === resultStatus &&
-                t.project === task.project &&
-                id !== result.draggableId)); // Get all tasks in the result status
-            const sortedTasks = sortChain(resultTasks);
-
-            const resultPrevTask = sortedTasks[result.destination!.index - 1]?.[0] ?? null; // Get the previous task in the result status
-            const resultNextTask = sortedTasks[result.destination!.index]?.[0] ?? null; // Get the next task in the result status
-
-            if (resultPrevTask) { // If the result task is not the first task, handle A task and result task, [A(null), B(A)] -> [A(null), Result(A), B(Result)], B is handled in the next step
-              draft[resultPrevTask].next = result.draggableId; // Update the previous task's next task to the dragged task
-            }
-            if (resultNextTask) { // If the result task is not the last task, handle B task and result task, [A(B), B(null)] -> [A(Result), Result(null), B(Result)], A is handled in the previous step
-              draft[resultNextTask].prev = result.draggableId; // Update the next task's previous task to the dragged task
-            }
-
-            task.prev = resultPrevTask;
-            task.next = resultNextTask;
-
-            if (originStatus !== resultStatus) { // If the task's status has changed (i.e., it was moved to a different column)
-              task.previousStatus = originStatus; // Save the previous status of the task before updating it
-              task.status = resultStatus; // Update the task's status to the result status
-            } // else do nothing
-          }
-        });
-      } else {
-        // If the task was dropped outside of a droppable area
-        // This is a placeholder for handling tasks dropped outside of valid areas
-        // Do nothing for now
+          });
+        } else {
+          // If the task was dropped outside of a droppable area
+          // This is a placeholder for handling tasks dropped outside of valid areas
+          // Do nothing for now
+        }
+        setDraggedTask(null); // Clear the dragged task state after the drag and drop operation is complete
+        console.log('onDragEnd completed');
       }
-      setDraggedTask(null); // Clear the dragged task state after the drag and drop operation is complete
-      console.log('onDragEnd completed');
-    }
 
 
-    // handle "project" type drag and drop
-    if (result.type === 'project') {
-      console.log('onDragEnd for project', result); // Log the drag result for debugging
-      if (result.destination) { // Check if the destination is valid. If true, the project was dropped in a valid droppable area. If false, it means the project was dropped outside of a droppable area.
-        setProjects(draft => {
-          const project = draft[result.draggableId]; // Find the project being dragged by its ID
-          if (project) { // If the project was found and project was moved
-            const originPrevProject = project.prev;
-            const originNextProject = project.next;
-            if (originPrevProject) { // If the original task is not the first task, update its previous task to the original's next task (skip the original task)
-              draft[originPrevProject].next = originNextProject;
+      // handle "project" type drag and drop
+      if (result.type === 'project') {
+        console.log('onDragEnd for project', result); // Log the drag result for debugging
+        if (result.destination) { // Check if the destination is valid. If true, the project was dropped in a valid droppable area. If false, it means the project was dropped outside of a droppable area.
+          setProjects(draft => {
+            const project = draft[result.draggableId]; // Find the project being dragged by its ID
+            if (project) { // If the project was found and project was moved
+              const originPrevProject = project.prev;
+              const originNextProject = project.next;
+              if (originPrevProject) { // If the original task is not the first task, update its previous task to the original's next task (skip the original task)
+                draft[originPrevProject].next = originNextProject;
+              }
+              if (originNextProject) { // If the original task is not the last task, update its next task to the original's previous task (skip the original task)
+                draft[originNextProject].prev = originPrevProject;
+              }
+
+              // handle result task's previous and next tasks and the dragged task
+              const resultProjects = Object.fromEntries(Object.entries(draft)
+                .filter(([id, t]) => id !== result.draggableId)); // Get all tasks in the result status
+              const sortedProjects = sortChain(resultProjects);
+
+              const resultPrevProject = sortedProjects[result.destination!.index - 1]?.[0] ?? null; // Get the previous project in the result status
+              const resultNextProject = sortedProjects[result.destination!.index]?.[0] ?? null; // Get the next project in the result status
+
+              if (resultPrevProject) { // If the result project is not the first project, handle A project and result project, [A(null), B(A)] -> [A(null), Result(A), B(Result)], B is handled in the next step
+                draft[resultPrevProject].next = result.draggableId; // Update the previous project's next project to the dragged project
+              }
+              if (resultNextProject) { // If the result project is not the last project, handle B project and result project, [A(B), B(null)] -> [A(Result), Result(null), B(Result)], A is handled in the previous step
+                draft[resultNextProject].prev = result.draggableId; // Update the next project's previous project to the dragged project
+              }
+
+              project.prev = resultPrevProject;
+              project.next = resultNextProject;
             }
-            if (originNextProject) { // If the original task is not the last task, update its next task to the original's previous task (skip the original task)
-              draft[originNextProject].prev = originPrevProject;
-            }
-
-            // handle result task's previous and next tasks and the dragged task
-            const resultProjects = Object.fromEntries(Object.entries(draft)
-              .filter(([id, t]) => id !== result.draggableId)); // Get all tasks in the result status
-            const sortedProjects = sortChain(resultProjects);
-
-            const resultPrevProject = sortedProjects[result.destination!.index - 1]?.[0] ?? null; // Get the previous project in the result status
-            const resultNextProject = sortedProjects[result.destination!.index]?.[0] ?? null; // Get the next project in the result status
-
-            if (resultPrevProject) { // If the result project is not the first project, handle A project and result project, [A(null), B(A)] -> [A(null), Result(A), B(Result)], B is handled in the next step
-              draft[resultPrevProject].next = result.draggableId; // Update the previous project's next project to the dragged project
-            }
-            if (resultNextProject) { // If the result project is not the last project, handle B project and result project, [A(B), B(null)] -> [A(Result), Result(null), B(Result)], A is handled in the previous step
-              draft[resultNextProject].prev = result.draggableId; // Update the next project's previous project to the dragged project
-            }
-
-            project.prev = resultPrevProject;
-            project.next = resultNextProject;
-          }
-        })
+          });
+        }
       }
-      console.log(projects)
-    }
-  };
+      console.log(projects);
+    };
 
 
-  /**
-   * Function to handle the start of a drag and drop event for the DragDropContext - hello-pangea/dnd.
-   * It sets the dragged task ID if the draggable type is 'task'.
-   * Currently, it does not handle project dragging. Not implemented yet.
-   */
-  const onDragStart: DragDropContextProps['onDragStart'] = (start) => {
-    if (start.type === 'task') {
-      setDraggedTask([start.draggableId]);
-    }
-    if (start.type === 'project') {
+    /**
+     * Function to handle the start of a drag and drop event for the DragDropContext - hello-pangea/dnd.
+     * It sets the dragged task ID if the draggable type is 'task'.
+     * Currently, it does not handle project dragging. Not implemented yet.
+     */
+    const onDragStart: DragDropContextProps['onDragStart'] = (start) => {
+      if (start.type === 'task') {
+        setDraggedTask([start.draggableId]);
+      }
+      if (start.type === 'project') {
 
+      }
     }
+
+    // Store the previous droppable ID to handle drag updates.
+    // Not in use. Stored here for future use.
+    const prevDroppableId = useRef<string | null>(null);
+    // Function to handle updates during a drag and drop event.
+    // Not in use. Stored here for future use.
+    const onDragUpdate: DragDropContextProps['onDragUpdate'] = (update) => {
+      const current = update.destination?.droppableId || null;
+      if (current !== prevDroppableId.current) {
+        if (prevDroppableId.current === '-1') { // exit delete-zone
+          document.querySelectorAll(`#${update.draggableId}`).forEach(el => {
+            // Remove the class indicating the draggable is over the delete area
+          });
+        }
+        if (current === '-1') { // enter delete-zone
+          document.querySelectorAll(`#${update.draggableId}`).forEach(el => {
+            // Add a class to indicate the draggable is over the delete area
+          });
+        }
+        if (prevDroppableId.current !== null && current === null) { // exit all Droppable
+          // places to handle when the draggable is not over any droppable area
+        }
+        prevDroppableId.current = current;
+      }
+    }
+    // Stored here for future use end.
+
+
+
+
+
+
+    // Note: The DragDropContext component is used to wrap the entire application to enable drag-and-drop functionality.
+    // It provides the necessary context for drag-and-drop operations.
+    // The onDragEnd, onDragStart, and onDragUpdate functions are passed as props to handle the drag-and-drop events.
+    // The Todolist component is the main component that displays the tasks and projects.
+    // It receives the tasks, projects, user status, actions, and dragged task as props.
+    return (
+      <DragDropContext
+        onDragEnd={onDragEnd} onDragStart={onDragStart} onDragUpdate={onDragUpdate}>
+        <Todolist states={states} actions={actions} />
+        <ResetTestButton resetData={testData} />
+        <Todolist states={states} actions={actions} />
+        <ResetTestButton resetData={testData} />
+      </DragDropContext>
+    )
   }
-
-  // Store the previous droppable ID to handle drag updates.
-  // Not in use. Stored here for future use.
-  const prevDroppableId = useRef<string | null>(null);
-  // Function to handle updates during a drag and drop event.
-  // Not in use. Stored here for future use.
-  const onDragUpdate: DragDropContextProps['onDragUpdate'] = (update) => {
-    const current = update.destination?.droppableId || null;
-    if (current !== prevDroppableId.current) {
-      if (prevDroppableId.current === '-1') { // exit delete-zone
-        document.querySelectorAll(`#${update.draggableId}`).forEach(el => {
-          // Remove the class indicating the draggable is over the delete area
-        });
-      }
-      if (current === '-1') { // enter delete-zone
-        document.querySelectorAll(`#${update.draggableId}`).forEach(el => {
-          // Add a class to indicate the draggable is over the delete area
-        });
-      }
-      if (prevDroppableId.current !== null && current === null) { // exit all Droppable
-        // places to handle when the draggable is not over any droppable area
-      }
-      prevDroppableId.current = current;
-    }
-  }
-  // Stored here for future use end.
-
-
-
-
-
-
-  // Note: The DragDropContext component is used to wrap the entire application to enable drag-and-drop functionality.
-  // It provides the necessary context for drag-and-drop operations.
-  // The onDragEnd, onDragStart, and onDragUpdate functions are passed as props to handle the drag-and-drop events.
-  // The Todolist component is the main component that displays the tasks and projects.
-  // It receives the tasks, projects, user status, actions, and dragged task as props.
-  return (
-    <DragDropContext
-      onDragEnd={onDragEnd} onDragStart={onDragStart} onDragUpdate={onDragUpdate}>
-      <Todolist states={states} actions={actions} />
-      <ResetTestButton resetData={testData} />
-    </DragDropContext>
-  )
 }
 
 export default App

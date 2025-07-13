@@ -38,7 +38,7 @@ function AddNewTask({ actions,
           project: states.currentProjectID as ProjectId, // Assuming a default project, you can modify this as needed
           prev: tasksSorted.length > 0 ? tasksSorted[tasksSorted.length - 1][0] : null, // Get the last task ID as the previous task
           next: null, // For a new task, new task is the last one, next are null
-          userId: states.users['id'].id,
+          userId: states.userProfile.id,
         };
         const id = actions.addTask(newTask); // Call the add function from actions with the new task
         if (tasksSorted.length > 0) { // If there are existing tasks, update the last task to point to the new task
