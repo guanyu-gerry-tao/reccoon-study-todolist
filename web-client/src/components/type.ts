@@ -1,80 +1,127 @@
-type TaskItem = {
+// web-client/src/components/type.ts
+
+// using semanic types for better clarity and maintainability
+
+
+
+
+
+
+/**
+ * Task represents a single task in the todo list.
+ */
+export type TaskType = {
+  id: TaskId; // Unique identifier for the task
   title: string;
   dueDate?: Date | undefined;
   description?: string;
-  status: number; // 1: Now, 2: Next, 3: Later, 0: Completed, -1: Deleted 
-  previousStatus: number;
-  project: string;
-  prev: string | null;
-  next: string | null;
-  userId: string;
+  status: string;
+  previousStatus: string;
+  project: ProjectId;
+  prev: TaskId | null;
+  next: TaskId | null;
+  userId: UserId;
 };
+export type TaskId = string;
+export type TaskData = Record<TaskId, TaskType>;
 
-type TodoColumnProps = {
-  title: React.ReactNode;
-  bgColor: string;
-  status: number;
-  actions: Actions;
-  tasks: Record<string, TaskItem>;
-  draggingType?: string | null;
-  draggingTaskId?: string | null;
-  currentProjectID: string | null;
-};
 
-type Projects = {
-  [id: string]: ProjectItem;
-};
+/**
+ * TodoColumnProps defines the properties for the TodoColumn component.
+ */
+// type TodoColumnProps = {
+//   title: React.ReactNode;
+//   bgColor: string;
+//   status: number;
+//   actions: Actions;
+//   tasks: Record<TaskId, TaskItem>;
+//   draggingType?: string | null;
+//   draggingTaskId?: TaskId | null;
+//   currentProjectID: ProjectId | null;
+// };
 
-type ProjectItem = {
+
+// type Projects = {
+//   [id: ProjectId]: ProjectItem;
+// };
+
+/**
+ * ProjectId represents a unique identifier for a project in the todo list application.
+ */
+export type ProjectType = {
+  id: ProjectId; // Unique identifier for the project
   title: string;
   description?: string;
-  prev: string | null;
-  next: string | null;
-  userId: string;
+  prev: ProjectId | null;
+  next: ProjectId | null;
+  userId: UserId;
 };
+export type ProjectId = string;
+export type ProjectData = Record<ProjectId, ProjectType>;
 
-type Status = {
+/**
+ * UserId represents a unique identifier for a user in the todo list application.
+ */
+export type UserType = {
+  id: UserId; // Unique identifier for the user
+  nickname: string;
+  email: string;
+  pwHash: string;
+  pwVersion: string;
+  salt: string;
+  createdIP: string;
+  createdAt: Date;
+  lastLoginIP: string;
+  lastLoginAt: Date;
+  isVerified: boolean;
+  lastProjectId: ProjectId | null; // The last project ID the user interacted with
+};
+export type UserId = string;
+export type UserData = Record<UserId, UserType>;
+
+/**
+ * Status represents a single status in the todo list.
+ */
+export type StatusType = {
+  id: StatusId; // Unique identifier for the status
   name: string;
-  discription: string;
+  description: string;
   color: string;
-  prev: string | null;
-  next: string | null;
-  userId: string;
+  prev: StatusId | null;
+  next: StatusId | null;
+  userId: UserId;
 }
+export type StatusId = string;
+export type StatusData = Record<StatusId, StatusType>;
 
-type Actions = {
-  addTask: (newTask: TaskItem) => string; // Returns the ID of the newly added task
-  updateTask: (id: string, updatedFields: Partial<TaskItem>) => void;
-  deleteTask: (id: string) => void;
-  completeTask: (id: string) => void;
-  hardDeleteTask: (id: string) => void;
+
+
+export type Actions = {
+  addTask: (newTask: Omit<TaskType, 'id'>) => TaskId; // Returns the ID of the newly added task
+  updateTask: (id: TaskId, updatedFields: Partial<TaskType>) => void;
+  deleteTask: (id: TaskId) => void;
+  completeTask: (id: TaskId) => void;
+  hardDeleteTask: (id: TaskId) => void;
   refreshTasks: () => void;
-  addProject: (newProject: ProjectItem) => string; // Returns the ID of the newly added project
-  updateProject: (id: string, updatedFields: Partial<ProjectItem>) => void;
-  deleteProject: (id: string) => void;
-  setCurrentProjectID: (projectID: string | null) => void;
+  addProject: (newProject: Omit<ProjectType, 'id'>) => ProjectId; // Returns the ID of the newly added project
+  updateProject: (id: ProjectId, updatedFields: Partial<ProjectType>) => void;
+  deleteProject: (id: ProjectId) => void;
+  setCurrentProjectID: (projectID: ProjectId | null) => void;
   setEditMode: (editMode: boolean) => void;
   setShowDeleted: (showDeleted: boolean) => void; // Action to toggle the visibility of deleted tasks
   setShowCompleted: (showCompleted: boolean) => void; // Optional action to toggle the visibility of completed tasks, for future use
 };
 
-type States = {
-  tasks: Record<string, TaskItem>;
-  projects: Record<string, ProjectItem>;
-  draggedTask: [string] | null;
-  currentProjectID: string | null;
+export type States = {
+  tasks: TaskData;
+  projects: ProjectData;
+  statuses: StatusData;
+  users: UserData;
+  draggedTask: [TaskId] | null;
+  currentProjectID: ProjectId | null;
   editMode: boolean;
   showDeleted: boolean; // State to manage the visibility of deleted tasks
   showCompleted: boolean; // State to manage the visibility of completed tasks, optional for future use
 };
 
-type setIsOverDeletedTaskArea = React.Dispatch<React.SetStateAction<boolean>>;
-
-export type { TaskItem };
-export type { Projects };
-export type { ProjectItem };
-export type { TodoColumnProps };
-export type { Actions };
-export type { States };
-export type { Status };
-export type { setIsOverDeletedTaskArea };
+export type setIsOverDeletedTaskArea = React.Dispatch<React.SetStateAction<boolean>>;

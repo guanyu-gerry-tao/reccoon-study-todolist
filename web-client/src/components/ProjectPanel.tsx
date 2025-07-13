@@ -4,7 +4,7 @@ import './ProjectPanel.css';
 import { useImmer } from 'use-immer';
 import { Droppable } from '@hello-pangea/dnd';
 import ProjectButton from './ProjectButton.tsx';
-import type { ProjectItem, Actions, States } from './type';
+import type { Actions, States } from './type';
 import AddNewProject from './AddNewProject.tsx';
 import { sortChain } from '../utils/utils.ts';
 
@@ -56,7 +56,7 @@ function ProjectPanel({
             {provided.placeholder}
 
             {/* AddNewProject is added at the end of the project list */}
-            <AddNewProject actions={actions} projects={projectsSorted} />
+            <AddNewProject actions={actions} states={states} projects={projectsSorted} />
           </div>
         )}
       </Droppable>

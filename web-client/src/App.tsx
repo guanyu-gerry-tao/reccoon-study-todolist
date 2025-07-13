@@ -6,8 +6,19 @@ import Todolist from './components/Todolist.tsx';
 import ResetTestButton from './components/ResetTestButton.tsx';
 import { DragDropContext } from '@hello-pangea/dnd';
 import type { DragDropContextProps } from '@hello-pangea/dnd';
-import type { TaskItem, Actions, States, Projects, ProjectItem } from './components/type.ts';
-import { loadInitData, loadProjects } from './data/loadInitData.ts'
+import type {
+  Actions,
+  States,
+  TaskId,
+  ProjectId,
+  TaskType,
+  ProjectType,
+  TaskData,
+  ProjectData,
+  StatusData,
+  UserData,
+} from './components/type.ts';
+import { loadTestTasks, loadTestProjects, loadTestUsers, loadTestStatuses } from './data/loadInitData.ts'
 import { source } from 'motion/react-client';
 import { sortChain } from './utils/utils.ts';
 
@@ -19,16 +30,18 @@ import { sortChain } from './utils/utils.ts';
 function App() {
 
   // DEBUG: Load initial data for tasks, projects, and user status
-  const testInitData = loadInitData();
-  const testProjectsData = loadProjects();
-  //TODO: load status
-  const testData = { testInitData, testProjectsData };
+  const testTaskData = loadTestTasks();
+  const testProjectData = loadTestProjects();
+  const testUserData = loadTestUsers();
+  const testStatusData = loadTestStatuses();
+  const testData = { testTaskData, testProjectData, testUserData, testStatusData };
   console.log('testData', testData);
 
   // State management using useImmer for tasks, projects, user status, and dragged task
-  const [tasks, setTasks] = useImmer<Record<string, TaskItem>>(testData.testInitData); // Initial tasks data loaded from testInitData
-  const [projects, setProjects] = useImmer<Record<string, ProjectItem>>(testData.testProjectsData); // Initial projects data loaded from testProjectsData
-  //TODO: useImmer, status
+  const [tasks, setTasks] = useImmer<TaskData>(testData.testTaskData); // Initial tasks data loaded from testTaskData
+  const [projects, setProjects] = useImmer<ProjectData>(testData.testProjectData); // Initial projects data loaded from testProjectData
+  const [statuses, setStatuses] = useImmer<StatusData>(testData.testStatusData); // Initial statuses data loaded from testStatusData
+  const [users, setUsers] = useImmer<UserData>(testData.testUserData); // Initial users data loaded from testUserData
   const [draggedTask, setDraggedTask] = useImmer<[string] | null>(null); // State to track the currently dragged task, if any
   const [currentProjectID, setCurrentProjectID] = useImmer<string | null>("project0"); // State to manage the current project ID, which is used to filter tasks by project.
   const [editMode, setEditMode] = useImmer<boolean>(false);
@@ -38,7 +51,8 @@ function App() {
   const states: States = {
     tasks,
     projects,
-    //TODO: status
+    statuses,
+    users,
     draggedTask,
     currentProjectID,
     editMode,
@@ -52,10 +66,10 @@ function App() {
    * and reindexs the tasks based on their status and project after the addition.
    * @param newTask - The new task item to be added - without an ID - ID will be generated automatically.
    */
-  const addTask = (newTask: TaskItem) => {
+  const addTask = (newTask: Omit<TaskType, 'id'>) => {
     const id = crypto.randomUUID();
     setTasks(draft => {
-      draft[id] = { ...newTask, };
+      draft[id] = { ...newTask, id: id };
       console.log(`Task added with id: ${id}`);
     });
     return id; // Return the ID of the newly added task
@@ -68,7 +82,7 @@ function App() {
    * @param id - The ID of the task to be updated.
    * @param updatedFields - The fields to be updated in the task.
    */
-  const updateTask = (id: string, updatedFields: Partial<TaskItem>) => {
+  const updateTask = (id: TaskId, updatedFields: Partial<TaskType>) => {
     setTasks(draft => {
       const task = draft[id];
       if (task) {
@@ -79,12 +93,12 @@ function App() {
     });
   };
 
-  const completeTask = (id: string) => {
+  const completeTask = (id: TaskId) => {
     setTasks(draft => {
       const task = draft[id];
-      const previousStatus = task.status; // Save the previous status before completing the task
       if (task) {
-        Object.assign(task, { status: 0, previousStatus: previousStatus }); // Mark the task as completed (status 0)
+        task.previousStatus = task.status;
+        task.status = "completed"; // Mark the task as completed
       } else {
         console.warn(`Task with id ${id} not found.`);
       }
@@ -93,17 +107,21 @@ function App() {
 
   /**
    * Function to soft delete a task by marking it as deleted.
-   * It finds the task by its ID, marks its status as "-1" (deleted), 
+   * It finds the task by its ID, marks its status as "deleted",
    * the previousStatus is saved in the task,
    * and the task can be restored later if needed.
    * It will then reindexs the tasks in the previous status after deletion.
    * @param id - The ID of the task to be deleted.
    */
-  const deleteTask = (id: string) => {
+  const deleteTask = (id: TaskId) => {
     setTasks(draft => {
       const task = draft[id];
-      task.previousStatus = task.status; // Save the previous status before deletion
-      task.status = -1; // Mark the task as deleted
+      if (task) {
+        task.previousStatus = task.status; // Save the previous status before deletion
+        task.status = "deleted"; // Mark the task as deleted
+      } else {
+        console.warn(`Task with id ${id} not found.`);
+      }
     })
   };
 
@@ -114,7 +132,7 @@ function App() {
    * It finds the task by its ID and removes it from the tasks state.
    * @param id - The ID of the task to be hard deleted.
    */
-  const hardDeleteTask = (id: string) => {
+  const hardDeleteTask = (id: TaskId) => {
     setTasks(draft => {
       delete draft[id]; // Remove the task from the tasks state
       console.log(`Task with id ${id} has been hard deleted.`);
@@ -137,10 +155,10 @@ function App() {
    * @param newProject - The new project item to be added.
    * @returns The ID of the newly added project.
    */
-  const addProject = (newProject: ProjectItem) => {
+  const addProject = (newProject: Omit<ProjectType, 'id'>) => {
     const id = crypto.randomUUID();
     setProjects(draft => {
-      draft[id] = { ...newProject };
+      draft[id] = { ...newProject, id: id };
       console.log(`Project added with id: ${id}`);
     });
     return id; // Return the ID of the newly added project
@@ -153,7 +171,7 @@ function App() {
    * @param id - The ID of the project to be updated.
    * @param updatedFields - The fields to be updated in the project.
    */
-  const updateProject = (id: string, updatedFields: Partial<ProjectItem>) => {
+  const updateProject = (id: ProjectId, updatedFields: Partial<ProjectType>) => {
     setProjects(draft => {
       const project = draft[id];
       if (project) {
@@ -217,7 +235,7 @@ function App() {
           const task = draft[result.draggableId]; // Find the task being dragged by its ID
           if (task) { // If the task was found and task was moved
             const originStatus = task.status;
-            const resultStatus = Number(result.destination!.droppableId); // the status === droppableId, as defined in the TodoColumn component
+            const resultStatus = result.destination!.droppableId; // the status === droppableId, as defined in the TodoColumn component
 
             // handle original and result task's previous and next tasks:
 
@@ -347,6 +365,11 @@ function App() {
     }
   }
   // Stored here for future use end.
+
+
+
+
+
 
   // Note: The DragDropContext component is used to wrap the entire application to enable drag-and-drop functionality.
   // It provides the necessary context for drag-and-drop operations.

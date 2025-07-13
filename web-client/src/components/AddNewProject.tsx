@@ -1,7 +1,7 @@
 import '../App.css'
 import './AddNewProject.css'
 
-import type { Actions, ProjectItem } from './type.ts'
+import type { Actions, ProjectType, States } from './type.ts'
 
 /**
  * AddNewProject component allows users to add a new project by typing in an input field.
@@ -10,10 +10,12 @@ import type { Actions, ProjectItem } from './type.ts'
  */
 function AddNewProject({
   actions,
+  states,
   projects
 }: {
   actions: Actions,
-  projects: [string, ProjectItem][]
+  states: States,
+  projects: [string, ProjectType][]
 }) {
 
   const handleKeyboard = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -26,6 +28,7 @@ function AddNewProject({
           title: newProjectTitle,
           prev: projects.length > 0 ? projects[projects.length - 1][0] : null, // Set the previous project to the last project in the list or null if no projects exist
           next: null, // Set the next project to null initially
+          userId: states.users['id'].id, // Assuming the user ID is available in the states
         };
         const id = actions.addProject(newProject); // Call the add function from actions with the new task
         if (projects.length > 0) { // If there are existing projects, update the last project to point to the new project

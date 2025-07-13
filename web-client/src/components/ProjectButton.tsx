@@ -3,7 +3,7 @@ import { useRef, useState, useEffect, act } from 'react'
 import '../App.css'
 import './ProjectButton.css'
 
-import type { ProjectItem, Actions, States } from './type'
+import type { ProjectType, Actions, States, ProjectId } from './type'
 import { Draggable } from '@hello-pangea/dnd'
 import { removeItemFromList } from '../utils/actions'
 
@@ -41,9 +41,9 @@ function ProjectButton({
   actions,
   states }:
   {
-    project: [string, ProjectItem],
-    projects: [string, ProjectItem][],
-    currentProjectID: string | null,
+    project: [ProjectId, ProjectType],
+    projects: [ProjectId, ProjectType][],
+    currentProjectID: ProjectId | null,
     actions: Actions,
     states: States
   }) {

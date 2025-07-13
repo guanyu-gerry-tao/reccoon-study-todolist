@@ -4,7 +4,7 @@ import '../App.css'
 import './TodoColumn.css';
 
 import AddNewTask from './AddNewTask.tsx';
-import type { TodoColumnProps, TaskItem, Actions, States } from './type.ts';
+import type { TaskType, Actions, States, TaskData, TaskId } from './type.ts';
 import Task from './Task.tsx';
 import { Droppable } from '@hello-pangea/dnd';
 import { sortChain } from '../utils/utils.ts';
@@ -28,13 +28,13 @@ function TodoColumn({
   states }: {
     title: string;
     bgColor: string;
-    status: number;
+    status: string;
     actions: Actions;
-    tasks: Record<string, TaskItem>;
+    tasks: TaskData;
     states: States;
   }) {
 
-  const tasksSorted = sortChain(tasks) as [string, TaskItem][];
+  const tasksSorted = sortChain(tasks) as [TaskId, TaskType][];
 
   // This counts the number of tasks in the current column, which is used to determine the order of the new task.
 
