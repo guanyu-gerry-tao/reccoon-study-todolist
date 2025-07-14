@@ -1,21 +1,30 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const routes = require('./routes'); // 加载所有 API 路由模块
+const mongoose = require('mongoose');
+
+// load routes
+const addTaskRoutes = require('./routes/addTaskRoutes');
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+mongoose.connect(process.env.MONGODB_URI).then(() => {
+  console.log('Connected to MongoDB');
+}).catch((error) => {
+  console.error('Error connecting to MongoDB:', error);
+});
 
-// 加载通用中间件
-app.use(cors()); // 允许前端跨域访问
-app.use(express.json()); // 自动解析 JSON 请求体
+// load middlewares
+app.use(cors()); // allow cross-origin requests
+app.use(express.json()); // automatically parse JSON request bodies
 
-// 加载所有 API 路由
-app.use('/api', routes); // 所有路由都挂在 /api 下
+// use all API routes
+app.use('/api/tasks', addTaskRoutes);
 
-// 启动服务器监听
+
+// start the server
 app.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`);
 });
