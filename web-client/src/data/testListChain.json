@@ -42,30 +42,30 @@
         }
     },
     "status": {
+        "status0": {
+            "id": "status0",
+            "title": "Now",
+            "description": "Tasks that are currently in progress.",
+            "color": "#e8fdec",
+            "prev": null,
+            "next": "status1",
+            "userId": "user001"
+        },
         "status1": {
             "id": "status1",
-            "name": "Now",
-            "description": "Tasks that are currently in progress.",
-            "color": "#FF5733",
+            "title": "Next",
+            "description": "Tasks that are planned but not started yet.",
+            "color": "#f0f1fd",
             "prev": "status0",
             "next": "status2",
             "userId": "user001"
         },
         "status2": {
             "id": "status2",
-            "name": "Next",
-            "description": "Tasks that are planned but not started yet.",
-            "color": "#FFCC00",
-            "prev": "status1",
-            "next": "status3",
-            "userId": "user001"
-        },
-        "status3": {
-            "id": "status3",
-            "name": "Later",
+            "title": "Later",
             "description": "Tasks that are not urgent and can be scheduled for a later time.",
-            "color": "#FF5733",
-            "prev": "status2",
+            "color": "#fff8e8",
+            "prev": "status1",
             "next": null,
             "userId": "user001"
         }

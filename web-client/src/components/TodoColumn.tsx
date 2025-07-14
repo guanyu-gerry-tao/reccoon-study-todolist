@@ -30,7 +30,7 @@ function TodoColumn({
     actions: Actions;
     states: States;
   }) {
-  
+
 
   const tasks = Object.fromEntries(Object.entries(states.tasks).filter(([_, task]) => task.status === status && task.project === states.currentProjectID));
   const tasksSorted = sortChain(tasks) as [TaskId, TaskType][];
@@ -39,7 +39,11 @@ function TodoColumn({
 
   return (
     <>
-      <div className='todoColumnCard' style={{ backgroundColor: bgColor }}>
+      <div className='todoColumnCard' style={{
+        backgroundColor: bgColor,
+        borderColor: (status === "completed" || status === "deleted") ? 'black' : bgColor
+      }}>
+
         <h1 className='todoColumnTitle'>{title}</h1>
 
         <div className='todoColumnContent'>

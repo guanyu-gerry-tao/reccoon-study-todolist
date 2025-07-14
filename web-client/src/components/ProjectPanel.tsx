@@ -4,11 +4,7 @@ import './ProjectPanel.css';
 import { useImmer } from 'use-immer';
 import { Droppable } from '@hello-pangea/dnd';
 import ProjectButton from './ProjectButton.tsx';
-<<<<<<< HEAD
-import type { Actions, States } from './type';
-=======
-import type { ProjectItem, Actions, States } from './type';
->>>>>>> origin/Irene-change
+import type { Actions, ProjectType, States } from './type';
 import AddNewProject from './AddNewProject.tsx';
 import { sortChain } from '../utils/utils.ts';
 
@@ -38,8 +34,7 @@ function ProjectPanel({
    * @returns An array of ProjectItem sorted.
    */
 
-  const projectsSorted = sortChain(states.projects);
-
+  const projectsSorted = sortChain(states.projects) as [string, ProjectType][];
 
   // Note: ref: it is specially required by the Droppable component.
   // {...provided.droppableProps}: these are the props required by the Droppable component to make the project panel droppable.

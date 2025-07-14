@@ -6,11 +6,7 @@ import ProjectButton from './ProjectButton.tsx'
 import { useImmer } from 'use-immer'
 import TaskDropArea from './TaskDropArea.tsx'
 import ProjectPanel from './ProjectPanel.tsx'
-<<<<<<< HEAD
 import type { Actions, States } from './type.ts'
-=======
-import type { ProjectItem, Projects, Actions, States } from './type.ts'
->>>>>>> origin/Irene-change
 
 
 
@@ -39,24 +35,6 @@ function Menubar({
   const handleEditModeClick = () => {
     console.log("edit mode clicked: " + states.editMode);
     actions.setEditMode(!states.editMode);
-<<<<<<< HEAD
-=======
-  };
-
-  /**
-   * Handle click event for the delete tasks button.
-   */
-  const handleDeleteTasksClick = () => {
-    console.log("delete tasks clicked");
-    actions.setShowDeleted(!states.showDeleted);
-    console.log("show deleted tasks: " + states.showDeleted);
-  };
-
-  const handleCompletedTasksClick = () => {
-    console.log("completed tasks clicked");
-    actions.setShowCompleted(!states.showCompleted);
-    console.log("show completed tasks: " + states.showCompleted);
->>>>>>> origin/Irene-change
   };
 
   /**

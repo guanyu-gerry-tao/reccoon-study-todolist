@@ -78,7 +78,7 @@ export type UserId = string;
  */
 export type StatusType = {
   id: StatusId; // Unique identifier for the status
-  name: string;
+  title: string;
   description: string;
   color: string;
   prev: StatusId | null;
@@ -97,6 +97,7 @@ export type Actions = {
   completeTask: (id: TaskId) => void;
   hardDeleteTask: (id: TaskId) => void;
   refreshTasks: () => void;
+  restoreTask: (id: TaskId) => void; // Action to restore a deleted task
   addProject: (newProject: Omit<ProjectType, 'id'>) => ProjectId; // Returns the ID of the newly added project
   updateProject: (id: ProjectId, updatedFields: Partial<ProjectType>) => void;
   deleteProject: (id: ProjectId) => void;
