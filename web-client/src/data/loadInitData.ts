@@ -1,7 +1,7 @@
 import data from './testListChain.json';
-import type { TaskItem, Projects, ProjectItem, UserStatus } from '../components/type.ts';
+import type { ProjectData, StatusData, TaskData, UserId, UserProfileData } from '../components/type.ts';
 
-export function loadInitData(): Record<string, TaskItem> {
+export function loadTestTasks(): TaskData {
   const rawdata = data.taskList;
 
   const taskList = Object.fromEntries(
@@ -14,31 +14,20 @@ export function loadInitData(): Record<string, TaskItem> {
         }
       ];
     })
-  )
+  );
 
   return taskList;
-
-  // return Object.entries(data.taskList).map(([key, value]) => {
-  //     return {
-  //         id: key,
-  //         ...value,
-  //         dueDate: value.dueDate ? new Date(value.dueDate) : undefined
-  //     }
-  // });
 }
 
-export function loadProjects(): Record<string, ProjectItem> {
+export function loadTestProjects(): ProjectData {
   return data.projectList;
-
-  // return  Object.entries(data.projectList).map(([key, value]) => {
-  //     return {
-  //         id: key,
-  //         ...value
-  //     }
-  // });
 }
 
-export function loadTestUserData(): UserStatus {
-  const userData = data.userLastState;
-  return userData
+export function loadTestStatuses(): StatusData {
+  return data.status;
+}
+
+export function loadTestUserProfile(): UserProfileData {
+  const userId = import.meta.env.VITE_DEV_USERID as string;
+  return (data.userProfile as Record<UserId, UserProfileData>)[userId];
 }

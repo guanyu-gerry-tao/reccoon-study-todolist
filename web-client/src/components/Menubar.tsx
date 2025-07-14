@@ -6,7 +6,7 @@ import ProjectButton from './ProjectButton.tsx'
 import { useImmer } from 'use-immer'
 import TaskDropArea from './TaskDropArea.tsx'
 import ProjectPanel from './ProjectPanel.tsx'
-import type { ProjectItem, Projects, Actions, States } from './type.ts'
+import type { Actions, States } from './type.ts'
 
 
 
@@ -51,7 +51,7 @@ function Menubar({
     actions.setShowCompleted(!states.showCompleted);
     console.log("show completed tasks: " + states.showCompleted);
   };
-
+  
   return (
     <>
       <div className='menubarContainer'>

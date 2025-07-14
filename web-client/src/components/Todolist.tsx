@@ -6,9 +6,10 @@ import Menubar from './Menubar.tsx'
 import TodoColumn from './TodoColumn.tsx'
 import AIChatPanel from './AIChatPanel.tsx'
 
-import type { Actions, States } from './type.ts'
+import type { Actions, States, StatusData, StatusType } from './type.ts'
 import { useImmer } from 'use-immer'
 import TaskDropArea from './TaskDropArea.tsx'
+import { sortChain } from '../utils/utils.ts';
 
 /**
  * Todolist component represents the main todo list interface.
@@ -39,6 +40,8 @@ function Todolist({
   // State to manage the mouse over state for the drop zone, used to show/hide the drop area visual.
   const [isMouseOverDropZone, setIsMouseOverDropZone] = useImmer(false);
 
+  const statusesSorted = sortChain(states.statuses) as [string, StatusType][];
+
   return (
     <>
       <div className='todolistContainer'>
@@ -50,48 +53,33 @@ function Todolist({
         <div className='todolistColumns'>
 
           {states.showDeleted && (
-            <TodoColumn title={"Deleted"}
-            bgColor='#ffcce6'
-            status={-1}
-            actions={actions}
-            tasks={Object.fromEntries(Object.entries(states.tasks).filter(([_, task]) => task.status === -1 && task.project === states.currentProjectID))}
-            states={states}
+            <TodoColumn
+              title={"Deleted"}
+              bgColor='#ffcce6'
+              status={"deleted"}
+              actions={actions}
+              states={states}
             />
           )}
 
           {states.showCompleted && (
-            <TodoColumn title={"Completed"}
+            <TodoColumn
+              title={"Completed"}
               bgColor='#e6f2ff'
-              status={0}
+              status={"completed"}
               actions={actions}
-              tasks={Object.fromEntries(Object.entries(states.tasks).filter(([_, task]) => task.status === 0 && task.project === states.currentProjectID))}
               states={states}
             />
           )}
-          
-          <TodoColumn title={"Now"}
-            bgColor='#e8fdec'
-            status={1}
-            actions={actions}
-            tasks={Object.fromEntries(Object.entries(states.tasks).filter(([_, task]) => task.status === 1 && task.project === states.currentProjectID))}
-            states={states}
-          />
 
-          <TodoColumn title={"Next"}
-            bgColor='#f0f1fd'
-            status={2}
-            actions={actions}
-            tasks={Object.fromEntries(Object.entries(states.tasks).filter(([_, task]) => task.status === 2 && task.project === states.currentProjectID))}
-            states={states}
-          />
-
-          <TodoColumn title={"Later"}
-            bgColor='#fff8e8'
-            status={3}
-            actions={actions}
-            tasks={Object.fromEntries(Object.entries(states.tasks).filter(([_, task]) => task.status === 3 && task.project === states.currentProjectID))}
-            states={states}
-          />
+          {statusesSorted.map(([key, status]) => (
+            <TodoColumn key={key} title={status.title}
+              bgColor={status.color}
+              status={status.id}
+              actions={actions}
+              states={states}
+            />
+          ))}
         </div>
 
         {/* The right panel for AI chat */}

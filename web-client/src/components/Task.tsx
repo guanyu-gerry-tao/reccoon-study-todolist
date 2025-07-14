@@ -1,7 +1,7 @@
 import { div, filter, style, text } from 'motion/react-client';
 import '../App.css'
 import './Task.css'
-import type { TaskItem, Actions, States } from './type.ts'
+import type { TaskType, Actions, States, TaskId } from './type.ts'
 import { Draggable } from '@hello-pangea/dnd';
 import React, { useRef, useEffect } from 'react';
 import { removeItemFromList } from '../utils/actions.ts'; // Importing sortChain function, but not used in this file.
@@ -36,8 +36,8 @@ function Task({ task,
   actions,
   states }:
   {
-    task: [string, TaskItem],
-    tasks: [string, TaskItem][],
+    task: [TaskId, TaskType],
+    tasks: [TaskId, TaskType][],
     actions: Actions, states: States
   }) {
 
@@ -130,12 +130,34 @@ function Task({ task,
 
   const handleDeleteButton = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation(); // Prevent the click event from propagating to the parent div
-    removeItemFromList(tasks, task, actions.deleteTask, actions.updateTask);
+    if (task[1].status === 'deleted') {
+      if (window.confirm(`By double deleting task: ${task[1].title}, you will permanently delete it. Are you sure?`)) {
+        removeItemFromList(tasks, task, actions.hardDeleteTask, actions.updateTask);
+      }
+    } else if (task[1].status === 'completed') {
+      removeItemFromList(tasks, task, actions.deleteTask, actions.updateTask);
+    } else {
+      removeItemFromList(tasks, task, actions.deleteTask, actions.updateTask);
+    }
   }
 
   const handleCompleteButton = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation(); // Prevent the click event from propagating to the parent div
-    removeItemFromList(tasks, task, actions.completeTask, actions.updateTask);
+    if (task[1].status === 'completed') {
+      if (window.confirm(`By double completed task: ${task[1].title}, you will permanently delete it. Are you sure?`)) {
+        removeItemFromList(tasks, task, actions.hardDeleteTask, actions.updateTask);
+      }
+    } else if (task[1].status === 'deleted') {
+      // for deleted tasks, there shouldn't be a complete button, so we don't need to handle this case.
+      console.warn(`Task with id ${task[0]} is deleted, cannot complete it.`);
+    } else {
+      removeItemFromList(tasks, task, actions.completeTask, actions.updateTask);
+    }
+  }
+
+  const handleRestoreButton = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation(); // Prevent the click event from propagating to the parent div
+    removeItemFromList(tasks, task, actions.restoreTask, actions.updateTask);
   }
 
   const textAreaRefDesc = useRef<HTMLTextAreaElement>(null);
@@ -240,15 +262,31 @@ function Task({ task,
               onClick={handleDeleteButton}
             >
             </div>
-            <div className="completeTaskButton"
-              style={{
-                opacity: states.editMode ? 1 : 0,
-                visibility: states.editMode ? 'visible' : 'hidden',
-                pointerEvents: states.editMode ? 'auto' : 'none'
-              }}
-              onClick={handleCompleteButton}
-            >
-            </div>
+
+            {task[1].status !== 'deleted' && task[1].status !== 'completed' && (
+              <div className="completeTaskButton"
+                style={{
+                  opacity: states.editMode ? 1 : 0,
+                  visibility: states.editMode ? 'visible' : 'hidden',
+                  pointerEvents: states.editMode ? 'auto' : 'none'
+                }}
+                onClick={handleCompleteButton}
+              >
+              </div>)
+            }
+
+
+            {(task[1].status === "deleted" || task[1].status === "completed") && (
+              <div className="restoreTaskButton"
+                style={{
+                  opacity: states.editMode ? 1 : 0,
+                  visibility: states.editMode ? 'visible' : 'hidden',
+                  pointerEvents: states.editMode ? 'auto' : 'none'
+                }}
+                onClick={handleRestoreButton}
+              >
+              </div>)
+            }
           </div>
         )
       }
