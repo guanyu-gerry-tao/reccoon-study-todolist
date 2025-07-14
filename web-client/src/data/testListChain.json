@@ -28,6 +28,7 @@
     "userProfile": {
         "adminUser001": {
             "id": "adminUser001",
+            "userAuthId": "adminUser001",
             "nickname": "testUser",
             "lastProjectId": "project0",
             "avatarUrl": "https://example.com/avatar/user001.png",
@@ -35,6 +36,7 @@
         },
         "adminUser002": {
             "id": "adminUser002",
+            "userAuthId": "adminUser002",
             "nickname": "testUser2",
             "lastProjectId": "project0",
             "avatarUrl": "https://example.com/avatar/user002.png",
@@ -74,7 +76,7 @@
         "project0": {
             "id": "project0",
             "title": "Learn Full-stack",
-            "discription": "A comprehensive project to learn full-stack development including frontend and backend technologies.",
+            "description": "A comprehensive project to learn full-stack development including frontend and backend technologies.",
             "prev": null,
             "next": "project1",
             "userId": "user001"
@@ -82,7 +84,7 @@
         "project1": {
             "id": "project1",
             "title": "Learn English",
-            "discription": "A project focused on improving English language skills.",
+            "description": "A project focused on improving English language skills.",
             "prev": "project0",
             "next": "project2",
             "userId": "user001"
@@ -90,7 +92,7 @@
         "project2": {
             "id": "project2",
             "title": "Learn Driving",
-            "discription": "A project aimed at teaching driving skills and road safety.",
+            "description": "A project aimed at teaching driving skills and road safety.",
             "prev": "project1",
             "next": null,
             "userId": "user001"
@@ -104,7 +106,7 @@
             "description": "Learn how to build reusable React components for dynamic UIs.",
             "status": "status1",
             "previousStatus": "status1",
-            "project": "project0",
+            "projectId": "project0",
             "prev": null,
             "next": "task87654321",
             "userId": "user001"
@@ -116,7 +118,7 @@
             "description": "Explore how to design and consume RESTful APIs effectively.",
             "status": "status1",
             "previousStatus": "status1",
-            "project": "project0",
+            "projectId": "project0",
             "prev": "task12345678",
             "next": "task23456789",
             "userId": "user001"
@@ -128,7 +130,7 @@
             "description": "Get comfortable with ES6 syntax and features for modern JS development.",
             "status": "status1",
             "previousStatus": "status1",
-            "project": "project0",
+            "projectId": "project0",
             "prev": "task87654321",
             "next": "task98765432",
             "userId": "user001"
@@ -140,7 +142,7 @@
             "description": "Set up a Node.js server to handle backend logic and routing.",
             "status": "status1",
             "previousStatus": "status1",
-            "project": "project0",
+            "projectId": "project0",
             "prev": "task23456789",
             "next": "task34567890",
             "userId": "user001"
@@ -152,7 +154,7 @@
             "description": "Learn how to design efficient database schemas for your applications.",
             "status": "status1",
             "previousStatus": "status1",
-            "project": "project0",
+            "projectId": "project0",
             "prev": "task98765432",
             "next": null,
             "userId": "user001"
@@ -164,7 +166,7 @@
             "description": "Containerize your applications using Docker for consistent deployments.",
             "status": "status2",
             "previousStatus": "status2",
-            "project": "project0",
+            "projectId": "project0",
             "prev": null,
             "next": "task56789012",
             "userId": "user001"
@@ -176,7 +178,7 @@
             "description": "Secure your app by implementing JSON Web Token based authentication.",
             "status": "status2",
             "previousStatus": "status2",
-            "project": "project0",
+            "projectId": "project0",
             "prev": "task45678901",
             "next": "task67890123",
             "userId": "user001"
@@ -188,7 +190,7 @@
             "description": "Learn how to query data efficiently using GraphQL.",
             "status": "status2",
             "previousStatus": "status2",
-            "project": "project0",
+            "projectId": "project0",
             "prev": "task56789012",
             "next": "task78901234",
             "userId": "user001"
@@ -200,7 +202,7 @@
             "description": "Manage complex application states using Redux.",
             "status": "status2",
             "previousStatus": "status2",
-            "project": "project0",
+            "projectId": "project0",
             "prev": "task67890123",
             "next": "task89012345",
             "userId": "user001"
@@ -212,7 +214,7 @@
             "description": "Design responsive web layouts that work on all devices.",
             "status": "status2",
             "previousStatus": "status2",
-            "project": "project0",
+            "projectId": "project0",
             "prev": "task78901234",
             "next": null,
             "userId": "user001"
@@ -224,7 +226,7 @@
             "description": "Identify and fix broken API endpoints causing errors.",
             "status": "status3",
             "previousStatus": "status3",
-            "project": "project0",
+            "projectId": "project0",
             "prev": null,
             "next": "task01234567",
             "userId": "user001"
@@ -236,7 +238,7 @@
             "description": "Improve and clean up the legacy code for better maintainability.",
             "status": "status3",
             "previousStatus": "status3",
-            "project": "project0",
+            "projectId": "project0",
             "prev": "task90123456",
             "next": "task11223344",
             "userId": "user001"
@@ -248,7 +250,7 @@
             "description": "Clean up project by removing unused libraries and dependencies.",
             "status": "status3",
             "previousStatus": "status3",
-            "project": "project0",
+            "projectId": "project0",
             "prev": "task01234567",
             "next": "task22334455",
             "userId": "user001"
@@ -260,7 +262,7 @@
             "description": "Ensure all project documentation is up-to-date and accurate.",
             "status": "status3",
             "previousStatus": "status3",
-            "project": "project0",
+            "projectId": "project0",
             "prev": "task11223344",
             "next": "task33445566",
             "userId": "user001"
@@ -272,7 +274,7 @@
             "description": "Improve website performance by optimizing image assets.",
             "status": "status3",
             "previousStatus": "status3",
-            "project": "project0",
+            "projectId": "project0",
             "prev": "task22334455",
             "next": "task44556677",
             "userId": "user001"
@@ -284,7 +286,7 @@
             "description": "Resolve layout issues caused by CSS conflicts.",
             "status": "status3",
             "previousStatus": "status3",
-            "project": "project0",
+            "projectId": "project0",
             "prev": "task33445566",
             "next": "task55667788",
             "userId": "user001"
@@ -296,7 +298,7 @@
             "description": "Write additional tests to increase unit test coverage.",
             "status": "status3",
             "previousStatus": "status3",
-            "project": "project0",
+            "projectId": "project0",
             "prev": "task44556677",
             "next": "task66778899",
             "userId": "user001"
@@ -308,7 +310,7 @@
             "description": "Identify and fix memory leaks in the application.",
             "status": "status3",
             "previousStatus": "status3",
-            "project": "project0",
+            "projectId": "project0",
             "prev": "task55667788",
             "next": "task77889900",
             "userId": "user001"
@@ -320,7 +322,7 @@
             "description": "Handle and resolve code merge conflicts from recent branches.",
             "status": "status3",
             "previousStatus": "status3",
-            "project": "project0",
+            "projectId": "project0",
             "prev": "task66778899",
             "next": "task88990011",
             "userId": "user001"
@@ -332,7 +334,7 @@
             "description": "Troubleshoot and fix issues with user login authentication.",
             "status": "status3",
             "previousStatus": "status3",
-            "project": "project0",
+            "projectId": "project0",
             "prev": "task77889900",
             "next": "task99001122",
             "userId": "user001"
@@ -344,7 +346,7 @@
             "description": "Update integrations with third-party APIs to latest versions.",
             "status": "status3",
             "previousStatus": "status3",
-            "project": "project0",
+            "projectId": "project0",
             "prev": "task88990011",
             "next": "task10111213",
             "userId": "user001"
@@ -356,7 +358,7 @@
             "description": "Correct pagination logic to display items properly.",
             "status": "status3",
             "previousStatus": "status3",
-            "project": "project0",
+            "projectId": "project0",
             "prev": "task99001122",
             "next": "task12131415",
             "userId": "user001"
@@ -368,7 +370,7 @@
             "description": "Clean up code by removing unnecessary console logs.",
             "status": "status3",
             "previousStatus": "status3",
-            "project": "project0",
+            "projectId": "project0",
             "prev": "task10111213",
             "next": "task13141516",
             "userId": "user001"
@@ -380,7 +382,7 @@
             "description": "Identify and fix broken hyperlinks on the website.",
             "status": "status3",
             "previousStatus": "status3",
-            "project": "project0",
+            "projectId": "project0",
             "prev": "task12131415",
             "next": "task14151617",
             "userId": "user001"
@@ -392,7 +394,7 @@
             "description": "Fix conflicting CSS rules that cause styling issues.",
             "status": "status3",
             "previousStatus": "status3",
-            "project": "project0",
+            "projectId": "project0",
             "prev": "task13141516",
             "next": "task15161718",
             "userId": "user001"
@@ -404,7 +406,7 @@
             "description": "Investigate and fix server timeout issues affecting performance.",
             "status": "status3",
             "previousStatus": "status3",
-            "project": "project0",
+            "projectId": "project0",
             "prev": "task14151617",
             "next": "task16171819",
             "userId": "user001"
@@ -416,7 +418,7 @@
             "description": "Ensure environment variables are correctly set for all environments.",
             "status": "status3",
             "previousStatus": "status3",
-            "project": "project0",
+            "projectId": "project0",
             "prev": "task15161718",
             "next": "task17181920",
             "userId": "user001"
@@ -428,7 +430,7 @@
             "description": "Resolve issues with API rate limiting causing request failures.",
             "status": "status3",
             "previousStatus": "status3",
-            "project": "project0",
+            "projectId": "project0",
             "prev": "task16171819",
             "next": "task18192021",
             "userId": "user001"
@@ -440,7 +442,7 @@
             "description": "Fix errors encountered during application deployment.",
             "status": "status3",
             "previousStatus": "status3",
-            "project": "project0",
+            "projectId": "project0",
             "prev": "task17181920",
             "next": "task19202122",
             "userId": "user001"
@@ -452,7 +454,7 @@
             "description": "Ensure the app works consistently across different browsers.",
             "status": "status3",
             "previousStatus": "status3",
-            "project": "project0",
+            "projectId": "project0",
             "prev": "task18192021",
             "next": null,
             "userId": "user001"
@@ -464,7 +466,7 @@
             "description": "Read a news article in English and summarize the main points.",
             "status": "status1",
             "previousStatus": "status1",
-            "project": "project1",
+            "projectId": "project1",
             "prev": null,
             "next": "taskeng002",
             "userId": "user001"
@@ -476,7 +478,7 @@
             "description": "Have a 15-minute English conversation with a language partner.",
             "status": "status1",
             "previousStatus": "status1",
-            "project": "project1",
+            "projectId": "project1",
             "prev": "taskeng001",
             "next": "taskeng003",
             "userId": "user001"
@@ -488,7 +490,7 @@
             "description": "Finish one unit of English grammar workbook.",
             "status": "status1",
             "previousStatus": "status1",
-            "project": "project1",
+            "projectId": "project1",
             "prev": "taskeng002",
             "next": "taskeng004",
             "userId": "user001"
@@ -500,7 +502,7 @@
             "description": "Watch a movie in English and write down new vocabulary.",
             "status": "status1",
             "previousStatus": "status1",
-            "project": "project1",
+            "projectId": "project1",
             "prev": "taskeng003",
             "next": null,
             "userId": "user001"
@@ -512,7 +514,7 @@
             "description": "Write a 200-word essay about your weekend in English.",
             "status": "status2",
             "previousStatus": "status2",
-            "project": "project1",
+            "projectId": "project1",
             "prev": null,
             "next": "taskeng006",
             "userId": "user001"
@@ -524,7 +526,7 @@
             "description": "Go through 50 English vocabulary flashcards.",
             "status": "status2",
             "previousStatus": "status2",
-            "project": "project1",
+            "projectId": "project1",
             "prev": "taskeng005",
             "next": null,
             "userId": "user001"
@@ -536,7 +538,7 @@
             "description": "Listen to a 20-minute English podcast and note down key phrases.",
             "status": "status3",
             "previousStatus": "status3",
-            "project": "project1",
+            "projectId": "project1",
             "prev": null,
             "next": "taskeng008",
             "userId": "user001"
@@ -548,7 +550,7 @@
             "description": "Participate in a live online English lesson.",
             "status": "status3",
             "previousStatus": "status3",
-            "project": "project1",
+            "projectId": "project1",
             "prev": "taskeng007",
             "next": "taskeng009",
             "userId": "user001"
@@ -560,7 +562,7 @@
             "description": "Translate a short story from your native language to English.",
             "status": "status3",
             "previousStatus": "status3",
-            "project": "project1",
+            "projectId": "project1",
             "prev": "taskeng008",
             "next": "taskeng010",
             "userId": "user001"
@@ -572,7 +574,7 @@
             "description": "Record your voice reading an English passage and check pronunciation.",
             "status": "status3",
             "previousStatus": "status3",
-            "project": "project1",
+            "projectId": "project1",
             "prev": "taskeng009",
             "next": null,
             "userId": "user001"
@@ -584,7 +586,7 @@
             "description": "Read one chapter of the local driving manual.",
             "status": "status1",
             "previousStatus": "status1",
-            "project": "project2",
+            "projectId": "project2",
             "prev": null,
             "next": "taskdrive002",
             "userId": "user001"
@@ -596,7 +598,7 @@
             "description": "Practice parallel parking in an empty lot.",
             "status": "status1",
             "previousStatus": "status1",
-            "project": "project2",
+            "projectId": "project2",
             "prev": "taskdrive001",
             "next": "taskdrive003",
             "userId": "user001"
@@ -608,7 +610,7 @@
             "description": "Complete a practice driving theory test online.",
             "status": "status1",
             "previousStatus": "status1",
-            "project": "project2",
+            "projectId": "project2",
             "prev": "taskdrive002",
             "next": null,
             "userId": "user001"
@@ -620,7 +622,7 @@
             "description": "Book a session with a certified driving instructor.",
             "status": "status2",
             "previousStatus": "status2",
-            "project": "project2",
+            "projectId": "project2",
             "prev": null,
             "next": "taskdrive005",
             "userId": "user001"
@@ -632,7 +634,7 @@
             "description": "Study the meanings of common road signs.",
             "status": "status2",
             "previousStatus": "status2",
-            "project": "project2",
+            "projectId": "project2",
             "prev": "taskdrive004",
             "next": "taskdrive006",
             "userId": "user001"
@@ -644,7 +646,7 @@
             "description": "Practice driving at night with supervision.",
             "status": "status2",
             "previousStatus": "status2",
-            "project": "project2",
+            "projectId": "project2",
             "prev": "taskdrive005",
             "next": null,
             "userId": "user001"
@@ -656,7 +658,7 @@
             "description": "Learn how to check oil, tires, and basic car maintenance.",
             "status": "status3",
             "previousStatus": "status3",
-            "project": "project2",
+            "projectId": "project2",
             "prev": null,
             "next": "taskdrive008",
             "userId": "user001"
@@ -668,7 +670,7 @@
             "description": "Practice making safe emergency stops in a controlled area.",
             "status": "status3",
             "previousStatus": "status3",
-            "project": "project2",
+            "projectId": "project2",
             "prev": "taskdrive007",
             "next": "taskdrive009",
             "userId": "user001"
@@ -680,7 +682,7 @@
             "description": "Go over the latest updates to local traffic laws.",
             "status": "status3",
             "previousStatus": "status3",
-            "project": "project2",
+            "projectId": "project2",
             "prev": "taskdrive008",
             "next": "taskdrive010",
             "userId": "user001"
@@ -692,7 +694,7 @@
             "description": "Do a full mock driving test with a friend or instructor.",
             "status": "status3",
             "previousStatus": "status3",
-            "project": "project2",
+            "projectId": "project2",
             "prev": "taskdrive009",
             "next": null,
             "userId": "user001"
@@ -704,7 +706,7 @@
             "description": "Install Node.js and npm to prepare your development environment.",
             "status": "status0",
             "previousStatus": "status1",
-            "project": "project0",
+            "projectId": "project0",
             "prev": null,
             "next": "taskfsdone02",
             "userId": "user001"
@@ -716,7 +718,7 @@
             "description": "Use create-react-app to scaffold your first React project.",
             "status": "status0",
             "previousStatus": "status1",
-            "project": "project0",
+            "projectId": "project0",
             "prev": "taskfsdone01",
             "next": null,
             "userId": "user001"
@@ -728,7 +730,7 @@
             "description": "Count all files in your project folder and write down the number.",
             "status": "status-1",
             "previousStatus": "status1",
-            "project": "project0",
+            "projectId": "project0",
             "prev": null,
             "next": "taskfsdel02",
             "userId": "user001"
@@ -740,7 +742,7 @@
             "description": "Open Notepad and write 'Hello World', then close it.",
             "status": "status-1",
             "previousStatus": "status1",
-            "project": "project0",
+            "projectId": "project0",
             "prev": "taskfsdel01",
             "next": null,
             "userId": "user001"
@@ -752,7 +754,7 @@
             "description": "Memorize all 26 letters of the English alphabet.",
             "status": "status0",
             "previousStatus": "status1",
-            "project": "project1",
+            "projectId": "project1",
             "prev": null,
             "next": "taskengdone02",
             "userId": "user001"
@@ -764,7 +766,7 @@
             "description": "Learn and memorize 10 simple English words.",
             "status": "status0",
             "previousStatus": "status1",
-            "project": "project1",
+            "projectId": "project1",
             "prev": "taskengdone01",
             "next": null,
             "userId": "user001"
@@ -776,7 +778,7 @@
             "description": "Stand in front of a mirror and say 'hello' in English.",
             "status": "status-1",
             "previousStatus": "status1",
-            "project": "project1",
+            "projectId": "project1",
             "prev": null,
             "next": "taskengdel02",
             "userId": "user001"
@@ -788,7 +790,7 @@
             "description": "Write your English name 100 times on a piece of paper.",
             "status": "status-1",
             "previousStatus": "status1",
-            "project": "project1",
+            "projectId": "project1",
             "prev": "taskengdel01",
             "next": null,
             "userId": "user001"
@@ -800,7 +802,7 @@
             "description": "Learn to identify the accelerator, brake, and clutch pedals in a car.",
             "status": "status0",
             "previousStatus": "status1",
-            "project": "project2",
+            "projectId": "project2",
             "prev": null,
             "next": "taskdrivedone02",
             "userId": "user001"
@@ -812,7 +814,7 @@
             "description": "Practice fastening and unfastening the seatbelt in a car.",
             "status": "status0",
             "previousStatus": "status1",
-            "project": "project2",
+            "projectId": "project2",
             "prev": "taskdrivedone01",
             "next": null,
             "userId": "user001"
@@ -824,7 +826,7 @@
             "description": "Draw a simple car on a piece of paper and label its parts.",
             "status": "status-1",
             "previousStatus": "status1",
-            "project": "project2",
+            "projectId": "project2",
             "prev": null,
             "next": "taskdrivedel02",
             "userId": "user001"
@@ -836,7 +838,7 @@
             "description": "Sit on a chair and pretend you are driving a car.",
             "status": "status-1",
             "previousStatus": "status1",
-            "project": "project2",
+            "projectId": "project2",
             "prev": "taskdrivedel01",
             "next": null,
             "userId": "user001"

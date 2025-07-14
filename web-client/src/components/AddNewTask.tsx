@@ -26,25 +26,27 @@ function AddNewTask({ actions,
    * This function handles keyboard events in the input field.
    * @param e - The keyboard event triggered when the user presses a key in the input field.
    */
-  const handleKeyboard = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyboard = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') { // Check if the Enter key is pressed: this will add a new task
       const newTaskTitle = e.currentTarget.value.trim(); // Get the trimmed value of the input field
+      e.currentTarget.value = ''; // Clear the input field after adding the task
 
       if (newTaskTitle) { // Check if the input is not empty
         const newTask = {
           title: newTaskTitle,
           status: status,
           previousStatus: status, // for new task, the previous status is the same as the current status
-          project: states.currentProjectID as ProjectId, // Assuming a default project, you can modify this as needed
+          projectId: states.currentProjectID as ProjectId, // Assuming a default project, you can modify this as needed
           prev: tasksSorted.length > 0 ? tasksSorted[tasksSorted.length - 1][0] : null, // Get the last task ID as the previous task
           next: null, // For a new task, new task is the last one, next are null
           userId: states.userProfile.id,
         };
-        const id = actions.addTask(newTask); // Call the add function from actions with the new task
+        const id = await actions.addTask(newTask); // Call the add function from actions with the new task
         if (tasksSorted.length > 0) { // If there are existing tasks, update the last task to point to the new task
-          actions.updateTask(tasksSorted[tasksSorted.length - 1][0], { next: id }); // Update the last task to point to the new task
+          actions.updateTaskLocal(tasksSorted[tasksSorted.length - 1][0], { next: id }); // Update the last task to point to the new task
+          actions.updateTaskRemote(tasksSorted[tasksSorted.length - 1][0], { next: id }); // Update the last task to point to the new task
+          console.log(`task ${tasksSorted[tasksSorted.length - 1][0]} updated to point to new task ${id}`);
         }
-        e.currentTarget.value = ''; // Clear the input field after adding the task
       }
     }
     if (e.key === 'Escape') { // Check if the Escape key is pressed: this will clear the input field

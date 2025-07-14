@@ -17,7 +17,7 @@ export type TaskType = {
   description?: string;
   status: string;
   previousStatus: string;
-  project: ProjectId;
+  projectId: ProjectId;
   prev: TaskId | null;
   next: TaskId | null;
   userId: UserId;
@@ -91,8 +91,9 @@ export type StatusData = Record<StatusId, StatusType>;
 
 
 export type Actions = {
-  addTask: (newTask: Omit<TaskType, 'id'>) => TaskId; // Returns the ID of the newly added task
-  updateTask: (id: TaskId, updatedFields: Partial<TaskType>) => void;
+  addTask: (newTask: Omit<TaskType, 'id'>) => Promise<TaskId>; // Returns the ID of the newly added task
+  updateTaskLocal: (id: TaskId, updatedFields: Partial<TaskType>) => void;
+  updateTaskRemote: (id: TaskId, updatedFields: Partial<TaskType>) => Promise<void>;
   deleteTask: (id: TaskId) => void;
   completeTask: (id: TaskId) => void;
   hardDeleteTask: (id: TaskId) => void;

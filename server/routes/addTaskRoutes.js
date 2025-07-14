@@ -77,10 +77,11 @@ router.post('/', (req, res) => {
   newTask.save()
     .then(() => {
       res.status(201).json(newTask); // 201 = created
+      console.log(`Task added with id: ${newTask.id}`);
     })
     .catch((error) => {
-      console.error('Error adding task:', error);
       res.status(500).json({ error: 'Internal Server Error' }); // 500 = internal server error
+      console.error('Error adding task:', error);
     });
 });
 

@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useImmer } from 'use-immer';
 import './App.css';
 
@@ -35,10 +35,19 @@ function App() {
   const testUserProfileData = loadTestUserProfile();
   const testStatusData = loadTestStatuses();
   const testData = { testTaskData, testProjectData, testUserProfileData, testStatusData };
-  console.log('testData', testData);
 
   // State management using useImmer for tasks, projects, user status, and dragged task
-  const [tasks, setTasks] = useImmer<TaskData>(testData.testTaskData); // Initial tasks data loaded from testTaskData
+
+  const [tasks, setTasks] = useImmer<TaskData>({}); // Initial tasks data loaded from testTaskData
+  useEffect(() => {
+    loadTestTasks().then((d) => {
+      console.log("tasks loaded raw", d);
+      setTasks(draft => {
+        Object.assign(draft, d);
+      });
+    });
+  }, []);
+
   const [projects, setProjects] = useImmer<ProjectData>(testData.testProjectData); // Initial projects data loaded from testProjectData
   const [statuses, setStatuses] = useImmer<StatusData>(testData.testStatusData); // Initial statuses data loaded from testStatusData
   const [userProfile, setUserProfile] = useImmer<UserProfileData>(testData.testUserProfileData); // Initial users data loaded from testUserData
@@ -66,39 +75,94 @@ function App() {
    * and reindexs the tasks based on their status and project after the addition.
    * @param newTask - The new task item to be added - without an ID - ID will be generated automatically.
    */
-  const addTask = (newTask: Omit<TaskType, 'id'>) => {
+  const addTask = async (newTask: Omit<TaskType, 'id'>): Promise<TaskId> => {
     const id = crypto.randomUUID();
-    setTasks(draft => {
-      draft[id] = { ...newTask, id: id };
-      console.log(`Task added with id: ${id}`);
-    });
-    return id; // Return the ID of the newly added task
-    return id; // Return the ID of the newly added task
+
+    try {
+      const res = await fetch('/api/tasks', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ...newTask, id }),
+      });
+      if (!res.ok) {
+        throw new Error(`Failed to add task: ${res.statusText}`);
+      }
+      const data = await res.json();
+      console.log('Task added successfully:', data);
+      if (data) {
+        setTasks(draft => {
+          draft[id] = {
+            id: data.id,
+            title: data.title,
+            dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
+            description: data.description,
+            status: data.status,
+            previousStatus: data.previousStatus,
+            projectId: data.projectId,
+            prev: data.prev,
+            next: data.next,
+            userId: data.userId,
+          };
+          console.log(`Task added with id: ${id}`);
+        });
+      };
+      return id; // Return the ID of the newly added task
+    } catch (error) {
+      console.error('Error adding task:', error);
+      return '';
+    }
   };
 
   /**
-   * Function to update an existing task in the task list.
+   * Function to update an existing task in the task list locally.
    * It finds the task by its ID, updates the specified fields,
-   * and reindexs the tasks based on their status and project after the update.
-   * @param id - The ID of the task to be updated.
-   * @param updatedFields - The fields to be updated in the task.
+   * 
    */
-  const updateTask = (id: TaskId, updatedFields: Partial<TaskType>) => {
+  const updateTaskLocal = (id: TaskId, updatedFields: Partial<TaskType>) => {
     setTasks(draft => {
       const task = draft[id];
       if (task) {
         Object.assign(task, updatedFields);
+        console.log(`Task with id ${id} updated locally`)
       } else {
         console.warn(`Task with id ${id} not found.`);
       }
     });
+  }
+
+  /**
+   * Function to update an existing task in the task list.
+   * It finds the task by its ID, updates the specified fields,
+   * @param id - The ID of the task to be updated.
+   * @param updatedFields - The fields to be updated in the task.
+   */
+  const updateTaskRemote = async (id: TaskId, updatedFields: Partial<TaskType>) => {
+    try {
+      const res = await fetch(`/api/tasks/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedFields),
+      });
+      if (!res.ok) {
+        throw new Error(`Failed to update task: ${res.statusText}`);
+      }
+      const data = await res.json() as TaskType;
+      console.log('Task updated successfully:', data);
+
+    } catch (error) {
+      console.error('Error adding task:', error);
+    }
   };
 
   const completeTask = (id: TaskId) => {
     setTasks(draft => {
       const task = draft[id];
       if (task) {
-        const completedTasks = Object.fromEntries(Object.entries(draft).filter(([_, t]) => t.status === "completed" && t.project === task.project));
+        const completedTasks = Object.fromEntries(Object.entries(draft).filter(([_, t]) => t.status === "completed" && t.projectId === task.projectId));
         task.previousStatus = task.status;
         task.status = "completed"; // Mark the task as completed
         task.prev = null; // Reset the previous task to null
@@ -127,7 +191,7 @@ function App() {
     setTasks(draft => {
       const task = draft[id];
       if (task) {
-        const deletedTasks = Object.fromEntries(Object.entries(draft).filter(([_, t]) => t.status === "deleted" && t.project === task.project));
+        const deletedTasks = Object.fromEntries(Object.entries(draft).filter(([_, t]) => t.status === "deleted" && t.projectId === task.projectId));
         task.previousStatus = task.status; // Save the previous status before deletion
         task.status = "deleted"; // Mark the task as deleted
         task.prev = null; // Reset the previous task to null
@@ -171,7 +235,7 @@ function App() {
     setTasks(draft => {
       const task = draft[id];
       if (task) {
-        const previousStatusTasks = Object.fromEntries(Object.entries(draft).filter(([_, t]) => t.status === task.previousStatus && t.project === task.project));
+        const previousStatusTasks = Object.fromEntries(Object.entries(draft).filter(([_, t]) => t.status === task.previousStatus && t.projectId === task.projectId));
         task.status = task.previousStatus; // Restore the task to its previous status
         task.prev = null; // Reset the previous task to null
         if (Object.entries(previousStatusTasks).length > 0) {
@@ -237,9 +301,9 @@ function App() {
 
     // Also delete all tasks in the project
     setTasks(draft => {
-      Object.entries(draft).filter(([_, task]) => task.project === projectId).forEach(([taskId, _]) => {
+      Object.entries(draft).filter(([_, task]) => task.projectId === projectId).forEach(([taskId, _]) => {
         hardDeleteTask(taskId);
-        Object.entries(draft).filter(([_, task]) => task.project === projectId).forEach(([taskId, _]) => {
+        Object.entries(draft).filter(([_, task]) => task.projectId === projectId).forEach(([taskId, _]) => {
           hardDeleteTask(taskId);
         });
       });
@@ -252,7 +316,8 @@ function App() {
   // It is just convenient to put all the actions in one place.
   const actions: Actions = {
     addTask,
-    updateTask,
+    updateTaskLocal,
+    updateTaskRemote,
     deleteTask,
     completeTask,
     hardDeleteTask,
@@ -299,7 +364,7 @@ function App() {
             // handle result task's previous and next tasks and the dragged task
             const resultTasks = Object.fromEntries(Object.entries(draft)
               .filter(([id, t]) => t.status === resultStatus &&
-                t.project === task.project &&
+                t.projectId === task.projectId &&
                 id !== result.draggableId)); // Get all tasks in the result status
             const sortedTasks = sortChain(resultTasks);
 

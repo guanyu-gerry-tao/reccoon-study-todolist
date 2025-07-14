@@ -60,7 +60,7 @@ function Task({ task,
    */
   const handleTitleKeyboard = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter') {
-      actions.updateTask(task[0], { title: e.currentTarget.value });
+      actions.updateTaskLocal(task[0], { title: e.currentTarget.value });
       e.currentTarget.blur(); // Remove focus from the input field
       console.log(`update title: ${e.currentTarget.title}`)
     }
@@ -87,7 +87,7 @@ function Task({ task,
       actions.deleteTask(task[0]);
       console.log(`Task deleted: ${task[0]}`);
     } else if (e.currentTarget.value !== task[1].title) {
-      actions.updateTask(task[0], { title: e.currentTarget.value });
+      actions.updateTaskLocal(task[0], { title: e.currentTarget.value });
       console.log(`Title updated to: ${e.currentTarget.value}`);
     }
   }
@@ -99,7 +99,7 @@ function Task({ task,
    */
   const handleDescLostFocus = (e: React.FocusEvent<HTMLTextAreaElement>) => {
     if (e.currentTarget.value !== task[1].description) {
-      actions.updateTask(task[0], { description: e.currentTarget.value });
+      actions.updateTaskLocal(task[0], { description: e.currentTarget.value });
       console.log(`Description updated to: ${e.currentTarget.value}`);
     }
   }
@@ -115,7 +115,7 @@ function Task({ task,
       e.preventDefault(); // Prevent default Enter key behavior (adding a new line)
       e.currentTarget.blur(); // Remove focus from the textarea
       console.log(`Description updated to: ${e.currentTarget.value}`);
-      actions.updateTask(task[0], { description: e.currentTarget.value });
+      actions.updateTaskLocal(task[0], { description: e.currentTarget.value });
     }
     if (e.key === 'Escape' && e.currentTarget.value !== '') {
       // Handle Escape key press logic here
@@ -132,12 +132,12 @@ function Task({ task,
     e.stopPropagation(); // Prevent the click event from propagating to the parent div
     if (task[1].status === 'deleted') {
       if (window.confirm(`By double deleting task: ${task[1].title}, you will permanently delete it. Are you sure?`)) {
-        removeItemFromList(tasks, task, actions.hardDeleteTask, actions.updateTask);
+        removeItemFromList(tasks, task, actions.hardDeleteTask, actions.updateTaskLocal);
       }
     } else if (task[1].status === 'completed') {
-      removeItemFromList(tasks, task, actions.deleteTask, actions.updateTask);
+      removeItemFromList(tasks, task, actions.deleteTask, actions.updateTaskLocal);
     } else {
-      removeItemFromList(tasks, task, actions.deleteTask, actions.updateTask);
+      removeItemFromList(tasks, task, actions.deleteTask, actions.updateTaskLocal);
     }
   }
 
@@ -145,19 +145,19 @@ function Task({ task,
     e.stopPropagation(); // Prevent the click event from propagating to the parent div
     if (task[1].status === 'completed') {
       if (window.confirm(`By double completed task: ${task[1].title}, you will permanently delete it. Are you sure?`)) {
-        removeItemFromList(tasks, task, actions.hardDeleteTask, actions.updateTask);
+        removeItemFromList(tasks, task, actions.hardDeleteTask, actions.updateTaskLocal);
       }
     } else if (task[1].status === 'deleted') {
       // for deleted tasks, there shouldn't be a complete button, so we don't need to handle this case.
       console.warn(`Task with id ${task[0]} is deleted, cannot complete it.`);
     } else {
-      removeItemFromList(tasks, task, actions.completeTask, actions.updateTask);
+      removeItemFromList(tasks, task, actions.completeTask, actions.updateTaskLocal);
     }
   }
 
   const handleRestoreButton = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation(); // Prevent the click event from propagating to the parent div
-    removeItemFromList(tasks, task, actions.restoreTask, actions.updateTask);
+    removeItemFromList(tasks, task, actions.restoreTask, actions.updateTaskLocal);
   }
 
   const textAreaRefDesc = useRef<HTMLTextAreaElement>(null);
@@ -234,12 +234,12 @@ function Task({ task,
 
               <input type='date'
                 className='taskDueDate'
-                defaultValue={task[1].dueDate ? task[1].dueDate.toISOString().slice(0, 10) : undefined}
+                defaultValue={task[1].dueDate ? new Date(task[1].dueDate).toISOString().slice(0, 10) : undefined}
                 onChange={(e) => {
                   if (!e.currentTarget.value) {
-                    actions.updateTask(task[0], { dueDate: undefined });
+                    actions.updateTaskLocal(task[0], { dueDate: undefined });
                   } else {
-                    actions.updateTask(task[0], { dueDate: new Date(e.currentTarget.value) });
+                    actions.updateTaskLocal(task[0], { dueDate: new Date(e.currentTarget.value) });
                     console.log(`Due date updated to: ${e.currentTarget.value}`);
                   }
                 }}
@@ -287,6 +287,7 @@ function Task({ task,
               >
               </div>)
             }
+            <p>{task[1].id}</p>
           </div>
         )
       }

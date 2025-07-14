@@ -32,7 +32,7 @@ function TodoColumn({
   }) {
 
 
-  const tasks = Object.fromEntries(Object.entries(states.tasks).filter(([_, task]) => task.status === status && task.project === states.currentProjectID));
+  const tasks = Object.fromEntries(Object.entries(states.tasks).filter(([_, task]) => task.status === status && task.projectId === states.currentProjectID));
   const tasksSorted = sortChain(tasks) as [TaskId, TaskType][];
 
   // This counts the number of tasks in the current column, which is used to determine the order of the new task.
