@@ -4,10 +4,11 @@ import '../App.css'
 import './TodoColumn.css';
 
 import AddNewTask from './AddNewTask.tsx';
-import type { TaskType, Actions, States, StatusId, TaskId } from './type.ts';
+import type { TaskType, Actions, States, StatusId, TaskId } from '../utils/type.ts';
 import Task from './Task.tsx';
 import { Droppable } from '@hello-pangea/dnd';
 import { sortChain } from '../utils/utils.ts';
+import { useAppContext } from './AppContext.tsx';
 
 /**
  * TodoColumn component represents a single column in the Kanban board.
@@ -21,16 +22,14 @@ import { sortChain } from '../utils/utils.ts';
 function TodoColumn({
   title,
   bgColor,
-  status,
-  actions,
-  states }: {
+  status, }: {
     title: string;
     bgColor: string;
     status: StatusId;
-    actions: Actions;
-    states: States;
   }) {
 
+  // Use the AppContext to access the global state and actions
+  const { states, actions } = useAppContext();
 
   const tasks = Object.fromEntries(Object.entries(states.tasks).filter(([_, task]) => task.status === status && task.projectId === states.currentProjectID));
   const tasksSorted = sortChain(tasks) as [TaskId, TaskType][];
@@ -57,13 +56,12 @@ function TodoColumn({
                 {/* Render the tasks in the task list */}
                 {/* tasksSorted.map: this maps over the sorted tasks and renders a Task for each */}
                 {tasksSorted.map((task) => (
-                  <Task key={task[0]} task={task} tasks={tasksSorted}
-                    actions={actions} states={states} />
+                  <Task key={task[0]} task={task} tasks={tasksSorted} />
                 ))}
 
                 {provided.placeholder}
 
-                <AddNewTask actions={actions} status={status} tasksSorted={tasksSorted} states={states} />
+                <AddNewTask status={status} tasksSorted={tasksSorted} />
               </div>
             )}
           </Droppable>

@@ -1,5 +1,5 @@
 import data from './testListChain.json';
-import type { ProjectData, StatusData, TaskData, UserId, UserProfileData, TaskType } from '../components/type.ts';
+import type { ProjectData, StatusData, TaskData, UserId, UserProfileData, TaskType } from '../utils/type.ts';
 
 export async function loadTestTasks(): Promise<TaskData> {
   try {

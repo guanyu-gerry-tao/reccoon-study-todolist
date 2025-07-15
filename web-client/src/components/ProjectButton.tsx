@@ -3,9 +3,9 @@ import { useRef, useState, useEffect, act } from 'react'
 import '../App.css'
 import './ProjectButton.css'
 
-import type { ProjectType, Actions, States, ProjectId } from './type'
+import type { ProjectType, Actions, States, ProjectId } from '../utils/type'
 import { Draggable } from '@hello-pangea/dnd'
-import { removeItemFromList } from '../utils/actions'
+import { useAppContext } from './AppContext'
 
 /**
  * This function is used to get the style of the project button when it is being dragged
@@ -37,20 +37,19 @@ function getStyle(style: any, snapshot: any) {
 function ProjectButton({
   project,
   projects,
-  currentProjectID,
-  actions,
-  states }:
+  currentProjectID, }:
   {
     project: [ProjectId, ProjectType],
     projects: [ProjectId, ProjectType][],
     currentProjectID: ProjectId | null,
-    actions: Actions,
-    states: States
   }) {
+
+  // Use the AppContext to access the global state and actions
+  const { states, setStates, actions } = useAppContext();
 
   /** Handle click event on the project button. */
   const handleClick = () => {
-    actions.setCurrentProjectID(project[0]);
+    setStates.setCurrentProjectID(project[0]);
   }
   // TODO: make project buttons scrollable.
 
@@ -77,14 +76,14 @@ function ProjectButton({
       // set the current project ID to the previous project.
       if (states.currentProjectID === project[0]) {
         if (projects.length > 0) {
-          actions.setCurrentProjectID(project[1].prev || project[1].next);
+          setStates.setCurrentProjectID(project[1].prev || project[1].next);
           console.log(states.currentProjectID);
         } else { // if no projects left, set the current project ID to an empty string
-          actions.setCurrentProjectID(null);
+          setStates.setCurrentProjectID(null);
         }
       }
 
-      removeItemFromList(projects, project, actions.deleteProject, actions.updateProject);
+      actions.deleteProject(project[0]); // Call the delete function from actions with the project ID
 
       console.log(`Delete button clicked for project: ${project[1].title}`);
 

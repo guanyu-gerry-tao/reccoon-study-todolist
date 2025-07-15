@@ -6,10 +6,11 @@ import Menubar from './Menubar.tsx'
 import TodoColumn from './TodoColumn.tsx'
 import AIChatPanel from './AIChatPanel.tsx'
 
-import type { Actions, States, StatusData, StatusType } from './type.ts'
+import type { Actions, States, StatusData, StatusType } from '../utils/type.ts'
 import { useImmer } from 'use-immer'
 import TaskDropArea from './TaskDropArea.tsx'
 import { sortChain } from '../utils/utils.ts';
+import { useAppContext } from './AppContext.tsx';
 
 /**
  * Todolist component represents the main todo list interface.
@@ -20,14 +21,9 @@ import { sortChain } from '../utils/utils.ts';
  * @param actions - The actions object containing methods to manipulate tasks and projects.
  * @param draggedTask - The currently dragged task information.
  */
-function Todolist({
-  states,
-  actions,
-}: {
-  states: States,
-  actions: Actions,
-}) {
-
+function Todolist() {
+  // Use the AppContext to access the global state and actions
+  const { states, actions } = useAppContext();
 
   // State to manage the visibility of the delete and complete task drop areas.
   // Not used yet. // TODO: @Bestpart-Irene add the functionality to show/hide the delete and complete task drop areas when the user clicks on the delete or complete task buttons.
@@ -47,7 +43,7 @@ function Todolist({
       <div className='todolistContainer'>
         {/* The top menu bar */}
         {/* Contains logos, project, user information */}
-        <Menubar actions={actions} states={states} />
+        <Menubar />
 
         {/* The task columns */}
         <div className='todolistColumns'>
@@ -57,8 +53,6 @@ function Todolist({
               title={"Deleted"}
               bgColor='#ffcce6'
               status={"deleted"}
-              actions={actions}
-              states={states}
             />
           )}
 
@@ -67,8 +61,6 @@ function Todolist({
               title={"Completed"}
               bgColor='#e6f2ff'
               status={"completed"}
-              actions={actions}
-              states={states}
             />
           )}
 
@@ -76,8 +68,6 @@ function Todolist({
             <TodoColumn key={key} title={status.title}
               bgColor={status.color}
               status={status.id}
-              actions={actions}
-              states={states}
             />
           ))}
         </div>

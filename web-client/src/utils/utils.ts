@@ -1,4 +1,4 @@
-import type { TaskType, ProjectType, StatusType } from '../components/type.ts';
+import type { TaskType, ProjectType, StatusType } from './type.ts';
 
 
 /**

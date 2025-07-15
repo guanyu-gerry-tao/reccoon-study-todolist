@@ -1,22 +1,18 @@
 import '../App.css'
 import './AddNewProject.css'
 
-import type { Actions, ProjectType, States } from './type.ts'
+import type { Actions, ProjectType, States } from '../utils/type.ts'
+import { useAppContext } from './AppContext.tsx';
 
 /**
  * AddNewProject component allows users to add a new project by typing in an input field.
  * @actions - The actions object containing methods to manipulate projects.
  * @projects - The list of existing projects, used to determine the order of the new project.
  */
-function AddNewProject({
-  actions,
-  states,
-  projects
-}: {
-  actions: Actions,
-  states: States,
-  projects: [string, ProjectType][]
-}) {
+function AddNewProject({ projects }: { projects: [string, ProjectType][] }) {
+
+  // Use the AppContext to access the global state and actions
+  const { states, setStates, actions } = useAppContext();
 
   const handleKeyboard = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') { // Check if the Enter key is pressed: this will add a new task
@@ -34,7 +30,7 @@ function AddNewProject({
         if (projects.length > 0) { // If there are existing projects, update the last project to point to the new project
           actions.updateProject(projects[projects.length - 1][0], { next: id }); // Update the last project to point to the new project
         }
-        actions.setCurrentProjectID(id); // Set the current project ID to the newly added project
+        setStates.setCurrentProjectID(id); // Set the current project ID to the newly added project
         e.currentTarget.value = ''; // Clear the input field after adding the task
       }
     }

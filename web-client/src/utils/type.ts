@@ -1,5 +1,8 @@
 // web-client/src/components/type.ts
 
+import type { DragStart, DragUpdate, DropResult, ResponderProvided } from "@hello-pangea/dnd";
+import type { Updater } from "use-immer";
+
 // using semanic types for better clarity and maintainability
 
 
@@ -91,21 +94,16 @@ export type StatusData = Record<StatusId, StatusType>;
 
 
 export type Actions = {
-  addTask: (newTask: Omit<TaskType, 'id'>) => Promise<TaskId>; // Returns the ID of the newly added task
-  updateTaskLocal: (id: TaskId, updatedFields: Partial<TaskType>) => void;
-  updateTaskRemote: (id: TaskId, updatedFields: Partial<TaskType>) => Promise<void>;
-  deleteTask: (id: TaskId) => void;
-  completeTask: (id: TaskId) => void;
-  hardDeleteTask: (id: TaskId) => void;
-  refreshTasks: () => void;
-  restoreTask: (id: TaskId) => void; // Action to restore a deleted task
+  addTasks: (newTask: Omit<TaskType, 'id'>[], targetStatusId: StatusId) => TaskId[]; // Returns the ID of the newly added task
+  updateTasks: (updatePayloads: { id: TaskId; updatedFields: Partial<TaskType> }[]) => void; // Accepts an array of update payloads, each containing the task ID and the fields to be updated
+  hardDeleteTasks: (ids: TaskId[]) => Promise<void>;
+  changeStatusOfTasks: (ids: TaskId[], targetStatusId: StatusId) => void;
   addProject: (newProject: Omit<ProjectType, 'id'>) => ProjectId; // Returns the ID of the newly added project
   updateProject: (id: ProjectId, updatedFields: Partial<ProjectType>) => void;
-  deleteProject: (id: ProjectId) => void;
-  setCurrentProjectID: (projectID: ProjectId | null) => void;
-  setEditMode: (editMode: boolean) => void;
-  setShowDeleted: (showDeleted: boolean) => void; // Action to toggle the visibility of deleted tasks
-  setShowCompleted: (showCompleted: boolean) => void; // Optional action to toggle the visibility of completed tasks, for future use
+  deleteProject: (id: ProjectId) =>  Promise<void>;
+  onDragEnd: (result: DropResult, provided: ResponderProvided) => void;
+  onDragStart: (start: DragStart, provided: ResponderProvided) => void;
+  onDragUpdate: (update: DragUpdate, provided: ResponderProvided) => void;
 };
 
 export type States = {
@@ -120,4 +118,14 @@ export type States = {
   showCompleted: boolean; // State to manage the visibility of completed tasks, optional for future use
 };
 
-export type setIsOverDeletedTaskArea = React.Dispatch<React.SetStateAction<boolean>>;
+export type SetStates = {
+  setTasks: Updater<TaskData>;
+  setProjects: Updater<ProjectData>;
+  setStatuses: Updater<StatusData>;
+  setUserProfile: Updater<UserProfileData>;
+  setDraggedTask: Updater<[TaskId] | null>;
+  setCurrentProjectID: Updater<ProjectId | null>;
+  setEditMode: Updater<boolean>;
+  setShowDeleted: Updater<boolean>; // Action to toggle the visibility of deleted tasks
+  setShowCompleted: Updater<boolean>; // Optional action to toggle the visibility of completed tasks, for future use
+};

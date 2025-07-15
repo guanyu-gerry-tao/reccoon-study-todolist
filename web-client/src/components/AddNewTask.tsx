@@ -1,9 +1,10 @@
 import '../App.css'
 import './AddNewTask.css'
 
-import type { Actions, ProjectId, States, TaskId, TaskType } from './type.ts';
+import type { Actions, ProjectId, States, TaskId, TaskType } from '../utils/type.ts';
 
 import Project from './ProjectButton.tsx'
+import { useAppContext } from './AppContext.tsx';
 
 /**
  * AddNewTask component allows users to add a new task by typing in an input field.
@@ -12,15 +13,10 @@ import Project from './ProjectButton.tsx'
  * @newOrder - The order number for the new task, used to determine its position in the list.
  * @currentProjectID - The ID of the current project to which the new task will be added.
  */
-function AddNewTask({ actions,
-  status,
-  tasksSorted,
-  states }: {
-    actions: Actions,
-    status: string,
-    tasksSorted: [TaskId, TaskType][],
-    states: States
-  }) {
+function AddNewTask({ status, tasksSorted, }: { status: string, tasksSorted: [TaskId, TaskType][], }) {
+
+  // Use the AppContext to access the global state and actions
+  const { states, actions } = useAppContext();
 
   /**
    * This function handles keyboard events in the input field.
@@ -37,15 +33,14 @@ function AddNewTask({ actions,
           status: status,
           previousStatus: status, // for new task, the previous status is the same as the current status
           projectId: states.currentProjectID as ProjectId, // Assuming a default project, you can modify this as needed
-          prev: tasksSorted.length > 0 ? tasksSorted[tasksSorted.length - 1][0] : null, // Get the last task ID as the previous task
-          next: null, // For a new task, new task is the last one, next are null
+          prev: null, // For a new task, new task is the last one, next are null
+          next: tasksSorted.length > 0 ? tasksSorted[0][0] : null, // Get the first task ID as the next task
           userId: states.userProfile.id,
         };
-        const id = await actions.addTask(newTask); // Call the add function from actions with the new task
+        const newTaskId = actions.addTasks([newTask], states.currentProjectID as ProjectId)[0] as TaskId; // Call the addTask function from actions with the new task object
         if (tasksSorted.length > 0) { // If there are existing tasks, update the last task to point to the new task
-          actions.updateTaskLocal(tasksSorted[tasksSorted.length - 1][0], { next: id }); // Update the last task to point to the new task
-          actions.updateTaskRemote(tasksSorted[tasksSorted.length - 1][0], { next: id }); // Update the last task to point to the new task
-          console.log(`task ${tasksSorted[tasksSorted.length - 1][0]} updated to point to new task ${id}`);
+          actions.updateTasks([{ id: tasksSorted[0][0], updatedFields: { next: newTaskId } }]); // Update the last task to point to the new task
+          console.log(`task ${tasksSorted[0][0]} updated to point to new task ${newTaskId}`);
         }
       }
     }

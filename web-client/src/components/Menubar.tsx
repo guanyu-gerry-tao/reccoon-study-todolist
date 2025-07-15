@@ -6,7 +6,8 @@ import ProjectButton from './ProjectButton.tsx'
 import { useImmer } from 'use-immer'
 import TaskDropArea from './TaskDropArea.tsx'
 import ProjectPanel from './ProjectPanel.tsx'
-import type { Actions, States } from './type.ts'
+import type { Actions, States } from '../utils/type.ts'
+import { useAppContext } from './AppContext.tsx'
 
 
 
@@ -20,21 +21,17 @@ import type { Actions, States } from './type.ts'
  * @param setCurrentProjectID - Function to set the currently selected project ID.
  * @param isMouseOverDropZone - Boolean indicating if the mouse is over the drop zone.
  */
-function Menubar({
-  actions,
-  states
-}: {
-  actions: Actions,
-  states: States
-}) {
+function Menubar() {
 
+  // Use the AppContext to access the global state and actions
+  const { states, setStates, actions } = useAppContext();
 
   /**
    * Handle click event for the edit mode toggle.
    */
   const handleEditModeClick = () => {
     console.log("edit mode clicked: " + states.editMode);
-    actions.setEditMode(!states.editMode);
+    setStates.setEditMode(!states.editMode);
   };
 
   /**
@@ -42,13 +39,13 @@ function Menubar({
    */
   const handleDeleteTasksClick = () => {
     console.log("delete tasks clicked");
-    actions.setShowDeleted(!states.showDeleted);
+    setStates.setShowDeleted(!states.showDeleted);
     console.log("show deleted tasks: " + states.showDeleted);
   };
 
   const handleCompletedTasksClick = () => {
     console.log("completed tasks clicked");
-    actions.setShowCompleted(!states.showCompleted);
+    setStates.setShowCompleted(!states.showCompleted);
     console.log("show completed tasks: " + states.showCompleted);
   };
   
@@ -73,7 +70,7 @@ function Menubar({
         </div>
 
         {/* The actual project buttons components, a droppable */}
-        <ProjectPanel actions={actions} states={states} />
+        <ProjectPanel />
 
         {/* Places for additional actions, such as call deleted and completed tasks, settings and Help+About */}
         <div className='menubarBottom'>
