@@ -2,6 +2,7 @@ import '../App.css'
 import './AddNewProject.css'
 
 import type { Actions, ProjectType, States } from '../utils/type.ts'
+import { createBackup, createBulkPayload, restoreBackup } from '../utils/utils'
 import { useAppContext } from './AppContext.tsx';
 
 /**
@@ -14,7 +15,7 @@ function AddNewProject({ projects }: { projects: [string, ProjectType][] }) {
   // Use the AppContext to access the global state and actions
   const { states, setStates, actions } = useAppContext();
 
-  const handleKeyboard = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyboard = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') { // Check if the Enter key is pressed: this will add a new task
       console.log('Enter pressed');
       const newProjectTitle = e.currentTarget.value.trim(); // Get the trimmed value of the input field
@@ -26,11 +27,24 @@ function AddNewProject({ projects }: { projects: [string, ProjectType][] }) {
           next: null, // Set the next project to null initially
           userId: states.userProfile.id, // Assuming the user ID is available in the states
         };
-        const id = actions.addProject(newProject); // Call the add function from actions with the new task
-        if (projects.length > 0) { // If there are existing projects, update the last project to point to the new project
-          actions.updateProject(projects[projects.length - 1][0], { next: id }); // Update the last project to point to the new project
+        
+        const bulkPayload = createBulkPayload(); // Create a bulk payload for the new project
+        const backup = createBackup(states, bulkPayload); // Create a backup of the current state
+        actions.addProject(newProject, backup); // Call the addProject function from actions with the new project
+        try {
+          await fetch('/api/projects', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(backup), // Send the new project to the server
+          });
+        } catch (error) {
+          console.error('Error adding new project:', error);
+          restoreBackup(setStates, backup); // Restore the previous state in case of an error
         }
-        setStates.setCurrentProjectID(id); // Set the current project ID to the newly added project
+
+        setStates.setCurrentProjectID(newProjectTitle); // Set the current project ID to the newly added project
         e.currentTarget.value = ''; // Clear the input field after adding the task
       }
     }

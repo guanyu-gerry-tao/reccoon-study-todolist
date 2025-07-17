@@ -16,7 +16,7 @@ import type { Updater } from "use-immer";
 export type TaskType = {
   id: TaskId; // Unique identifier for the task
   title: string;
-  dueDate?: Date | undefined;
+  dueDate?: Date | null;
   description?: string;
   status: string;
   previousStatus: string;
@@ -94,13 +94,14 @@ export type StatusData = Record<StatusId, StatusType>;
 
 
 export type Actions = {
-  addTasks: (newTask: Omit<TaskType, 'id'>[], targetStatusId: StatusId) => TaskId[]; // Returns the ID of the newly added task
-  updateTasks: (updatePayloads: { id: TaskId; updatedFields: Partial<TaskType> }[]) => void; // Accepts an array of update payloads, each containing the task ID and the fields to be updated
-  hardDeleteTasks: (ids: TaskId[]) => Promise<void>;
-  changeStatusOfTasks: (ids: TaskId[], targetStatusId: StatusId) => void;
-  addProject: (newProject: Omit<ProjectType, 'id'>) => ProjectId; // Returns the ID of the newly added project
-  updateProject: (id: ProjectId, updatedFields: Partial<ProjectType>) => void;
-  deleteProject: (id: ProjectId) =>  Promise<void>;
+  addTasks: (newTask: Omit<TaskType, 'id'>[], bulkPayload: BulkPayload) => TaskId[]; // Returns the ID of the newly added task
+  updateTasks: (updatePayloads: { id: TaskId; updatedFields: Partial<TaskType> }[], bulkPayload: BulkPayload) => void; // Accepts an array of update payloads, each containing the task ID and the fields to be updated
+  hardDeleteTasks: (ids: TaskId[], bulkPayload: BulkPayload) => void; 
+  moveTasks: (ids: TaskId[], targetStatusId: StatusId, index: number | "start" | "end", bulkPayload: BulkPayload) => void;
+  addProject: (newProject: Omit<ProjectType, 'id'>, bulkPayload: BulkPayload) => ProjectId; // Returns the ID of the newly added project
+  updateProject: (id: ProjectId, updatedFields: Partial<ProjectType>, bulkPayload: BulkPayload) => void;
+  moveProject: (id: ProjectId, index: number, bulkPayload: BulkPayload) => void;
+  deleteProject: (projectId: ProjectId, bulkPayload: BulkPayload) => void;
   onDragEnd: (result: DropResult, provided: ResponderProvided) => void;
   onDragStart: (start: DragStart, provided: ResponderProvided) => void;
   onDragUpdate: (update: DragUpdate, provided: ResponderProvided) => void;
@@ -128,4 +129,11 @@ export type SetStates = {
   setEditMode: Updater<boolean>;
   setShowDeleted: Updater<boolean>; // Action to toggle the visibility of deleted tasks
   setShowCompleted: Updater<boolean>; // Optional action to toggle the visibility of completed tasks, for future use
+};
+
+export type BulkPayload = {
+  tasks: { new: TaskType[]; update: { id: TaskId; updatedFields: Partial<TaskType> }[]; delete: TaskId[] };
+  projects: { new: ProjectType[]; update: { id: ProjectId; updatedFields: Partial<ProjectType> }[]; delete: ProjectId[] };
+  statuses: { new: StatusType[]; update: { id: StatusId; updatedFields: Partial<StatusType> }[]; delete: StatusId[] };
+  backup: {statuses: StatusData; tasks: TaskData; projects: ProjectData}; // Backup of the current state before changes, and use for undo functionality
 };

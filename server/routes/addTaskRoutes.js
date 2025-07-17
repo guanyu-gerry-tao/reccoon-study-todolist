@@ -4,6 +4,7 @@ const Task = require('../database/models/tasks'); // Assuming Task model is defi
 
 const mongoose = require('mongoose');
 
+
 /**
  * GET /api/tasks
  * get all tasks
@@ -70,54 +71,134 @@ router.get('/:id', (req, res) => {
 
 /**
  * POST /api/tasks
- * add a new task
+ * add new tasks
  */
 router.post('/', (req, res) => {
-  const newTask = new Task({ ...req.body });
-  newTask.save()
-    .then(() => {
-      res.status(201).json(newTask); // 201 = created
-      console.log(`Task added with id: ${newTask.id}`);
-    })
-    .catch((error) => {
-      res.status(500).json({ error: 'Internal Server Error' }); // 500 = internal server error
-      console.error('Error adding task:', error);
+
+  // // Validate request body
+  // if (!req.body ||
+  //   !Array.isArray(req.body) ||
+  //   req.body.length === 0
+  // ) {
+  //   return res.status(400).json({ error: 'Invalid request body for POST operation' }); // 400 = bad request
+  // }
+
+  // build bulkwrite operations
+  const { newTasks, updateTasks } = req.body;
+  const bulkOps = newTasks.map(item => {
+    return {
+      insertOne: {
+        document: item,
+      }
+    };
+  });
+  bulkOps.push({
+    updateOne: {
+      filter: { id: updateTasks[0].id },
+      update: { $set: updateTasks[0].updatedFields },
+    }
+  });
+
+  Task.bulkWrite(bulkOps)
+    .then((result) => {
+      if (result.insertedCount < newTasks.length) {
+        return res.status(400).json({ error: `Some tasks not added, expect ${newTasks.length} but only succeeded ${result.insertedCount}` }); // 400 = bad request
+      }
+      if (result.modifiedCount < updateTasks.length) {
+        return res.status(400).json({ error: `Some tasks not updated, expect ${updateTasks.length} but only succeeded ${result.modifiedCount}` }); // 400 = bad request
+      }
+      return res.status(204).send(); // 204 = success, no content
+    }).catch((error) => {
+      console.error('Error adding tasks:', error);
+      return res.status(500).json({ error: 'Internal Server Error' }); // 500 = internal server error
     });
 });
 
 /** 
- * PATCH /api/tasks/:id
- * update a task by ID
+ * PATCH /api/tasks/
+ * update a task by IDs
  */
-router.patch('/:id', (req, res) => {
-  const { id } = req.params;
-  Task.findOneAndUpdate({ id: id }, req.body, { new: true })
-    .then((updatedTask) => {
-      if (!updatedTask) {
-        return res.status(404).json({ error: 'Task not found' }); // 404 = not found
+router.patch('/', (req, res) => {
+  // Validate request body
+  if (!req.body ||
+    !Array.isArray(req.body) ||
+    req.body.length === 0 ||
+    typeof req.body[0].id !== 'string' ||
+    typeof req.body[0].updatedFields !== 'object'
+  ) {
+    return res.status(400).json({ error: 'Invalid request body for PATCH operation' }); // 400 = bad request
+  }
+
+  const bulkOps = req.body.map(item => {
+    const { id, updatedFields } = item;
+    return {
+      updateOne: {
+        filter: { id: id },
+        update: { $set: updatedFields },
       }
-      res.json(updatedTask);
-    })
-    .catch((error) => {
-      console.error('Error updating task:', error);
-      res.status(500).json({ error: 'Internal Server Error' }); // 500 = internal server error
+    };
+  });
+
+  Task.bulkWrite(bulkOps)
+    .then((result) => {
+      if (result.modifiedCount < req.body.length) {
+        return res.status(404).json({ error: `Some tasks not found, expect ${req.body.length} but only succeeded ${result.modifiedCount}` }); // 404 = not found
+      }
+      return res.status(204).send(); // 204 = success, no content
+    }).catch((error) => {
+      console.error('Error updating tasks:', error);
+      return res.status(500).json({ error: 'Internal Server Error' }); // 500 = internal server error
     });
 });
 
+
 /**
- * DELETE /api/tasks/:id
- * delete a task by ID
+ * DELETE /api/tasks/
+ * delete a task by IDs
  */
-router.delete('/:id', (req, res) => {
-  const { id } = req.params;
-  Task.findOneAndDelete({ id: id })
-    .then(() => {
-      res.status(204).send(); // 204 = success, no content
-    })
-    .catch((error) => {
-      console.error('Error deleting task:', error);
-      res.status(500).json({ error: 'Internal Server Error' }); // 500 = internal server error
+router.delete('/', (req, res) => {
+
+  // Validate request body
+  if (!req.body ||
+    !Array.isArray(req.body) ||
+    req.body.length === 0 ||
+    typeof req.body[0] !== 'string'
+  ) {
+    return res.status(400).json({ error: 'Invalid request body for DELETE operation' }); // 400 = bad request
+  }
+
+  // Extract IDs from the request body
+  const { deleteTasks, updateTasks } = req.body;
+  const bulkOps = []; 
+  deleteTasks.forEach(item => {
+    bulkOps.push( {
+      deleteOne: {
+        filter: { id: item },
+      }
+    });
+  });
+  updateTasks.forEach(item => {
+    bulkOps.push({
+      updateOne: {
+        filter: { id: item.id },
+        update: { $set: item.updatedFields },
+      }
+    });
+  });
+  Task.bulkWrite(bulkOps)
+    .then((result) => {
+      if (result.deletedCount < deleteTasks.length) {
+        return res.status(404).json({ error: `Some tasks not found, expect ${deleteTasks.length} but only succeeded ${result.deletedCount}` }); // 404 = not found
+      }
+      if (result.modifiedCount < updateTasks.length) {
+        return res.status(400).json({ error: `Some tasks not updated, expect ${updateTasks.length} but only succeeded ${result.modifiedCount}` }); // 400 = bad request
+      }
+      return res.status(204).send(); // 204 = success, no content
+    }).catch((error) => {
+      console.error('Error deleting tasks:', error);
+      return res.status(500).json({ error: 'Internal Server Error' }); // 500 = internal server error
     });
 });
+
 
 module.exports = router;

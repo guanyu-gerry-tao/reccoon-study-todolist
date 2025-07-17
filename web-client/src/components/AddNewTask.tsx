@@ -2,6 +2,7 @@ import '../App.css'
 import './AddNewTask.css'
 
 import type { Actions, ProjectId, States, TaskId, TaskType } from '../utils/type.ts';
+import { createBackup, createBulkPayload, restoreBackup } from '../utils/utils'
 
 import Project from './ProjectButton.tsx'
 import { useAppContext } from './AppContext.tsx';
@@ -16,7 +17,7 @@ import { useAppContext } from './AppContext.tsx';
 function AddNewTask({ status, tasksSorted, }: { status: string, tasksSorted: [TaskId, TaskType][], }) {
 
   // Use the AppContext to access the global state and actions
-  const { states, actions } = useAppContext();
+  const { states, actions, setStates } = useAppContext();
 
   /**
    * This function handles keyboard events in the input field.
@@ -37,10 +38,20 @@ function AddNewTask({ status, tasksSorted, }: { status: string, tasksSorted: [Ta
           next: tasksSorted.length > 0 ? tasksSorted[0][0] : null, // Get the first task ID as the next task
           userId: states.userProfile.id,
         };
-        const newTaskId = actions.addTasks([newTask], states.currentProjectID as ProjectId)[0] as TaskId; // Call the addTask function from actions with the new task object
-        if (tasksSorted.length > 0) { // If there are existing tasks, update the last task to point to the new task
-          actions.updateTasks([{ id: tasksSorted[0][0], updatedFields: { next: newTaskId } }]); // Update the last task to point to the new task
-          console.log(`task ${tasksSorted[0][0]} updated to point to new task ${newTaskId}`);
+        const bulkPayload = createBulkPayload(); // Create a bulk payload for the new task
+        const backup = createBackup(states, bulkPayload); // Create a backup of the current state
+        actions.addTasks([newTask], backup); // Call the addTasks function from actions with the new task
+        try {
+          await fetch('/api/tasks', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(backup), // Send the new task to the server
+          });
+        } catch (error) {
+          console.error('Error adding new task:', error);
+          restoreBackup(setStates, backup);
         }
       }
     }

@@ -6,6 +6,7 @@ import './ProjectButton.css'
 import type { ProjectType, Actions, States, ProjectId } from '../utils/type'
 import { Draggable } from '@hello-pangea/dnd'
 import { useAppContext } from './AppContext'
+import { createBackup, createBulkPayload, restoreBackup } from '../utils/utils'
 
 /**
  * This function is used to get the style of the project button when it is being dragged
@@ -67,7 +68,7 @@ function ProjectButton({
    * Handle mouse event for the delete button.
    * @param e - The mouse event for the delete button.
    */
-  const handleDeleteButton = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleDeleteButton = async (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation(); // Prevent the click event from propagating to the parent div
     if (window.confirm(`Are you sure you want to delete the project: ${project[1].title}? You cannot undo this action and all tasks will gone!`)) {
 
@@ -83,7 +84,24 @@ function ProjectButton({
         }
       }
 
-      actions.deleteProject(project[0]); // Call the delete function from actions with the project ID
+      const bulkPayload = createBulkPayload();
+      const backup = createBackup(states, bulkPayload);
+      actions.deleteProject(project[0], bulkPayload); // Call the delete function from actions with the project ID
+      try {
+        await fetch('/api/projects', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(bulkPayload),
+        });
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+        // If the request fails, restore the previous state from the backup
+        restoreBackup(setStates, backup);
+      }
+
+      // actions.deleteProject(project[0]); // Call the delete function from actions with the project ID
 
       console.log(`Delete button clicked for project: ${project[1].title}`);
 

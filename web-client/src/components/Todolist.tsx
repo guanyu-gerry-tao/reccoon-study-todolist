@@ -75,9 +75,9 @@ function Todolist() {
         {/* The right panel for AI chat */}
         {/* This panel is used to interact with the AI chat feature, which can help users with task management and organization. */}
         {/* //TODO: implement the AI chat feature in future */}
-        <div className='todolistRightPanel'>
+        {/* <div className='todolistRightPanel'>
           <AIChatPanel />
-        </div>
+        </div> */}
 
       </div>
 

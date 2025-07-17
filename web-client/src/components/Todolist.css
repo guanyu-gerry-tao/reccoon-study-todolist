@@ -13,8 +13,6 @@
   position: relative;
   display: flex;
   flex-direction: row;
-  max-width: 61.25rem;
-  /* 245 * 0.25rem = 61.25rem */
   flex-grow: 1;
   overflow-y: auto;
   overflow-x: auto;
