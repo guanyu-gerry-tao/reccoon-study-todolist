@@ -23,13 +23,17 @@ function TodoColumn({
   bgColor,
   status,
   actions,
-  states }: {
-    title: string;
-    bgColor: string;
-    status: StatusId;
-    actions: Actions;
-    states: States;
-  }) {
+ // The states object containing the current state of tasks, projects, and user status.
+  states,
+  className = ''
+}: {
+  title: string;
+  bgColor: string;
+  status: StatusId;
+  actions: Actions;
+  states: States;
+  className?: string;
+}) {
 
 
   const tasks = Object.fromEntries(Object.entries(states.tasks).filter(([_, task]) => task.status === status && task.project === states.currentProjectID));
@@ -39,7 +43,7 @@ function TodoColumn({
 
   return (
     <>
-      <div className='todoColumnCard' style={{
+      <div className={`todoColumnCard ${className}`} style={{
         backgroundColor: bgColor,
         borderColor: (status === "completed" || status === "deleted") ? 'black' : bgColor
       }}>

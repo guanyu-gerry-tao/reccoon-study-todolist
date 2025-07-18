@@ -10,6 +10,7 @@ import type { Actions, States, StatusData, StatusType } from './type.ts'
 import { useImmer } from 'use-immer'
 import TaskDropArea from './TaskDropArea.tsx'
 import { sortChain } from '../utils/utils.ts';
+import { useState } from 'react';
 
 /**
  * Todolist component represents the main todo list interface.
@@ -40,14 +41,48 @@ function Todolist({
   // State to manage the mouse over state for the drop zone, used to show/hide the drop area visual.
   const [isMouseOverDropZone, setIsMouseOverDropZone] = useImmer(false);
 
+  // State to manage the visibility of the deleted and completed columns.
+  const [deletedColumnHide, setDeletedColumnHide] = useState(false);
+  const [completedColumnHide, setCompletedColumnHide] = useState(false);
+
   const statusesSorted = sortChain(states.statuses) as [string, StatusType][];
+
+  // Function to handle the click event for the delete tasks button.
+  const handleDeleteTasksClick = () => {
+    if (states.showDeleted) {
+      //  从true到false先隐藏再去掉hide
+      setDeletedColumnHide(true);
+      setTimeout(() => actions.setShowDeleted(false), 400);
+    } else {
+      // 从false到true先显示再去掉hide
+      actions.setShowDeleted(true);
+      setTimeout(() => setDeletedColumnHide(false), 10);
+    }
+  };
+
+  const handleCompletedTasksClick = () => {
+    if (states.showCompleted) {
+      setCompletedColumnHide(true);
+      setTimeout(() => actions.setShowCompleted(false), 400);
+    } else {
+      actions.setShowCompleted(true);
+      setTimeout(() => setCompletedColumnHide(false), 10);
+    }
+  };
 
   return (
     <>
       <div className='todolistContainer'>
         {/* The top menu bar */}
         {/* Contains logos, project, user information */}
-        <Menubar actions={actions} states={states} />
+        <Menubar
+          actions={{
+            ...actions,
+            setShowDeleted: handleDeleteTasksClick,
+            setShowCompleted: handleCompletedTasksClick,
+          }}
+          states={states}
+        />
 
         {/* The task columns */}
         <div className='todolistColumns'>
@@ -59,6 +94,7 @@ function Todolist({
               status={"deleted"}
               actions={actions}
               states={states}
+              className={deletedColumnHide ? 'hide' : ''}
             />
           )}
 
@@ -69,6 +105,7 @@ function Todolist({
               status={"completed"}
               actions={actions}
               states={states}
+              className={completedColumnHide ? 'hide' : ''}
             />
           )}
 
