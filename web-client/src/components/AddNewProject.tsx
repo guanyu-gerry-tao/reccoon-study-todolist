@@ -2,7 +2,7 @@ import '../App.css'
 import './AddNewProject.css'
 
 import type { Actions, ProjectType, States } from '../utils/type.ts'
-import { createBackup, createBulkPayload, restoreBackup } from '../utils/utils'
+import { createBackup, createBulkPayload, optimisticUIUpdate, postPayloadToServer, restoreBackup } from '../utils/utils'
 import { useAppContext } from './AppContext.tsx';
 
 /**
@@ -16,41 +16,40 @@ function AddNewProject({ projects }: { projects: [string, ProjectType][] }) {
   const { states, setStates, actions } = useAppContext();
 
   const handleKeyboard = async (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') { // Check if the Enter key is pressed: this will add a new task
+    const event = e
+    if (event.key === 'Enter') { // Check if the Enter key is pressed: this will add a new task
       console.log('Enter pressed');
-      const newProjectTitle = e.currentTarget.value.trim(); // Get the trimmed value of the input field
-
+      const newProjectTitle = event.currentTarget.value.trim(); // Get the trimmed value of the input field
+      
       if (newProjectTitle) { // Check if the input is not empty
         const newProject = {
           title: newProjectTitle,
           prev: projects.length > 0 ? projects[projects.length - 1][0] : null, // Set the previous project to the last project in the list or null if no projects exist
           next: null, // Set the next project to null initially
-          userId: states.userProfile.id, // Assuming the user ID is available in the states
+          userId: states.userProfile.id as string, // Assuming the user ID is available in the states
         };
         
+        event.currentTarget.value = ''; // Clear the input field after adding the task
+        
+        //
         const bulkPayload = createBulkPayload(); // Create a bulk payload for the new project
         const backup = createBackup(states, bulkPayload); // Create a backup of the current state
-        actions.addProject(newProject, backup); // Call the addProject function from actions with the new project
+        
         try {
-          await fetch('/api/projects', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(backup), // Send the new project to the server
-          });
+          const id = actions.addProject(newProject, backup); // Call the addProject function from actions with the new project
+          optimisticUIUpdate(setStates, backup);
+          setStates.setCurrentProjectID(id); // Set the current project ID to the newly added project
+          await postPayloadToServer('/api/bulk', backup);
         } catch (error) {
-          console.error('Error adding new project:', error);
-          restoreBackup(setStates, backup); // Restore the previous state in case of an error
-        }
+          console.error('Error adding project:', error);
+          restoreBackup(setStates, backup);
+        }     
 
-        setStates.setCurrentProjectID(newProjectTitle); // Set the current project ID to the newly added project
-        e.currentTarget.value = ''; // Clear the input field after adding the task
       }
     }
-    if (e.key === 'Escape') { // Check if the Escape key is pressed: this will clear the input field
-      e.currentTarget.value = ''; // Clear the input field
-      e.currentTarget.blur(); // Remove focus from the input field
+    if (event.key === 'Escape') { // Check if the Escape key is pressed: this will clear the input field
+      event.currentTarget.value = ''; // Clear the input field
+      event.currentTarget.blur(); // Remove focus from the input field
     }
   };
 

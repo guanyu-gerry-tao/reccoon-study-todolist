@@ -6,7 +6,7 @@ import './ProjectButton.css'
 import type { ProjectType, Actions, States, ProjectId } from '../utils/type'
 import { Draggable } from '@hello-pangea/dnd'
 import { useAppContext } from './AppContext'
-import { createBackup, createBulkPayload, restoreBackup } from '../utils/utils'
+import { createBackup, createBulkPayload, optimisticUIUpdate, postPayloadToServer, restoreBackup } from '../utils/utils'
 
 /**
  * This function is used to get the style of the project button when it is being dragged
@@ -60,7 +60,8 @@ function ProjectButton({
    * @param e - The change event for the input field.
   */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newTitle = e.target.value;
+    const event = e; // Store the current target for later use
+    const newTitle = event.target.value;
     //TODO: Implement the logic to update the project title when the input field changes.
   }
 
@@ -68,8 +69,9 @@ function ProjectButton({
    * Handle mouse event for the delete button.
    * @param e - The mouse event for the delete button.
    */
-  const handleDeleteButton = async (e: React.MouseEvent<HTMLDivElement>) => {
-    e.stopPropagation(); // Prevent the click event from propagating to the parent div
+  const handleDeleteButton = (e: React.MouseEvent<HTMLDivElement>) => {
+    const event = e; // Store the current target for later use
+    event.stopPropagation(); // Prevent the click event from propagating to the parent div
     if (window.confirm(`Are you sure you want to delete the project: ${project[1].title}? You cannot undo this action and all tasks will gone!`)) {
 
       // handle changing of the current project ID
@@ -84,21 +86,20 @@ function ProjectButton({
         }
       }
 
+      // Create a bulk payload and backup for the delete operation
       const bulkPayload = createBulkPayload();
       const backup = createBackup(states, bulkPayload);
-      actions.deleteProject(project[0], bulkPayload); // Call the delete function from actions with the project ID
+
       try {
-        await fetch('/api/projects', {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(bulkPayload),
+        actions.deleteProject(project[0], backup); // Call the delete function from actions with the project ID
+        Object.entries(states.tasks).filter(task => task[1].projectId === project[0]).forEach(task => {
+          actions.hardDeleteTask(task[0], backup); // Delete all tasks in the project
         });
+        optimisticUIUpdate(setStates, backup); // Optimistically update the UI with the deleted project
+        postPayloadToServer('/api/bulk', backup); // Send the delete request to the server
       } catch (error) {
-        console.error('Error fetching projects:', error);
-        // If the request fails, restore the previous state from the backup
-        restoreBackup(setStates, backup);
+        console.error('Error deleting project:', error);
+        restoreBackup(setStates, backup); // Restore the previous state in case of an error
       }
 
       // actions.deleteProject(project[0]); // Call the delete function from actions with the project ID

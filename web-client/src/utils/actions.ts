@@ -1,11 +1,6 @@
 import type { UserProfileData, TaskId, TaskType, TaskData, ProjectId, ProjectType, ProjectData, StatusId, StatusType, StatusData, Actions, States, SetStates, BulkPayload } from "./type.ts";
-import { useRef, useEffect } from "react";
-import { useImmer } from "use-immer";
-import { updateLinkedList, sortChain, optimisticUpdateItems, createBulkPayload } from './utils.ts';
+import { sortChain, createBulkPayload, optimisticUIUpdate, postPayloadToServer, createBackup, restoreBackup } from './utils.ts';
 import type { DragDropContextProps } from '@hello-pangea/dnd';
-
-import { loadTestTasks, loadTestProjects, loadTestUserProfile, loadTestStatuses } from "../data/loadInitData";
-import { b } from "motion/react-client";
 
 
 export const createActions = (states: States, setStates: SetStates): Actions => {
@@ -14,49 +9,71 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
    * Function to add new tasks to the task list.
    * It generates unique IDs for the new tasks, adds them to the tasks state,
    * Notice: this function only add tasks to one status bar, not multiple status bars.
-   * @param newTask - The new task items to be added - without an ID - ID will be generated automatically. next and prev can be null if added to last. Specific prev or next to insert at desired position.
+   * @param newTask - The new task items to be added - without an ID - ID will be generated automatically. next and prev can be both null if added to last. Specific prev or next to insert at desired position.
    * @param bulkPayload - The bulk payload to be used for the add operation.
    */
-  const addTasks = (newTask: Omit<TaskType, 'id'>[], bulkPayload: BulkPayload): TaskId[] => {
-    const returnTasksId: TaskId[] = []
-    newTask.forEach(task => {
-      const id = crypto.randomUUID(); // Generate a unique ID for the new task
-      const targetStatusExistingTasks = Object.fromEntries(Object.entries(states.tasks).filter(([_, t]) => t.status === task.status && t.projectId === task.projectId));
-      const sortedTargetStatusTasks = sortChain(targetStatusExistingTasks);
-      // Generate a unique ID for the new task:
-      const newTaskWithId: TaskType = ({
-        ...task,
-        id: id
-      });
-
-      // find the index based on provided newTask.prev or newTask.next
-      let index: number = 0;
-      if (newTaskWithId.prev && sortedTargetStatusTasks.map(task => task[0]).includes(newTaskWithId.prev)) {
-        index = sortedTargetStatusTasks.findIndex(task => task[0] === newTaskWithId.prev) + 1;
-      } else if (newTaskWithId.next && sortedTargetStatusTasks.map(task => task[0]).includes(newTaskWithId.next)) {
-        index = sortedTargetStatusTasks.findIndex(task => task[0] === newTaskWithId.next);
-      } else {
-        index = sortedTargetStatusTasks.length - 1; // Default to the end of the tasks
-      }
-      const { updatedArray, updatedItems } = updateLinkedList(Object.fromEntries(sortedTargetStatusTasks), [], [newTaskWithId], index);
-
-      // Optimistically update the tasks state:
-      optimisticUpdateItems(setStates.setTasks, updatedArray);
-
-      // pack the payload for the new task and updated tasks:
-      bulkPayload.tasks.new.push(newTaskWithId);
-      (updatedItems as TaskType[]).forEach(task => {
-        bulkPayload.tasks.update.push({
-          id: task.id,
-          updatedFields: {
-            prev: task.prev,
-            next: task.next
-          }
-        });
-      });
-      returnTasksId.push(id);
+  const addTask = (newTask: Omit<TaskType, 'id'>, bulkPayload: BulkPayload): TaskId => {
+    const id = crypto.randomUUID(); // Generate a unique ID for the new task
+    const targetStatusExistingTasks = Object.fromEntries(Object.entries(states.tasks).filter(([_, t]) => t.status === newTask.status && t.projectId === newTask.projectId));
+    const sortedTargetStatusTasks = sortChain(targetStatusExistingTasks);
+    // Generate a unique ID for the new task:
+    const newTaskWithId: TaskType = ({
+      ...newTask,
+      id: id
     });
-    return returnTasksId;
+
+    // find the index based on provided newTask.prev or newTask.next
+    let index: number = 0;
+    if (newTaskWithId.prev && sortedTargetStatusTasks.map(task => task[0]).includes(newTaskWithId.prev)) {
+      index = sortedTargetStatusTasks.findIndex(task => task[0] === newTaskWithId.prev) + 1;
+    } else if (newTaskWithId.next && sortedTargetStatusTasks.map(task => task[0]).includes(newTaskWithId.next)) {
+      index = sortedTargetStatusTasks.findIndex(task => task[0] === newTaskWithId.next);
+    } else {
+      index = sortedTargetStatusTasks.length; // Default to the end of the tasks
+    }
+
+    // set the prev and next correctly:
+    if (index === 0) {
+      newTaskWithId.prev = null; // No previous task
+      newTaskWithId.next = sortedTargetStatusTasks.length > 0 ? sortedTargetStatusTasks[0][0] : null; // First task in the status
+    } else if (index === sortedTargetStatusTasks.length) {
+      newTaskWithId.prev = sortedTargetStatusTasks[sortedTargetStatusTasks.length - 1][0]; // Last task in the status
+      newTaskWithId.next = null; // No next task
+    } else {
+      newTaskWithId.prev = sortedTargetStatusTasks[index - 1][0]; // Previous task in the status
+      newTaskWithId.next = sortedTargetStatusTasks[index][0]; // Next task in the status
+    }
+
+    // add to payload:
+    bulkPayload.ops.push({
+      type: 'task',
+      operation: 'add',
+      data: newTaskWithId
+    });
+
+    // update surrounding tasks' prev and next:
+    if (newTaskWithId.prev) {
+      bulkPayload.ops.push({
+        type: 'task',
+        operation: 'update',
+        data: {
+          id: newTaskWithId.prev,
+          updatedFields: { next: newTaskWithId.id }
+        }
+      });
+    };
+    if (newTaskWithId.next) {
+      bulkPayload.ops.push({
+        type: 'task',
+        operation: 'update',
+        data: {
+          id: newTaskWithId.next,
+          updatedFields: { prev: newTaskWithId.id }
+        }
+      });
+    };
+    console.log(`addTask: payload: ${JSON.stringify(bulkPayload)}`);
+    return id;
   };
 
 
@@ -64,23 +81,17 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
    * Function to update existing tasks in the task list.
    * @param updatePayloads - An array of objects containing the ID of the task to be updated and the fields to be updated.
    */
-  const updateTasks = (updatePayloads: { id: TaskId; updatedFields: Partial<TaskType> }[], bulkPayload: BulkPayload) => {
-
-    // Optimistically update the tasks state:
-    setStates.setTasks(draft => {
-      updatePayloads.forEach(({ id, updatedFields }) => {
-        const task = draft[id];
-        if (task) {
-          Object.assign(task, updatedFields);
-          console.log(`Task with id ${id} updated locally`)
-        } else {
-          console.warn(`Task with id ${id} not found.`);
-        }
-      });
-    });
+  const updateTask = (updatePayload: { id: TaskId; updatedFields: Partial<TaskType> }, bulkPayload: BulkPayload) => {
 
     // Add the updated tasks to the bulk payload:
-    bulkPayload.tasks.update.push(...updatePayloads);
+    bulkPayload.ops.push({
+      type: 'task',
+      operation: 'update',
+      data: {
+        id: updatePayload.id,
+        updatedFields: updatePayload.updatedFields
+      }
+    })
   };
 
 
@@ -93,36 +104,17 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
    * @param ids - The IDs of the tasks to be hard deleted.
    * @param bulkPayload - The bulk payload to be used for the hard delete operation.
    */
-  const hardDeleteTasks = async (ids: TaskId[], bulkPayload: BulkPayload) => {
+  const hardDeleteTask = async (id: TaskId, bulkPayload: BulkPayload) => {
     // Check if the tasks exist before deleting them
-    ids.forEach(id => {
-      const task = states.tasks[id];
-      if (!task) {
-        throw new Error(`Task with id ${id} not found. Cannot hard delete.`);
-      }
-    });
-
-    // find all involved statuses, which are the statuses of the tasks to be deleted.
-    const involvedStatusesId: StatusId[] = ids.map(id => states.tasks[id].status);
-    involvedStatusesId.forEach(status => {
-      const targetStatusChain = Object.fromEntries(Object.entries(states.tasks).filter(([_, task]) => task.status === status && task.projectId === states.currentProjectID));
-      const { updatedArray, updatedItems, removedItems } = updateLinkedList(targetStatusChain, ids.map(id => states.tasks[id]), [], null);
-      // optimistically update the tasks state:
-      optimisticUpdateItems(setStates.setTasks, updatedArray);
-
-      // build the bulk payload for the tasks:
-      updatedItems.forEach(item => {
-        bulkPayload.tasks.update.push({
-          id: item.id,
-          updatedFields: {
-            prev: item.prev,
-            next: item.next
-          }
-        });
-      });
-      removedItems.forEach(item => {
-        bulkPayload.tasks.delete.push(item.id);
-      });
+    const task = states.tasks[id];
+    if (!task) {
+      throw new Error(`Task with id ${id} not found. Cannot hard delete.`);
+    }
+    // Add the task to the bulk payload for hard delete
+    bulkPayload.ops.push({
+      type: 'task',
+      operation: 'delete',
+      data: id
     });
   };
 
@@ -137,59 +129,118 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
    * @index - The index to insert the tasks at. It can be a number, "start", or "end".
    * @bulkPayload - The bulk payload to be used for the move operation.
    */
-  const moveTasks = (ids: TaskId[], targetStatusId: StatusId, index: number | "start" | "end", bulkPayload: BulkPayload) => {
+  const moveTask = (id: TaskId, targetStatusId: StatusId, index: number | "start" | "end", bulkPayload: BulkPayload) => {
     // check if the status is exist
     if (Object.keys(states.statuses).includes(targetStatusId) === false) {
       throw new Error(`Status with id ${targetStatusId} does not exist.`);
     }
+    // check if the task is exist
+    if (!states.tasks[id]) {
+      throw new Error(`Task with id ${id} does not exist.`);
+    }
 
     // get the target status chain
     const targetStatusChain = Object.fromEntries(Object.entries(states.tasks).filter(([_, task]) => task.status === targetStatusId && task.projectId === states.currentProjectID));
+    const sortedTargetChainWithoutTask = sortChain(targetStatusChain).filter(task => task[0] !== id); // Exclude the task being moved
 
     // convert index to a number if it's a string. If index is out of bounds, set it to the start or end of the tasks.
     if (index === "start" || index as number < 0) {
       index = 0;
-    } else if (index === "end" || index as number >= Object.keys(targetStatusChain).length) {
-      index = Object.keys(targetStatusChain).length - 1; // Set index to the end of the tasks
+    } else if (index === "end" || index as number >= sortedTargetChainWithoutTask.length) {
+      index = sortedTargetChainWithoutTask.length; // Set index to the end of the tasks
     }
 
-    // check if the ids are valid
-    ids.forEach(id => {
-      const task = states.tasks[id];
-      if (!task) {
-        throw new Error(`Task with id ${id} not found.`);
+    // check if the task is not moving
+    if (states.tasks[id].status === targetStatusId && index === Object.keys(sortedTargetChainWithoutTask).indexOf(id)) { // Task is not moving
+      console.log(`Task with id ${id} is already at index ${index}. No action taken.`);
+      return;
+    }
+
+    // find task's new prev and next:
+    let newPrev: TaskId | null = null;
+    let newNext: TaskId | null = null;
+
+    if (sortedTargetChainWithoutTask.length === 0) {
+      newPrev = null;
+      newNext = null;
+    } else if (index === 0) {
+      newPrev = null; // No previous task
+      newNext = sortedTargetChainWithoutTask[0][0]; // First task in the status
+    } else if (index >= sortedTargetChainWithoutTask.length) {
+      newPrev = sortedTargetChainWithoutTask[sortedTargetChainWithoutTask.length - 1][0]; // Last task in the status
+      newNext = null; // No next task
+    } else {
+      newPrev = sortedTargetChainWithoutTask[index - 1][0]; // Previous task in the status
+      newNext = sortedTargetChainWithoutTask[index][0]; // Next task in the status
+    }
+
+    // update the task's status and prev/next:
+    bulkPayload.ops.push({
+      type: 'task',
+      operation: 'update',
+      data: {
+        id: id,
+        updatedFields: {
+          status: targetStatusId, // Update the status to the target status
+          previousStatus: states.tasks[id].status, // Keep the previous status for reference
+          prev: newPrev, // Will be updated later
+          next: newNext // Will be updated later
+        }
       }
     });
 
-    // find all involved statuses, which are the statuses of the tasks to be moved.
-    const involvedStatusesId: StatusId[] = ids.map(id => states.tasks[id].status);
 
-    // go through each involved status and rebuild the linked list array for the target status chain.
-    involvedStatusesId.forEach(status => {
-      const { updatedArray, addedItems, updatedItems } = updateLinkedList(targetStatusChain, ids.map(id => states.tasks[id]), status === targetStatusId ? ids.map(id => states.tasks[id]) : [], index);
-      // optimistically update the tasks state:
-      setStates.setTasks(draft => {
-        updatedArray.map(item => {
-          draft[item.id] = item; // Update the task in the tasks state
-        });
-      });
+    // find old surrounding tasks' prev and next:
+    const oldPrevTask = states.tasks[id].prev;
+    const oldNextTask = states.tasks[id].next;
 
-      // build the bulk payload for the tasks:
-      addedItems.forEach(item => {
-        bulkPayload.tasks.new.push(item);
+    // update surrounding tasks' prev and next:
+    if (oldPrevTask) {
+      bulkPayload.ops.push({
+        type: 'task',
+        operation: 'update',
+        data: {
+          id: oldPrevTask,
+          updatedFields: { next: oldNextTask } // Update the next task of the old previous task
+        }
       });
-      updatedItems.forEach(item => {
-        bulkPayload.tasks.update.push({
-          id: item.id,
-          updatedFields: {
-            prev: item.prev,
-            next: item.next,
-            status: targetStatusId, // Update the status to the target status
-            previousStatus: states.tasks[item.id].status, // Keep the previous status for reference
-          }
-        });
+    }
+    if (oldNextTask) {
+      bulkPayload.ops.push({
+        type: 'task',
+        operation: 'update',
+        data: {
+          id: oldNextTask,
+          updatedFields: { prev: oldPrevTask } // Update the previous task of the old next task
+        }
       });
-    });
+    }
+
+    // find new surrounding tasks' prev and next:
+    const newPrevTask = sortedTargetChainWithoutTask[index - 1] ? sortedTargetChainWithoutTask[index - 1][0] : null; // Previous task in the target status
+    const newNextTask = sortedTargetChainWithoutTask[index] ? sortedTargetChainWithoutTask[index][0] : null; // Next task in the target status
+
+    // update new surrounding tasks' prev and next:
+    if (newPrevTask) {
+      bulkPayload.ops.push({
+        type: 'task',
+        operation: 'update',
+        data: {
+          id: newPrevTask,
+          updatedFields: { next: id } // Update the next task of the new previous task
+        }
+      });
+    }
+    if (newNextTask) {
+      bulkPayload.ops.push({
+        type: 'task',
+        operation: 'update',
+        data: {
+          id: newNextTask,
+          updatedFields: { prev: id } // Update the previous task of the new next task
+        }
+      });
+    }
   };
 
 
@@ -218,49 +269,57 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
     } else if (newProjectWithId.next && sortedProjects.map(task => task[0]).includes(newProjectWithId.next)) {
       index = sortedProjects.findIndex(task => task[0] === newProjectWithId.next);
     } else {
-      index = sortedProjects.length - 1; // Default to the end of the tasks
+      index = sortedProjects.length; // Default to the end of the tasks
     }
 
-    // Rebuild the linked list array for the projects, inserting the new project at the specified index.
-    const { updatedArray, updatedItems, addedItems } = updateLinkedList(Object.fromEntries(sortedProjects), [], [newProjectWithId], index);
+    // set the prev and next correctly:
+    newProjectWithId.prev = sortedProjects[index - 1]?.[0] || null;
+    newProjectWithId.next = sortedProjects[index]?.[0] || null;
 
-    // Optimistically update the projects state:
-    optimisticUpdateItems(setStates.setProjects, updatedArray);
-
-    // pack the payload for the new project and updated projects:
-    addedItems.forEach(item => {
-      bulkPayload.projects.new.push(item);
+    // Add the new project to the bulk payload:
+    bulkPayload.ops.push({
+      type: 'project',
+      operation: 'add',
+      data: newProjectWithId
     });
-    updatedItems.forEach(item => {
-      bulkPayload.projects.update.push({
-        id: item.id,
-        updatedFields: {
-          prev: item.prev,
-          next: item.next,
+
+    // Update surrounding projects' prev and next:
+    if (newProjectWithId.prev) {
+      bulkPayload.ops.push({
+        type: 'project',
+        operation: 'update',
+        data: {
+          id: newProjectWithId.prev,
+          updatedFields: { next: newProjectWithId.id }
         }
       });
-    });
-
+    }
+    if (newProjectWithId.next) {
+      bulkPayload.ops.push({
+        type: 'project',
+        operation: 'update',
+        data: {
+          id: newProjectWithId.next,
+          updatedFields: { prev: newProjectWithId.id }
+        }
+      });
+    }
     return id; // Return the ID of the newly added project
   };
 
   const moveProject = (id: ProjectId, index: number, bulkPayload: BulkPayload) => {
-
     const sortedProjects = sortChain(states.projects);
     const currentProjectIndex = sortedProjects.findIndex(([projectId, _]) => projectId === id);
+    const sortedProjectsWithoutMovedProject = sortedProjects.filter(project => project[0] !== id); // Exclude the project being moved
 
     // rebuild the linked list array for the projects, inserting the project at the specified index.
     if (currentProjectIndex === -1) {
       throw new Error(`Project with id ${id} not found.`);
     }
-    if (index < 0 || index >= sortedProjects.length) {
+    if (index < 0 || index > sortedProjectsWithoutMovedProject.length) {
       throw new Error(`Index ${index} is out of bounds for the project list.`);
     }
 
-    if (currentProjectIndex === index) {
-      console.warn(`Project with id ${id} is already at index ${index}. No action taken.`);
-      return; // No need to move if the project is already at the desired index
-    }
 
 
     // Note: we need to at most update 5 projects:
@@ -279,52 +338,73 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
     const originProjectNext = states.projects[id].next;
 
     // get prev and next projectIds of the destination position:
-    const newProjectPrev = index === 0 ? null : sortedProjects[index - 1][0]; // If moving to the start, prev is null
-    const newProjectNext = index === sortedProjects.length - 1 ? null : sortedProjects[index][0]; // If moving to the end, next is null
+    const newProjectPrev = index === 0 ? null : sortedProjectsWithoutMovedProject[index - 1][0]; // If moving to the start, prev is null
+    const newProjectNext = index === sortedProjectsWithoutMovedProject.length ? null : sortedProjectsWithoutMovedProject[index][0]; // If moving to the end, next is null
 
-    // update the moved project's prev, even if there is a project in front of the destination -- the prev is just null:
-    bulkPayload.projects.update.push({ id, updatedFields: { prev: newProjectPrev } });
-    setStates.setProjects(draft => {
-      draft[id].prev = newProjectPrev; // Update the project's prev to the new prev
-    });
-
-    // update the moved project's next, even if there is a project after the destination -- the next is just null:
-    bulkPayload.projects.update.push({ id, updatedFields: { next: newProjectNext } });
-    setStates.setProjects(draft => {
-      draft[id].next = newProjectNext; // Update the project's next to the new next
+    if (originProjectNext === newProjectNext && originProjectPrev === newProjectPrev) {
+      console.log(`move Project: Project with id ${id} is already at index ${index}. No action taken.`);
+      return; // No need to move if the project is already at the desired index
+    }
+    // update the moved project's prev and next, even if there is a project in front of the destination -- the prev is just null:
+    bulkPayload.ops.push({
+      type: 'project',
+      operation: 'update',
+      data: {
+        id,
+        updatedFields: {
+          prev: newProjectPrev,
+          next: newProjectNext
+        }
+      }
     });
 
     // if there is a project before the origin position:
     if (originProjectPrev) { // if before move, the project has a previous project
-      bulkPayload.projects.update.push({ id: originProjectPrev, updatedFields: { next: originProjectNext } }); // Update the previous project's next to the new next
-      setStates.setProjects(draft => {
-        draft[originProjectPrev].next = originProjectNext; // Update the previous project's next to the new next
+      bulkPayload.ops.push({
+        type: 'project',
+        operation: 'update',
+        data: {
+          id: originProjectPrev,
+          updatedFields: { next: originProjectNext }
+        }
       });
-    }
+    };
 
     // if there is a project after the origin position:
     if (originProjectNext) { // if before move, the project has a next project
-      bulkPayload.projects.update.push({ id: originProjectNext, updatedFields: { prev: originProjectPrev } }); // Update the next project's prev to the new prev
-      setStates.setProjects(draft => {
-        draft[originProjectNext].prev = originProjectPrev; // Update the next project's prev to the new prev
+      bulkPayload.ops.push({
+        type: 'project',
+        operation: 'update',
+        data: {
+          id: originProjectNext,
+          updatedFields: { prev: originProjectPrev }
+        }
       });
-    }
+    };
 
     // when there is a project before the destination position:
     if (newProjectPrev) {
-      bulkPayload.projects.update.push({ id: newProjectPrev, updatedFields: { next: id } });
-      setStates.setProjects(draft => {
-        draft[newProjectPrev].next = id; // Update the previous project's next to the current project
+      bulkPayload.ops.push({
+        type: 'project',
+        operation: 'update',
+        data: {
+          id: newProjectPrev,
+          updatedFields: { next: id }
+        }
       });
-    }
+    };
 
     // when there is a project after the destination position:
     if (newProjectNext) {
-      bulkPayload.projects.update.push({ id: newProjectNext, updatedFields: { prev: id } });
-      setStates.setProjects(draft => {
-        draft[newProjectNext].prev = id; // Update the next project's prev to the new prev
+      bulkPayload.ops.push({
+        type: 'project',
+        operation: 'update',
+        data: {
+          id: newProjectNext,
+          updatedFields: { prev: id }
+        }
       });
-    }
+    };
   };
 
   /**
@@ -334,18 +414,19 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
    * @param bulkPayload - The bulk payload to be used for the update operation.
    */
   const updateProject = (id: ProjectId, updatedFields: Partial<ProjectType>, bulkPayload: BulkPayload) => {
-    const project = states.projects[id];
-    // Optimistically update the projects state:
-    if (project) {
-      setStates.setProjects(draft => {
-        Object.assign(draft[id], updatedFields);
-      });
-    };
+    // Check if the project exists before updating it
+    if (!states.projects[id]) {
+      throw new Error(`Project with id ${id} not found. Cannot update.`);
+    }
 
     // Add the updated project to the bulk payload:
-    bulkPayload.projects.update.push({
-      id,
-      updatedFields
+    bulkPayload.ops.push({
+      type: 'project',
+      operation: 'update',
+      data: {
+        id,
+        updatedFields
+      }
     });
   };
 
@@ -357,23 +438,52 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
    */
   const deleteProject = (projectId: ProjectId, bulkPayload: BulkPayload) => {
     // Check if the project exists before deleting it
-    // if (!states.projects[projectId]) {
-    //   throw new Error(`Project with id ${projectId} not found. Cannot delete.`);
-    // }
+    if (!states.projects[projectId]) {
+      throw new Error(`Project with id ${projectId} not found. Cannot delete.`);
+    }
 
-    const { updatedItems } = updateLinkedList(
-      states.projects,
-      [states.projects[projectId]], // no origin items to remove, as we are deleting the project
-      [], // no new items to add, as we are deleting the project
-      null // no index to insert at, as we are deleting the project
-    );
+    const deletedProject = states.projects[projectId];
+    const deletedProjectPrev = deletedProject.prev;
+    const deletedProjectNext = deletedProject.next;
 
+    // Add the deleted project to the bulk payload
+    bulkPayload.ops.push({
+      type: 'project',
+      operation: 'delete',
+      data: projectId
+    });
 
-    // optimistically update the projects state:
-    optimisticUpdateItems(setStates.setProjects, updatedItems);
+    // update the prev and next of the surrounding projects:
+    if (deletedProjectPrev) {
+      bulkPayload.ops.push({
+        type: 'project',
+        operation: 'update',
+        data: {
+          id: deletedProjectPrev,
+          updatedFields: { next: deletedProjectNext } // Update the next project of the previous project
+        }
+      });
+    }
+    if (deletedProjectNext) {
+      bulkPayload.ops.push({
+        type: 'project',
+        operation: 'update',
+        data: {
+          id: deletedProjectNext,
+          updatedFields: { prev: deletedProjectPrev } // Update the previous project of the next project
+        }
+      });
+    }
 
-    // add the deleted project to the bulk payload:
-    bulkPayload.projects.delete.push(projectId);
+    // Also delete all tasks in the project
+    const tasksInProject = Object.entries(states.tasks).filter(([_, task]) => task.projectId === projectId && task.userId === states.userProfile.id);
+    for (const [taskId, _] of tasksInProject) {
+      bulkPayload.ops.push({
+        type: 'task',
+        operation: 'delete',
+        data: taskId // Add the task ID to the bulk payload for deletion
+      });
+    }
   };
 
 
@@ -452,16 +562,18 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
         const taskId = result.draggableId; // Get the ID of the dragged task
         const task = states.tasks[taskId]; // Find the task being dragged by its ID
         if (task) {
-          const originStatus = task.status;
           const resultStatus = result.destination!.droppableId; // the status === droppableId, as defined in the TodoColumn component
           const payload = createBulkPayload(); // Create a bulk payload for the update operation
-          moveTasks([taskId], resultStatus, result.destination!.index, payload);
+          const backup = createBackup(states, payload); // Create a backup of the current state for optimistic UI updates
 
-
-
-
-
-
+          try {
+            moveTask(taskId, resultStatus, result.destination!.index, backup);
+            optimisticUIUpdate(setStates, backup); // Optimistically update the UI with the new task order
+            postPayloadToServer('/api/bulk', backup); // Send the update to the server
+          } catch (error) {
+            console.error('Error updating task:', error);
+            restoreBackup(setStates, backup);
+          }
 
 
 
@@ -579,46 +691,51 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
     if (result.type === 'project') {
       console.log('onDragEnd for project', result); // Log the drag result for debugging
       if (result.destination) { // Check if the destination is valid. If true, the project was dropped in a valid droppable area. If false, it means the project was dropped outside of a droppable area.
-        setStates.setProjects(draft => {
-          const project = draft[result.draggableId]; // Find the project being dragged by its ID
-          if (project) { // If the project was found and project was moved
-            const originPrevProject = project.prev;
-            const originNextProject = project.next;
+        const projectId = result.draggableId; // Get the ID of the dragged project
+        const project = states.projects[projectId]; // Find the project being dragged by its ID
+        if (project) { // If the project was found and project was moved
 
-            const payload = createBulkPayload(); // Create a bulk payload for the update operation
-            moveProject(result.draggableId, result.destination!.index, payload);
+          const payload = createBulkPayload(); // Create a bulk payload for the update operation
+          const backup = createBackup(states, payload); // Create a backup of the current state for optimistic UI updates
 
-
-
-
-
-
-            // if (originPrevProject) { // If the original task is not the first task, update its previous task to the original's next task (skip the original task)
-            //   draft[originPrevProject].next = originNextProject;
-            // }
-            // if (originNextProject) { // If the original task is not the last task, update its next task to the original's previous task (skip the original task)
-            //   draft[originNextProject].prev = originPrevProject;
-            // }
-
-            // // handle result task's previous and next tasks and the dragged task
-            // const resultProjects = Object.fromEntries(Object.entries(draft)
-            //   .filter(([id, t]) => id !== result.draggableId)); // Get all tasks in the result status
-            // const sortedProjects = sortChain(resultProjects);
-
-            // const resultPrevProject = sortedProjects[result.destination!.index - 1]?.[0] ?? null; // Get the previous project in the result status
-            // const resultNextProject = sortedProjects[result.destination!.index]?.[0] ?? null; // Get the next project in the result status
-
-            // if (resultPrevProject) { // If the result project is not the first project, handle A project and result project, [A(null), B(A)] -> [A(null), Result(A), B(Result)], B is handled in the next step
-            //   draft[resultPrevProject].next = result.draggableId; // Update the previous project's next project to the dragged project
-            // }
-            // if (resultNextProject) { // If the result project is not the last project, handle B project and result project, [A(B), B(null)] -> [A(Result), Result(null), B(Result)], A is handled in the previous step
-            //   draft[resultNextProject].prev = result.draggableId; // Update the next project's previous project to the dragged project
-            // }
-
-            // project.prev = resultPrevProject;
-            // project.next = resultNextProject;
+          try {
+            moveProject(projectId, result.destination!.index, backup);
+            optimisticUIUpdate(setStates, backup); // Optimistically update the UI with the new project order
+            postPayloadToServer('/api/bulk', backup); // Send the update to the server
+          } catch (error) {
+            console.error('Error updating project:', error);
+            restoreBackup(setStates, backup); // Restore the previous state in case of an error
           }
-        });
+
+
+
+
+
+          // if (originPrevProject) { // If the original task is not the first task, update its previous task to the original's next task (skip the original task)
+          //   draft[originPrevProject].next = originNextProject;
+          // }
+          // if (originNextProject) { // If the original task is not the last task, update its next task to the original's previous task (skip the original task)
+          //   draft[originNextProject].prev = originPrevProject;
+          // }
+
+          // // handle result task's previous and next tasks and the dragged task
+          // const resultProjects = Object.fromEntries(Object.entries(draft)
+          //   .filter(([id, t]) => id !== result.draggableId)); // Get all tasks in the result status
+          // const sortedProjects = sortChain(resultProjects);
+
+          // const resultPrevProject = sortedProjects[result.destination!.index - 1]?.[0] ?? null; // Get the previous project in the result status
+          // const resultNextProject = sortedProjects[result.destination!.index]?.[0] ?? null; // Get the next project in the result status
+
+          // if (resultPrevProject) { // If the result project is not the first project, handle A project and result project, [A(null), B(A)] -> [A(null), Result(A), B(Result)], B is handled in the next step
+          //   draft[resultPrevProject].next = result.draggableId; // Update the previous project's next project to the dragged project
+          // }
+          // if (resultNextProject) { // If the result project is not the last project, handle B project and result project, [A(B), B(null)] -> [A(Result), Result(null), B(Result)], A is handled in the previous step
+          //   draft[resultNextProject].prev = result.draggableId; // Update the next project's previous project to the dragged project
+          // }
+
+          // project.prev = resultPrevProject;
+          // project.next = resultNextProject;
+        }
       }
     }
   };
@@ -630,37 +747,37 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
    * Currently, it does not handle project dragging. Not implemented yet.
    */
   const onDragStart: DragDropContextProps['onDragStart'] = (start) => {
-  //   if (start.type === 'task') {
-  //     setStates.setDraggedTask([start.draggableId]);
-  //   }
-  //   if (start.type === 'project') {
+    //   if (start.type === 'task') {
+    //     setStates.setDraggedTask([start.draggableId]);
+    //   }
+    //   if (start.type === 'project') {
 
-  //   }
+    //   }
 
-  //   // Store the previous droppable ID to handle drag updates.
-  //   // Not in use. Stored here for future use.
-  //   const prevDroppableId = useRef<string | null>(null);
-  //   // Function to handle updates during a drag and drop event.
-  //   // Not in use. Stored here for future use.
+    //   // Store the previous droppable ID to handle drag updates.
+    //   // Not in use. Stored here for future use.
+    //   const prevDroppableId = useRef<string | null>(null);
+    //   // Function to handle updates during a drag and drop event.
+    //   // Not in use. Stored here for future use.
   }
   const onDragUpdate: DragDropContextProps['onDragUpdate'] = (update) => {
-  //   const current = update.destination?.droppableId || null;
-  //   if (current !== prevDroppableId.current) {
-  //     if (prevDroppableId.current === '-1') { // exit delete-zone
-  //       document.querySelectorAll(`#${update.draggableId}`).forEach(el => {
-  //         // Remove the class indicating the draggable is over the delete area
-  //       });
-  //     }
-  //     if (current === '-1') { // enter delete-zone
-  //       document.querySelectorAll(`#${update.draggableId}`).forEach(el => {
-  //         // Add a class to indicate the draggable is over the delete area
-  //       });
-  //     }
-  //     if (prevDroppableId.current !== null && current === null) { // exit all Droppable
-  //       // places to handle when the draggable is not over any droppable area
-  //     }
-  //     prevDroppableId.current = current;
-  //   }
+    //   const current = update.destination?.droppableId || null;
+    //   if (current !== prevDroppableId.current) {
+    //     if (prevDroppableId.current === '-1') { // exit delete-zone
+    //       document.querySelectorAll(`#${update.draggableId}`).forEach(el => {
+    //         // Remove the class indicating the draggable is over the delete area
+    //       });
+    //     }
+    //     if (current === '-1') { // enter delete-zone
+    //       document.querySelectorAll(`#${update.draggableId}`).forEach(el => {
+    //         // Add a class to indicate the draggable is over the delete area
+    //       });
+    //     }
+    //     if (prevDroppableId.current !== null && current === null) { // exit all Droppable
+    //       // places to handle when the draggable is not over any droppable area
+    //     }
+    //     prevDroppableId.current = current;
+    //   }
   }
   // Stored here for future use end.
 
@@ -670,10 +787,10 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
   // They include functions to add, update, delete tasks and projects, and refresh tasks.
   // It is just convenient to put all the actions in one place.
   return {
-    addTasks,
-    updateTasks,
-    hardDeleteTasks,
-    moveTasks,
+    addTask,
+    updateTask,
+    hardDeleteTask,
+    moveTask,
     addProject,
     updateProject,
     moveProject,

@@ -39,10 +39,12 @@ export const sortChain = <T extends { id: string; prev: string | null; next: str
  */
 export const createBulkPayload = (): BulkPayload => {
   return {
-    tasks: { new: [], update: [], delete: [] },
-    projects: { new: [], update: [], delete: [] },
-    statuses: { new: [], update: [], delete: [] },
-    backup: { statuses: {}, tasks: {}, projects: {} } // Initialize backup as empty objects
+    ops: [],
+    backup: {
+      tasks: {},
+      projects: {},
+      statuses: {}
+    }
   };
 }
 
@@ -64,69 +66,153 @@ export const restoreBackup = (setStates: SetStates, backupPayload: BulkPayload) 
 };
 
 
+// /**
+//  * Rebuilds a linked list array from a chain object.
+//  * It can remove items, insert new items, and rebuild the prev/next links.
+//  * Use for tasks, projects, or statuses, adding, moving and removing items.
+//  *  
+//  * @param chainObj - The chain object to be rebuilt. Record<string, T> where each key is an item ID and the value contains item information.
+//  * @param ItemsToRemove - An array of items T[] to be removed from the chain. Default is an empty array.
+//  * @param ItemsToAdd - An array of items T[] to be inserted into the chain. Default is an empty array.
+//  * @param insertIndex - The index at which to insert the new items.
+//  * @returns {updatedArray, addedItems, updatedItems, removedItems} - new repaired linked list array, added items array, updated, and removed items array.
+//  */
+// export function updateLinkedList<T extends { id: string; prev: string | null; next: string | null }>(
+//   chainObj: Record<string, T>,
+//   setMethod: Updater<Record<string, T>>,
+//   ItemsToRemove: T[] = [],
+//   ItemsToAdd: T[] = [],
+//   insertIndex: number | null = 0
+// ): {
+//   updatedArray: T[],
+//   addedItems: T[],
+//   updatedItems: T[],
+//   removedItems: T[]
+// } {
+
+//   // find items both in itemstoRemove and itemstoAdd
+//   // const intersection = ItemsToRemove.filter(item => ItemsToAdd.map(i => i.id).includes(item.id));
+
+//   // 1. Chain to array
+//   let array: T[] = sortChain(chainObj).map(([_, item]) => (item)); // Convert to array and clone items to avoid mutation of original chain
+
+//   // 3. Remove items
+//   const removedItems: T[] = ItemsToRemove.filter(i => array.map(item => item.id).includes(i.id)); // Filter out items that are to be removed
+//   array = array.filter(item => !removedItems.map(i => i.id).includes(item.id)); // Filter out items that are to be removed
+
+//   // 4. Insert new items
+//   let addedItems: T[] = [];
+//   if (ItemsToAdd.length > 0 && insertIndex !== null) { // If insertIndex is null, we will not insert new items
+//     addedItems = ItemsToAdd.filter(i => array.map(item => item.id).includes(i.id) === false); // Filter out items that already exist in the array
+//     array.splice(insertIndex, 0, ...ItemsToAdd); // Insert new items at the specified index
+//   }
+
+//   // 5. Rebuild prev/next
+//   const itemMap: Record<string, { prev: string | null; next: string | null }> = {};
+//   array.forEach((item, index) => {
+//     itemMap[item.id] = { prev: index === 0 ? null : array[index - 1].id, next: index === array.length - 1 ? null : array[index + 1].id }; // Rebuild prev/next links
+//   });
+
+//   // 6. find all items that are going to be update (due to prev/next change)
+//   const updateList = new Set<string>([])
+
+//   const movedItems = addedItems.filter(item => removedItems.includes(item)); // Items that are both added and removed are moved items
+
+//   addedItems.forEach(item => {
+//     updateList.add(item.id);
+//     if (itemMap[item.id].prev) {
+//       updateList.add(itemMap[item.id].prev as string);
+//     }
+//     if (itemMap[item.id].next) {
+//       updateList.add(itemMap[item.id].next as string);
+//     }
+//   });
+//   removedItems.forEach(item => {
+//     if (itemMap[item.id].prev) {
+//       updateList.add(itemMap[item.id].prev as string);
+//     }
+//     if (itemMap[item.id].next) {
+//       updateList.add(itemMap[item.id].next as string);
+//     }
+//   });
+//   const updatedIds: string[] = Array.from(updateList); // Filter out undefined items
+//   const updatedItems: T[] = array.filter(item => updatedIds.includes(item.id)); // Filter out items that are going to be updated
+
+//   setMethod((draft) => {
+//     updatedItems.forEach(item => {
+//       draft.
+//     })
+//   });
+
+//   return { updatedArray: array, addedItems: addedItems, updatedItems: updatedItems, removedItems: removedItems };
+// }
+
 /**
- * Rebuilds a linked list array from a chain object.
- * It can remove items, insert new items, and rebuild the prev/next links.
- * Use for tasks, projects, or statuses, adding, moving and removing items.
- *  
- * @param chainObj - The chain object to be rebuilt. Record<string, T> where each key is an item ID and the value contains item information.
- * @param ItemsToRemove - An array of items T[] to be removed from the chain. Default is an empty array.
- * @param ItemsToAdd - An array of items T[] to be inserted into the chain. Default is an empty array.
- * @param insertIndex - The index at which to insert the new items.
- * @returns {updatedArray, addedItems, updatedItems, removedItems} - new repaired linked list array, added items array, updated, and removed items array.
+ * Optimistically updates the UI state based on the provided bulk payload.
+ * This function applies the changes described in the payload to the current state.
+ * @param setState - The state setter function to update the UI state.
+ * @param payload - The bulk payload containing operations to be applied.
  */
-export function updateLinkedList<T extends { id: string; prev: string | null; next: string | null }>(
-  chainObj: Record<string, T>,
-  ItemsToRemove: T[] = [],
-  ItemsToAdd: T[] = [],
-  insertIndex: number | null = 0
-): {
-  updatedArray: T[],
-  addedItems: T[],
-  updatedItems: T[],
-  removedItems: T[]
-} {
-  // 1. Chain to array
-  let array = sortChain(chainObj).map(([_, item]) => ({ ...item })); // Convert to array and clone items to avoid mutation of original chain
-
-  // 2. preserve old chain for later comparison
-  const oldChain = Object.fromEntries(array.map(item => [item.id, { prev: item.prev, next: item.next }]));
-
-  // 3. Remove items
-  const removedItems: T[] = ItemsToRemove.filter(i => array.map(item => item.id).includes(i.id)); // Filter out items that are to be removed
-  array = array.filter(item => !removedItems.map(i => i.id).includes(item.id)); // Filter out items that are to be removed
-
-  // 4. Insert new items
-  let AddedItems: T[] = [];
-  if (ItemsToAdd.length > 0 && insertIndex !== null) { // If insertIndex is null, we will not insert new items
-    AddedItems = ItemsToAdd.filter(i => array.map(item => item.id).includes(i.id) === false); // Filter out items that already exist in the array
-    array.splice(insertIndex, 0, ...ItemsToAdd); // Insert new items at the specified index
-  }
-
-  // 5. Rebuild prev/next
-  array.forEach((item, index) => {
-    item.prev = index === 0 ? null : array[index - 1].id;
-    item.next = index === array.length - 1 ? null : array[index + 1].id;
+export const optimisticUIUpdate = (setState: SetStates, payload: BulkPayload) => {
+  payload.ops.forEach((op) => {
+    if (op.type === 'task') {
+      setState.setTasks((draft) => {
+        const taskId = (op.data as TaskType).id;
+        if (op.operation === 'add') {
+          draft[taskId] = {
+            ...op.data as TaskType
+          };
+          console.log(`optimisticUIUpdate: task added: ${taskId}`);
+        } else if (op.operation === 'update') {
+          const { id, updatedFields } = op.data as { id: string; updatedFields: Partial<TaskType> };
+          if (draft[id]) {
+            Object.assign(draft[id], updatedFields);
+            console.log(`optimisticUIUpdate: task updated: ${id}`);
+          }
+        } else if (op.operation === 'delete') {
+          delete draft[taskId];
+          console.log(`optimisticUIUpdate: task deleted: ${taskId}`);
+        }
+      });
+    } else if (op.type === 'project') {
+      setState.setProjects((draft) => {
+        const projectId = (op.data as ProjectType).id;
+        if (op.operation === 'add') {
+          draft[projectId] = {
+            ...op.data as ProjectType
+          };
+          console.log(`optimisticUIUpdate: project added: ${projectId}`);
+        } else if (op.operation === 'update') {
+          const { id, updatedFields } = op.data as { id: string; updatedFields: Partial<ProjectType> };
+          if (draft[id]) {
+            Object.assign(draft[id], updatedFields);
+            console.log(`optimisticUIUpdate: project updated: ${id}`);
+          }
+        } else if (op.operation === 'delete') {
+          delete draft[projectId];
+          console.log(`optimisticUIUpdate: project deleted: ${projectId}`);
+        }
+      });
+    } else if (op.type === 'status') {
+      // TODO: handle status operations
+    }
   });
-
-  // 6. find all items that are going to be update (due to prev/next change)
-  const updatedItems = array.filter(item => {
-    const oldItem = oldChain[item.id];
-    return !oldItem || oldItem.prev !== item.prev || oldItem.next !== item.next;
-  });
-
-  return { updatedArray: array, addedItems: AddedItems, updatedItems: updatedItems, removedItems: removedItems };
 }
 
-export const optimisticUpdateItems = (setMethod: Updater<TaskData> | Updater<ProjectData> | Updater<StatusData>, updatedArray: Array<TaskType | ProjectType | StatusType>) => { // TODO: fix any type
-  setMethod((draft: any) => {
-    Object.keys(draft).forEach(id => {
-      delete draft[id]; // Clear all old tasks
+export const postPayloadToServer = async (api: string, payload: BulkPayload) => {
+  try {
+    const response = await fetch(api, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-User-Id': import.meta.env.VITE_DEV_USERID // Use a default user ID for testing if not set
+      },
+      body: JSON.stringify(payload)
     });
-    updatedArray.forEach(item => {
-      draft[item.id] = {
-        ...item
-      }
-    });
-  });
-};
+    if (!response.ok) {
+      throw new Error(`Failed to send bulk update: ${response.statusText}`);
+    }
+  } catch (error) {
+    console.error('Error sending bulk update:', error);
+  }
+}

@@ -36,7 +36,7 @@ function Todolist() {
   // State to manage the mouse over state for the drop zone, used to show/hide the drop area visual.
   const [isMouseOverDropZone, setIsMouseOverDropZone] = useImmer(false);
 
-  const statusesSorted = sortChain(states.statuses) as [string, StatusType][];
+  const statusesSorted = sortChain(states.statuses);
 
   return (
     <>
@@ -47,22 +47,6 @@ function Todolist() {
 
         {/* The task columns */}
         <div className='todolistColumns'>
-
-          {states.showDeleted && (
-            <TodoColumn
-              title={"Deleted"}
-              bgColor='#ffcce6'
-              status={"deleted"}
-            />
-          )}
-
-          {states.showCompleted && (
-            <TodoColumn
-              title={"Completed"}
-              bgColor='#e6f2ff'
-              status={"completed"}
-            />
-          )}
 
           {statusesSorted.map(([key, status]) => (
             <TodoColumn key={key} title={status.title}

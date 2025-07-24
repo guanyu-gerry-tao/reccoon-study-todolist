@@ -40,7 +40,10 @@ function TodoColumn({
     <>
       <div className='todoColumnCard' style={{
         backgroundColor: bgColor,
-        borderColor: (status === "completed" || status === "deleted") ? 'black' : bgColor
+        borderColor: (status === "completed" || status === "deleted") ? 'black' : bgColor,
+        display: status === 'deleted' && states.showDeleted ||
+          status === 'completed' && states.showCompleted ||
+          status !== 'deleted' && status !== 'completed' ? 'block' : 'none'
       }}>
 
         <h1 className='todoColumnTitle'>{title}</h1>

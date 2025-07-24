@@ -2,7 +2,7 @@ import '../App.css'
 import './AddNewTask.css'
 
 import type { Actions, ProjectId, States, TaskId, TaskType } from '../utils/type.ts';
-import { createBackup, createBulkPayload, restoreBackup } from '../utils/utils'
+import { createBackup, createBulkPayload, optimisticUIUpdate, postPayloadToServer, restoreBackup } from '../utils/utils'
 
 import Project from './ProjectButton.tsx'
 import { useAppContext } from './AppContext.tsx';
@@ -24,9 +24,10 @@ function AddNewTask({ status, tasksSorted, }: { status: string, tasksSorted: [Ta
    * @param e - The keyboard event triggered when the user presses a key in the input field.
    */
   const handleKeyboard = async (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') { // Check if the Enter key is pressed: this will add a new task
-      const newTaskTitle = e.currentTarget.value.trim(); // Get the trimmed value of the input field
-      e.currentTarget.value = ''; // Clear the input field after adding the task
+    const event = e; // Store the current target for later use
+    if (event.key === 'Enter') { // Check if the Enter key is pressed: this will add a new task
+      const newTaskTitle = event.currentTarget.value.trim(); // Get the trimmed value of the input field
+      event.currentTarget.value = ''; // Clear the input field after adding the task
 
       if (newTaskTitle) { // Check if the input is not empty
         const newTask = {
@@ -34,30 +35,29 @@ function AddNewTask({ status, tasksSorted, }: { status: string, tasksSorted: [Ta
           status: status,
           previousStatus: status, // for new task, the previous status is the same as the current status
           projectId: states.currentProjectID as ProjectId, // Assuming a default project, you can modify this as needed
-          prev: null, // For a new task, new task is the last one, next are null
-          next: tasksSorted.length > 0 ? tasksSorted[0][0] : null, // Get the first task ID as the next task
-          userId: states.userProfile.id,
+          prev: null, // 
+          next: null, // if prev and next are null, by default, the task will be added to the end of the list
+          userId: states.userProfile.id as string,
         };
+
+        // create a bulk payload and backup for the new task
         const bulkPayload = createBulkPayload(); // Create a bulk payload for the new task
         const backup = createBackup(states, bulkPayload); // Create a backup of the current state
-        actions.addTasks([newTask], backup); // Call the addTasks function from actions with the new task
+
         try {
-          await fetch('/api/tasks', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(backup), // Send the new task to the server
-          });
-        } catch (error) {
+          actions.addTask(newTask, backup); // Call the addTask function from actions with the new task
+          optimisticUIUpdate(setStates, backup); // Optimistically update the UI with the new task
+          await postPayloadToServer('/api/bulk', backup); // Send the new task to the server
+        }
+        catch (error) {
           console.error('Error adding new task:', error);
-          restoreBackup(setStates, backup);
+          restoreBackup(setStates, backup); // Restore the previous state in case of an error
         }
       }
     }
-    if (e.key === 'Escape') { // Check if the Escape key is pressed: this will clear the input field
-      e.currentTarget.value = ''; // Clear the input field
-      e.currentTarget.blur(); // Remove focus from the input field
+    if (event.key === 'Escape') { // Check if the Escape key is pressed: this will clear the input field
+      event.currentTarget.value = ''; // Clear the input field
+      event.currentTarget.blur(); // Remove focus from the input field
     }
   };
 

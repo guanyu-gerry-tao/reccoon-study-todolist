@@ -49,9 +49,9 @@
             "title": "Now",
             "description": "Tasks that are currently in progress.",
             "color": "#e8fdec",
-            "prev": null,
+            "prev": "completed",
             "next": "status1",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "status1": {
             "id": "status1",
@@ -60,7 +60,7 @@
             "color": "#f0f1fd",
             "prev": "status0",
             "next": "status2",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "status2": {
             "id": "status2",
@@ -69,7 +69,25 @@
             "color": "#fff8e8",
             "prev": "status1",
             "next": null,
-            "userId": "user001"
+            "userId": "adminUser001"
+        },
+        "completed": {
+            "id": "completed",
+            "title": "Completed",
+            "description": "Tasks that have been completed.",
+            "color": "#e6f2ff",
+            "prev": "deleted",
+            "next": "status0",
+            "userId": "adminUser001"
+        },
+        "deleted": {
+            "id": "deleted",
+            "title": "Deleted",
+            "description": "Tasks that have been deleted.",
+            "color": "#ffcce6",
+            "prev": null,
+            "next": "completed",
+            "userId": "adminUser001"
         }
     },
     "projectList": {
@@ -79,7 +97,7 @@
             "description": "A comprehensive project to learn full-stack development including frontend and backend technologies.",
             "prev": null,
             "next": "project1",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "project1": {
             "id": "project1",
@@ -87,7 +105,7 @@
             "description": "A project focused on improving English language skills.",
             "prev": "project0",
             "next": "project2",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "project2": {
             "id": "project2",
@@ -95,7 +113,7 @@
             "description": "A project aimed at teaching driving skills and road safety.",
             "prev": "project1",
             "next": null,
-            "userId": "user001"
+            "userId": "adminUser001"
         }
     },
     "taskList": {
@@ -109,7 +127,7 @@
             "projectId": "project0",
             "prev": null,
             "next": "task87654321",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "task87654321": {
             "id": "task87654321",
@@ -121,7 +139,7 @@
             "projectId": "project0",
             "prev": "task12345678",
             "next": "task23456789",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "task23456789": {
             "id": "task23456789",
@@ -133,7 +151,7 @@
             "projectId": "project0",
             "prev": "task87654321",
             "next": "task98765432",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "task98765432": {
             "id": "task98765432",
@@ -145,7 +163,7 @@
             "projectId": "project0",
             "prev": "task23456789",
             "next": "task34567890",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "task34567890": {
             "id": "task34567890",
@@ -157,7 +175,7 @@
             "projectId": "project0",
             "prev": "task98765432",
             "next": null,
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "task45678901": {
             "id": "task45678901",
@@ -169,7 +187,7 @@
             "projectId": "project0",
             "prev": null,
             "next": "task56789012",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "task56789012": {
             "id": "task56789012",
@@ -181,7 +199,7 @@
             "projectId": "project0",
             "prev": "task45678901",
             "next": "task67890123",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "task67890123": {
             "id": "task67890123",
@@ -193,7 +211,7 @@
             "projectId": "project0",
             "prev": "task56789012",
             "next": "task78901234",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "task78901234": {
             "id": "task78901234",
@@ -205,7 +223,7 @@
             "projectId": "project0",
             "prev": "task67890123",
             "next": "task89012345",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "task89012345": {
             "id": "task89012345",
@@ -217,7 +235,7 @@
             "projectId": "project0",
             "prev": "task78901234",
             "next": null,
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "task90123456": {
             "id": "task90123456",
@@ -229,7 +247,7 @@
             "projectId": "project0",
             "prev": null,
             "next": "task01234567",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "task01234567": {
             "id": "task01234567",
@@ -241,7 +259,7 @@
             "projectId": "project0",
             "prev": "task90123456",
             "next": "task11223344",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "task11223344": {
             "id": "task11223344",
@@ -253,7 +271,7 @@
             "projectId": "project0",
             "prev": "task01234567",
             "next": "task22334455",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "task22334455": {
             "id": "task22334455",
@@ -265,7 +283,7 @@
             "projectId": "project0",
             "prev": "task11223344",
             "next": "task33445566",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "task33445566": {
             "id": "task33445566",
@@ -277,7 +295,7 @@
             "projectId": "project0",
             "prev": "task22334455",
             "next": "task44556677",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "task44556677": {
             "id": "task44556677",
@@ -289,7 +307,7 @@
             "projectId": "project0",
             "prev": "task33445566",
             "next": "task55667788",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "task55667788": {
             "id": "task55667788",
@@ -301,7 +319,7 @@
             "projectId": "project0",
             "prev": "task44556677",
             "next": "task66778899",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "task66778899": {
             "id": "task66778899",
@@ -313,7 +331,7 @@
             "projectId": "project0",
             "prev": "task55667788",
             "next": "task77889900",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "task77889900": {
             "id": "task77889900",
@@ -325,7 +343,7 @@
             "projectId": "project0",
             "prev": "task66778899",
             "next": "task88990011",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "task88990011": {
             "id": "task88990011",
@@ -337,7 +355,7 @@
             "projectId": "project0",
             "prev": "task77889900",
             "next": "task99001122",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "task99001122": {
             "id": "task99001122",
@@ -349,7 +367,7 @@
             "projectId": "project0",
             "prev": "task88990011",
             "next": "task10111213",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "task10111213": {
             "id": "task10111213",
@@ -361,7 +379,7 @@
             "projectId": "project0",
             "prev": "task99001122",
             "next": "task12131415",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "task12131415": {
             "id": "task12131415",
@@ -373,7 +391,7 @@
             "projectId": "project0",
             "prev": "task10111213",
             "next": "task13141516",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "task13141516": {
             "id": "task13141516",
@@ -385,7 +403,7 @@
             "projectId": "project0",
             "prev": "task12131415",
             "next": "task14151617",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "task14151617": {
             "id": "task14151617",
@@ -397,7 +415,7 @@
             "projectId": "project0",
             "prev": "task13141516",
             "next": "task15161718",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "task15161718": {
             "id": "task15161718",
@@ -409,7 +427,7 @@
             "projectId": "project0",
             "prev": "task14151617",
             "next": "task16171819",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "task16171819": {
             "id": "task16171819",
@@ -421,7 +439,7 @@
             "projectId": "project0",
             "prev": "task15161718",
             "next": "task17181920",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "task17181920": {
             "id": "task17181920",
@@ -433,7 +451,7 @@
             "projectId": "project0",
             "prev": "task16171819",
             "next": "task18192021",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "task18192021": {
             "id": "task18192021",
@@ -445,7 +463,7 @@
             "projectId": "project0",
             "prev": "task17181920",
             "next": "task19202122",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "task19202122": {
             "id": "task19202122",
@@ -457,7 +475,7 @@
             "projectId": "project0",
             "prev": "task18192021",
             "next": null,
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "taskeng001": {
             "id": "taskeng001",
@@ -469,7 +487,7 @@
             "projectId": "project1",
             "prev": null,
             "next": "taskeng002",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "taskeng002": {
             "id": "taskeng002",
@@ -481,7 +499,7 @@
             "projectId": "project1",
             "prev": "taskeng001",
             "next": "taskeng003",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "taskeng003": {
             "id": "taskeng003",
@@ -493,7 +511,7 @@
             "projectId": "project1",
             "prev": "taskeng002",
             "next": "taskeng004",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "taskeng004": {
             "id": "taskeng004",
@@ -505,7 +523,7 @@
             "projectId": "project1",
             "prev": "taskeng003",
             "next": null,
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "taskeng005": {
             "id": "taskeng005",
@@ -517,7 +535,7 @@
             "projectId": "project1",
             "prev": null,
             "next": "taskeng006",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "taskeng006": {
             "id": "taskeng006",
@@ -529,7 +547,7 @@
             "projectId": "project1",
             "prev": "taskeng005",
             "next": null,
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "taskeng007": {
             "id": "taskeng007",
@@ -541,7 +559,7 @@
             "projectId": "project1",
             "prev": null,
             "next": "taskeng008",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "taskeng008": {
             "id": "taskeng008",
@@ -553,7 +571,7 @@
             "projectId": "project1",
             "prev": "taskeng007",
             "next": "taskeng009",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "taskeng009": {
             "id": "taskeng009",
@@ -565,7 +583,7 @@
             "projectId": "project1",
             "prev": "taskeng008",
             "next": "taskeng010",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "taskeng010": {
             "id": "taskeng010",
@@ -577,7 +595,7 @@
             "projectId": "project1",
             "prev": "taskeng009",
             "next": null,
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "taskdrive001": {
             "id": "taskdrive001",
@@ -589,7 +607,7 @@
             "projectId": "project2",
             "prev": null,
             "next": "taskdrive002",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "taskdrive002": {
             "id": "taskdrive002",
@@ -601,7 +619,7 @@
             "projectId": "project2",
             "prev": "taskdrive001",
             "next": "taskdrive003",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "taskdrive003": {
             "id": "taskdrive003",
@@ -613,7 +631,7 @@
             "projectId": "project2",
             "prev": "taskdrive002",
             "next": null,
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "taskdrive004": {
             "id": "taskdrive004",
@@ -625,7 +643,7 @@
             "projectId": "project2",
             "prev": null,
             "next": "taskdrive005",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "taskdrive005": {
             "id": "taskdrive005",
@@ -637,7 +655,7 @@
             "projectId": "project2",
             "prev": "taskdrive004",
             "next": "taskdrive006",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "taskdrive006": {
             "id": "taskdrive006",
@@ -649,7 +667,7 @@
             "projectId": "project2",
             "prev": "taskdrive005",
             "next": null,
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "taskdrive007": {
             "id": "taskdrive007",
@@ -661,7 +679,7 @@
             "projectId": "project2",
             "prev": null,
             "next": "taskdrive008",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "taskdrive008": {
             "id": "taskdrive008",
@@ -673,7 +691,7 @@
             "projectId": "project2",
             "prev": "taskdrive007",
             "next": "taskdrive009",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "taskdrive009": {
             "id": "taskdrive009",
@@ -685,7 +703,7 @@
             "projectId": "project2",
             "prev": "taskdrive008",
             "next": "taskdrive010",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "taskdrive010": {
             "id": "taskdrive010",
@@ -697,7 +715,7 @@
             "projectId": "project2",
             "prev": "taskdrive009",
             "next": null,
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "taskfsdone01": {
             "id": "taskfsdone01",
@@ -709,7 +727,7 @@
             "projectId": "project0",
             "prev": null,
             "next": "taskfsdone02",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "taskfsdone02": {
             "id": "taskfsdone02",
@@ -721,7 +739,7 @@
             "projectId": "project0",
             "prev": "taskfsdone01",
             "next": null,
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "taskfsdel01": {
             "id": "taskfsdel01",
@@ -733,7 +751,7 @@
             "projectId": "project0",
             "prev": null,
             "next": "taskfsdel02",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "taskfsdel02": {
             "id": "taskfsdel02",
@@ -745,7 +763,7 @@
             "projectId": "project0",
             "prev": "taskfsdel01",
             "next": null,
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "taskengdone01": {
             "id": "taskengdone01",
@@ -757,7 +775,7 @@
             "projectId": "project1",
             "prev": null,
             "next": "taskengdone02",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "taskengdone02": {
             "id": "taskengdone02",
@@ -769,7 +787,7 @@
             "projectId": "project1",
             "prev": "taskengdone01",
             "next": null,
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "taskengdel01": {
             "id": "taskengdel01",
@@ -781,7 +799,7 @@
             "projectId": "project1",
             "prev": null,
             "next": "taskengdel02",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "taskengdel02": {
             "id": "taskengdel02",
@@ -793,7 +811,7 @@
             "projectId": "project1",
             "prev": "taskengdel01",
             "next": null,
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "taskdrivedone01": {
             "id": "taskdrivedone01",
@@ -805,7 +823,7 @@
             "projectId": "project2",
             "prev": null,
             "next": "taskdrivedone02",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "taskdrivedone02": {
             "id": "taskdrivedone02",
@@ -817,7 +835,7 @@
             "projectId": "project2",
             "prev": "taskdrivedone01",
             "next": null,
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "taskdrivedel01": {
             "id": "taskdrivedel01",
@@ -829,7 +847,7 @@
             "projectId": "project2",
             "prev": null,
             "next": "taskdrivedel02",
-            "userId": "user001"
+            "userId": "adminUser001"
         },
         "taskdrivedel02": {
             "id": "taskdrivedel02",
@@ -841,7 +859,7 @@
             "projectId": "project2",
             "prev": "taskdrivedel01",
             "next": null,
-            "userId": "user001"
+            "userId": "adminUser001"
         }
     }
 }

@@ -66,11 +66,11 @@ export type ProjectData = Record<ProjectId, ProjectType>;
  * UserId represents a unique identifier for a user in the todo list application.
  */
 export type UserProfileData = {
-  id: UserId; // Unique identifier for the user
-  nickname: string;
+  id: UserId | null; // Unique identifier for the user
+  nickname: string | null; // The nickname of the user, can be null if not set
   lastProjectId: ProjectId | null; // The last project ID the user interacted with
-  avatarUrl: string;
-  language: string;
+  avatarUrl: string | null; // The avatar URL of the user, can be null if not set;
+  language: string | null; // The language preference of the user, can be null if not set
 };
 
 // UserId is a semantic identifier that uniquely identifies a user in the application.
@@ -94,10 +94,10 @@ export type StatusData = Record<StatusId, StatusType>;
 
 
 export type Actions = {
-  addTasks: (newTask: Omit<TaskType, 'id'>[], bulkPayload: BulkPayload) => TaskId[]; // Returns the ID of the newly added task
-  updateTasks: (updatePayloads: { id: TaskId; updatedFields: Partial<TaskType> }[], bulkPayload: BulkPayload) => void; // Accepts an array of update payloads, each containing the task ID and the fields to be updated
-  hardDeleteTasks: (ids: TaskId[], bulkPayload: BulkPayload) => void; 
-  moveTasks: (ids: TaskId[], targetStatusId: StatusId, index: number | "start" | "end", bulkPayload: BulkPayload) => void;
+  addTask: (newTask: Omit<TaskType, 'id'>, bulkPayload: BulkPayload) => TaskId; // Returns the ID of the newly added task
+  updateTask: (updatePayloads: { id: TaskId; updatedFields: Partial<TaskType> }, bulkPayload: BulkPayload) => void; // Accepts an array of update payloads, each containing the task ID and the fields to be updated
+  hardDeleteTask: (id: TaskId, bulkPayload: BulkPayload) => void;
+  moveTask: (id: TaskId, targetStatusId: StatusId, index: number | "start" | "end", bulkPayload: BulkPayload) => void;
   addProject: (newProject: Omit<ProjectType, 'id'>, bulkPayload: BulkPayload) => ProjectId; // Returns the ID of the newly added project
   updateProject: (id: ProjectId, updatedFields: Partial<ProjectType>, bulkPayload: BulkPayload) => void;
   moveProject: (id: ProjectId, index: number, bulkPayload: BulkPayload) => void;
@@ -132,8 +132,19 @@ export type SetStates = {
 };
 
 export type BulkPayload = {
-  tasks: { new: TaskType[]; update: { id: TaskId; updatedFields: Partial<TaskType> }[]; delete: TaskId[] };
-  projects: { new: ProjectType[]; update: { id: ProjectId; updatedFields: Partial<ProjectType> }[]; delete: ProjectId[] };
-  statuses: { new: StatusType[]; update: { id: StatusId; updatedFields: Partial<StatusType> }[]; delete: StatusId[] };
-  backup: {statuses: StatusData; tasks: TaskData; projects: ProjectData}; // Backup of the current state before changes, and use for undo functionality
-};
+  ops: {
+    type: 'task' | 'project' | 'status',
+    operation: 'add' | 'update' | 'delete',
+    data:
+
+    TaskType | ProjectType | StatusType | // New items to be added
+
+    { id: TaskId; updatedFields: Partial<TaskType> } | // Update payloads for tasks, projects, and statuses
+    { id: ProjectId; updatedFields: Partial<ProjectType> } |
+    { id: StatusId; updatedFields: Partial<StatusType> } |
+
+    TaskId | ProjectId | StatusId; // Ids for deletion
+
+  }[];
+  backup: { statuses: StatusData; tasks: TaskData; projects: ProjectData }; // Backup of the current state before changes, and use for undo functionality
+}
