@@ -5,6 +5,7 @@ import './App.css';
 import Todolist from './components/Todolist.tsx';
 import ResetTestButton from './components/ResetTestButton.tsx';
 import AIChatPanelButton from "./components/AIChatPanelButton";
+import AIChatPanel from "./components/AIChatPanel";
 import { DragDropContext } from '@hello-pangea/dnd';
 import type { DragDropContextProps } from '@hello-pangea/dnd';
 import type {
@@ -436,7 +437,7 @@ function App() {
       </DragDropContext>
       <AIChatPanelButton onClick={() => setShowChat(true)} />
       {showChat && (
-        <AIChatPanel onClose={() => setShowChat(false)} />
+        <AIChatPanel onClose={() => setShowChat(false)} onAcceptTask={handleAcceptTask} />
       )}
     </>
   )
