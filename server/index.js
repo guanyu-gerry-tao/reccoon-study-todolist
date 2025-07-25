@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 // load routes
 const routes = require('./routes/routes');
 const getAll = require('./routes/getAll');
+const authRoute = require('./routes/authRoute');
 
 dotenv.config();
 
@@ -24,6 +25,7 @@ app.use(express.json()); // automatically parse JSON request bodies
 // use all API routes
 app.use('/api/bulk', routes);
 app.use('/api/getAll', getAll);
+app.use('/api', authRoute);
 
 
 // start the server

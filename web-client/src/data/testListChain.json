@@ -2,8 +2,9 @@
     "userAuth": {
         "adminUser001": {
             "id": "adminUser001",
-            "email": "testUser@example.com",
-            "pwHash": "hashed_password",
+            "email": "gerry.tao@outlook.com",
+            "phoneNumber": "131058080293",
+            "pwHash": "$2a$12$ua3VEsW19wQXPWXAvP49VOtRF.URiJOK6.dgfbelSUVBem/GK1xrq",
             "pwVersion": "v1",
             "salt": "random_salt",
             "createdIP": "192.168.1.1",
@@ -14,8 +15,9 @@
         },
         "adminUser002": {
             "id": "adminUser002",
-            "email": "testUser2@example.com",
-            "pwHash": "hashed_password",
+            "email": "gerrytao1995@gmail.com",
+            "phoneNumber": "11231231234",
+            "pwHash": "$2a$12$BlCsB7sRSlq1K6Q0bC6IAOO1rgyCzH4GL4A6uIFtl.t4LI2m.xvRy",
             "pwVersion": "v1",
             "salt": "random_salt",
             "createdIP": "192.168.1.2",

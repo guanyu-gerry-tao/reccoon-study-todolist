@@ -320,13 +320,11 @@ function Task({ task, tasks, }: { task: [TaskId, TaskType], tasks: [TaskId, Task
   useEffect(() => {
     if (textAreaTitleHeight) {
       setTimeout(() => {
-        console.log(`textAreaTitleHeight: ${textAreaTitleHeight}`);
         textAreaRefTitle.current!.style.height = textAreaTitleHeight + 'px'; // Set height to scrollHeight.
       }, 200);
     }
     if (textAreaDescHeight) {
       setTimeout(() => {
-        console.log(`textAreaDescHeight: ${textAreaDescHeight}`);
         textAreaRefDesc.current!.style.height = textAreaDescHeight + 'px'; // Set height to scrollHeight.
       }, 200);
     }
