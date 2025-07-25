@@ -4,7 +4,8 @@ const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 
 // load routes
-const addTaskRoutes = require('./routes/addTaskRoutes');
+const routes = require('./routes/routes');
+const getAll = require('./routes/getAll');
 
 dotenv.config();
 
@@ -21,7 +22,8 @@ app.use(cors()); // allow cross-origin requests
 app.use(express.json()); // automatically parse JSON request bodies
 
 // use all API routes
-app.use('/api/tasks', addTaskRoutes);
+app.use('/api/bulk', routes);
+app.use('/api/getAll', getAll);
 
 
 // start the server

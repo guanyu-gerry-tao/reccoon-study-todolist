@@ -3,7 +3,6 @@ import { useEffect } from 'react';
 import '../App.css'
 import './TaskDropArea.css';
 
-import type { setIsOverDeletedTaskArea } from './type.ts'
 import { Droppable } from '@hello-pangea/dnd';
 
 
