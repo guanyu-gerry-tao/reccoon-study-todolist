@@ -4,6 +4,7 @@ import './App.css';
 
 import Todolist from './components/Todolist.tsx';
 import ResetTestButton from './components/ResetTestButton.tsx';
+import AIChatPanelButton from "./components/AIChatPanelButton";
 import { DragDropContext } from '@hello-pangea/dnd';
 import type { DragDropContextProps } from '@hello-pangea/dnd';
 import type {
@@ -47,6 +48,7 @@ function App() {
   const [editMode, setEditMode] = useImmer<boolean>(false);
   const [showDeleted, setShowDeleted] = useImmer<boolean>(false);
   const [showCompleted, setShowCompleted] = useImmer<boolean>(false);
+  const [showChat, setShowChat] = useState(false);
 
   const states: States = {
     tasks,
@@ -426,11 +428,17 @@ function App() {
   // The Todolist component is the main component that displays the tasks and projects.
   // It receives the tasks, projects, user status, actions, and dragged task as props.
   return (
-    <DragDropContext
-      onDragEnd={onDragEnd} onDragStart={onDragStart} onDragUpdate={onDragUpdate}>
-      <Todolist states={states} actions={actions} />
-      <ResetTestButton resetData={testData} />
-    </DragDropContext>
+    <>
+      <DragDropContext
+        onDragEnd={onDragEnd} onDragStart={onDragStart} onDragUpdate={onDragUpdate}>
+        <Todolist states={states} actions={actions} />
+        <ResetTestButton resetData={testData} />
+      </DragDropContext>
+      <AIChatPanelButton onClick={() => setShowChat(true)} />
+      {showChat && (
+        <AIChatPanel onClose={() => setShowChat(false)} />
+      )}
+    </>
   )
 }
 export default App

@@ -22,12 +22,12 @@
   transition: border-color 0.2s;  
   transition: opacity 0.4s, transform 0.4s;
   opacity: 1;
-  transform: translateY(0);
+  
 }
 
 .todoColumnCard.hide {
   opacity: 0;
-  transform: translateY(30px) scale(0.98);
+  /* transform: translateY(30px) scale(0.98); */
   pointer-events: none;
 }
 
