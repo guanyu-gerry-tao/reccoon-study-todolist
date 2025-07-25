@@ -4,6 +4,7 @@ import './AddNewProject.css'
 import type { Actions, ProjectType, States } from '../utils/type.ts'
 import { createBackup, createBulkPayload, optimisticUIUpdate, postPayloadToServer, restoreBackup } from '../utils/utils'
 import { useAppContext } from './AppContext.tsx';
+import { animate } from 'framer-motion';
 
 /**
  * AddNewProject component allows users to add a new project by typing in an input field.
@@ -36,9 +37,8 @@ function AddNewProject({ projects }: { projects: [string, ProjectType][] }) {
         const backup = createBackup(states, bulkPayload); // Create a backup of the current state
         
         try {
-          const id = actions.addProject(newProject, backup); // Call the addProject function from actions with the new project
+          const id = actions.addProject(newProject, backup, true); // Call the addProject function from actions with the new project
           optimisticUIUpdate(setStates, backup);
-          setStates.setCurrentProjectID(id); // Set the current project ID to the newly added project
           await postPayloadToServer('/api/bulk', backup);
         } catch (error) {
           console.error('Error adding project:', error);

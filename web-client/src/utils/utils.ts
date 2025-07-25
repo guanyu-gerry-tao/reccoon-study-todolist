@@ -154,7 +154,7 @@ export const restoreBackup = (setStates: SetStates, backupPayload: BulkPayload) 
  * @param setState - The state setter function to update the UI state.
  * @param payload - The bulk payload containing operations to be applied.
  */
-export const optimisticUIUpdate = (setState: SetStates, payload: BulkPayload) => {
+export const optimisticUIUpdate = async (setState: SetStates, payload: BulkPayload) => {
   payload.ops.forEach((op) => {
     if (op.type === 'task') {
       setState.setTasks((draft) => {

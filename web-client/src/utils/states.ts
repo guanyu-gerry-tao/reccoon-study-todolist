@@ -19,11 +19,12 @@ export const createStatesAndSetStates = (): [States, SetStates] => {
   const [projects, setProjects] = useImmer<ProjectData>({}); // Initial projects data loaded from testProjectData
   const [statuses, setStatuses] = useImmer<StatusData>({}); // Initial statuses data loaded from testStatusData
   const [userProfile, setUserProfile] = useImmer<UserProfileData>(emptyUserProfile); // Initial users data loaded from testUserData
-  const [draggedTask, setDraggedTask] = useImmer<[string] | null>(null); // State to track the currently dragged task, if any
+  const [draggedTask, setDraggedTask] = useImmer<string[]>([]); // State to track the currently dragged task, if any
   const [currentProjectID, setCurrentProjectID] = useImmer<string | null>("project0"); // State to manage the current project ID, which is used to filter tasks by project.
   const [editMode, setEditMode] = useImmer<boolean>(false);
   const [showDeleted, setShowDeleted] = useImmer<boolean>(false);
   const [showCompleted, setShowCompleted] = useImmer<boolean>(false);
+  const [onDragging, setOnDragging] = useImmer<boolean>(false); // State to manage the dragging state of tasks
 
   const states: States = {
     tasks,
@@ -34,7 +35,8 @@ export const createStatesAndSetStates = (): [States, SetStates] => {
     currentProjectID,
     editMode,
     showDeleted,
-    showCompleted
+    showCompleted,
+    onDragging
   };
 
   const setStates: SetStates = {
@@ -46,7 +48,8 @@ export const createStatesAndSetStates = (): [States, SetStates] => {
     setCurrentProjectID,
     setEditMode,
     setShowDeleted,
-    setShowCompleted
+    setShowCompleted,
+    setOnDragging
   };
 
   return [states, setStates];

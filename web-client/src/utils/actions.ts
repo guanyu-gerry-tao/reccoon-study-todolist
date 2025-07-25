@@ -1,7 +1,8 @@
+import { useLayoutEffect } from "react";
 import type { UserProfileData, TaskId, TaskType, TaskData, ProjectId, ProjectType, ProjectData, StatusId, StatusType, StatusData, Actions, States, SetStates, BulkPayload } from "./type.ts";
 import { sortChain, createBulkPayload, optimisticUIUpdate, postPayloadToServer, createBackup, restoreBackup } from './utils.ts';
 import type { DragDropContextProps } from '@hello-pangea/dnd';
-
+import { animate } from 'motion';
 
 export const createActions = (states: States, setStates: SetStates): Actions => {
 
@@ -12,7 +13,7 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
    * @param newTask - The new task items to be added - without an ID - ID will be generated automatically. next and prev can be both null if added to last. Specific prev or next to insert at desired position.
    * @param bulkPayload - The bulk payload to be used for the add operation.
    */
-  const addTask = (newTask: Omit<TaskType, 'id'>, bulkPayload: BulkPayload): TaskId => {
+  const addTask = (newTask: Omit<TaskType, 'id'>, bulkPayload: BulkPayload, addWithAnimation: boolean = false): TaskId => {
     const id = crypto.randomUUID(); // Generate a unique ID for the new task
     const targetStatusExistingTasks = Object.fromEntries(Object.entries(states.tasks).filter(([_, t]) => t.status === newTask.status && t.projectId === newTask.projectId));
     const sortedTargetStatusTasks = sortChain(targetStatusExistingTasks);
@@ -73,6 +74,15 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
       });
     };
     console.log(`addTask: payload: ${JSON.stringify(bulkPayload)}`);
+    if (addWithAnimation) {
+      requestAnimationFrame(() => {
+        const el = document.getElementById(id);
+        if (el) {
+          animate(el, { opacity: [0, 1],  }, { duration: 0.3 }); // Animate the new project card to fade in
+          animate(el, { height: ["0px", el.scrollHeight] }, { duration: 0.2 }); // Animate the new project card to slide up
+        }
+      });
+    }
     return id;
   };
 
@@ -129,7 +139,7 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
    * @index - The index to insert the tasks at. It can be a number, "start", or "end".
    * @bulkPayload - The bulk payload to be used for the move operation.
    */
-  const moveTask = (id: TaskId, targetStatusId: StatusId, index: number | "start" | "end", bulkPayload: BulkPayload) => {
+  const moveTask = (id: TaskId, targetStatusId: StatusId, index: number | "start" | "end", bulkPayload: BulkPayload, moveWithAnimation: boolean = false) => {
     // check if the status is exist
     if (Object.keys(states.statuses).includes(targetStatusId) === false && targetStatusId !== "completed" && targetStatusId !== "deleted") {
       throw new Error(`Status with id ${targetStatusId} does not exist.`);
@@ -241,6 +251,18 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
         }
       });
     }
+    if (moveWithAnimation) {
+      requestAnimationFrame(() => {
+        const el = document.getElementById(id);
+        if (el) {
+          animate(el, { opacity: [0, 1], }, { duration: 0.3 }); // Animate the new project card to fade in
+          animate(el, { height: ["0px", el.scrollHeight] }, { duration: 0.2 }); // Animate the new project card to slide up
+        }
+      });
+    }
+    // requestAnimationFrame(() => {
+    //   document.getElementById(id)?.classList.remove('hide'); // Ensure the task is visible after moving
+    // });
   };
 
 
@@ -251,7 +273,7 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
    * @param newProject - The new project item to be added. next and prev can be null if added to last. Specific prev or next to insert at desired position.
    * @returns The ID of the newly added project.
    */
-  const addProject = (newProject: Omit<ProjectType, 'id'>, bulkPayload: BulkPayload): ProjectId => {
+  const addProject = (newProject: Omit<ProjectType, 'id'>, bulkPayload: BulkPayload, addWithAnimation: boolean = false): ProjectId => {
 
     // Generate a unique ID for the new project:
     const id = crypto.randomUUID();
@@ -304,6 +326,17 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
         }
       });
     }
+
+    if (addWithAnimation) {
+      requestAnimationFrame(() => {
+        const el = document.getElementById(id);
+        if (el) {
+          animate(el, { opacity: [0, 1],  }, { duration: 0.3 }); // Animate the new project card to fade in
+          animate(el, { height: ["0px", "1rem"] }, { duration: 0.2 }); // Animate the new project card to slide up
+        }
+      });
+    }
+
     return id; // Return the ID of the newly added project
   };
 
@@ -554,13 +587,17 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
    * Function to handle the end of a drag and drop event for the DragDropContext - hello-pangea/dnd.
    * It updates the task or project chain based on the drag result.
    */
-  const onDragEnd: DragDropContextProps['onDragEnd'] = (result) => {
+  const onDragEnd: DragDropContextProps['onDragEnd'] = async (result) => {
     // handle "task" type drag and drop
     if (result.type === 'task') {
+      setTimeout(() => {
+        setStates.setDraggedTask([]); // Reset the dragged task ID after a short delay to ensure the UI updates correctly
+      }, 100);
       console.log('onDragEnd', result); // Log the drag result for debugging
       if (result.destination) { // If true, the task was dropped in a valid droppable area. If false, it means the task was dropped outside of a droppable area.
         const taskId = result.draggableId; // Get the ID of the dragged task
         const task = states.tasks[taskId]; // Find the task being dragged by its ID
+
         if (task) {
           const resultStatus = result.destination!.droppableId; // the status === droppableId, as defined in the TodoColumn component
           const payload = createBulkPayload(); // Create a bulk payload for the update operation
@@ -747,6 +784,7 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
    * Currently, it does not handle project dragging. Not implemented yet.
    */
   const onDragStart: DragDropContextProps['onDragStart'] = (start) => {
+    setStates.setDraggedTask([start.draggableId]); // Set the dragged task ID to the state
     //   if (start.type === 'task') {
     //     setStates.setDraggedTask([start.draggableId]);
     //   }

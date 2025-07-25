@@ -6,6 +6,7 @@ import { createBackup, createBulkPayload, optimisticUIUpdate, postPayloadToServe
 
 import Project from './ProjectButton.tsx'
 import { useAppContext } from './AppContext.tsx';
+import { animate, motion } from 'framer-motion';
 
 /**
  * AddNewTask component allows users to add a new task by typing in an input field.
@@ -45,7 +46,7 @@ function AddNewTask({ status, tasksSorted, }: { status: string, tasksSorted: [Ta
         const backup = createBackup(states, bulkPayload); // Create a backup of the current state
 
         try {
-          actions.addTask(newTask, backup); // Call the addTask function from actions with the new task
+          const id = await actions.addTask(newTask, backup, true); // Call the addTask function from actions with the new task
           optimisticUIUpdate(setStates, backup); // Optimistically update the UI with the new task
           await postPayloadToServer('/api/bulk', backup); // Send the new task to the server
         }

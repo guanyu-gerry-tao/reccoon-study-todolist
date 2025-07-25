@@ -94,11 +94,11 @@ export type StatusData = Record<StatusId, StatusType>;
 
 
 export type Actions = {
-  addTask: (newTask: Omit<TaskType, 'id'>, bulkPayload: BulkPayload) => TaskId; // Returns the ID of the newly added task
+  addTask: (newTask: Omit<TaskType, 'id'>, bulkPayload: BulkPayload, addWithAnimation?: boolean) => TaskId; // Returns the ID of the newly added task
   updateTask: (updatePayloads: { id: TaskId; updatedFields: Partial<TaskType> }, bulkPayload: BulkPayload) => void; // Accepts an array of update payloads, each containing the task ID and the fields to be updated
   hardDeleteTask: (id: TaskId, bulkPayload: BulkPayload) => void;
-  moveTask: (id: TaskId, targetStatusId: StatusId, index: number | "start" | "end", bulkPayload: BulkPayload) => void;
-  addProject: (newProject: Omit<ProjectType, 'id'>, bulkPayload: BulkPayload) => ProjectId; // Returns the ID of the newly added project
+  moveTask: (id: TaskId, targetStatusId: StatusId, index: number | "start" | "end", bulkPayload: BulkPayload, moveWithAnimation?: boolean) => void;
+  addProject: (newProject: Omit<ProjectType, 'id'>, bulkPayload: BulkPayload, addWithAnimation?: boolean) => ProjectId; // Returns the ID of the newly added project
   updateProject: (id: ProjectId, updatedFields: Partial<ProjectType>, bulkPayload: BulkPayload) => void;
   moveProject: (id: ProjectId, index: number, bulkPayload: BulkPayload) => void;
   deleteProject: (projectId: ProjectId, bulkPayload: BulkPayload) => void;
@@ -112,11 +112,12 @@ export type States = {
   projects: ProjectData;
   statuses: StatusData;
   userProfile: UserProfileData;
-  draggedTask: [TaskId] | null;
+  draggedTask: TaskId[];
   currentProjectID: ProjectId | null;
   editMode: boolean;
   showDeleted: boolean; // State to manage the visibility of deleted tasks
   showCompleted: boolean; // State to manage the visibility of completed tasks, optional for future use
+  onDragging: boolean; // State to manage the dragging state of tasks
 };
 
 export type SetStates = {
@@ -124,11 +125,12 @@ export type SetStates = {
   setProjects: Updater<ProjectData>;
   setStatuses: Updater<StatusData>;
   setUserProfile: Updater<UserProfileData>;
-  setDraggedTask: Updater<[TaskId] | null>;
+  setDraggedTask: Updater<TaskId[]>;
   setCurrentProjectID: Updater<ProjectId | null>;
   setEditMode: Updater<boolean>;
   setShowDeleted: Updater<boolean>; // Action to toggle the visibility of deleted tasks
-  setShowCompleted: Updater<boolean>; // Optional action to toggle the visibility of completed tasks, for future use
+  setShowCompleted: Updater<boolean>; // Optional action to toggle the visibility of completed tasks, for future use\
+  setOnDragging: Updater<boolean>; // Action to manage the dragging state of tasks
 };
 
 export type BulkPayload = {

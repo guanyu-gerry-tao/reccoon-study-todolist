@@ -7,6 +7,7 @@ import type { ProjectType, Actions, States, ProjectId } from '../utils/type'
 import { Draggable } from '@hello-pangea/dnd'
 import { useAppContext } from './AppContext'
 import { createBackup, createBulkPayload, optimisticUIUpdate, postPayloadToServer, restoreBackup } from '../utils/utils'
+import { motion } from 'motion/react'
 
 /**
  * This function is used to get the style of the project button when it is being dragged
@@ -122,35 +123,36 @@ function ProjectButton({
         {
           (provided, snapshot) => (
 
-            <div
-              className={`projectButton`}
-              id={project[0]}
-              ref={provided.innerRef}
-              {...provided.draggableProps}
-              {...provided.dragHandleProps}
-              style={{ ...getStyle(provided.draggableProps.style, snapshot), border: currentProjectID === project[0] ? '1px solid #808080' : '1px solid transparent' }}
-              onClick={handleClick}
-            >
-              <div className="projectButtonContent"
+            <motion.div>
+              <div
+                className={`projectButton`}
+                id={project[0]}
+                ref={provided.innerRef}
+                {...provided.draggableProps}
+                {...provided.dragHandleProps}
+                style={{ ...getStyle(provided.draggableProps.style, snapshot), border: currentProjectID === project[0] ? '1px solid #808080' : '1px solid transparent' }}
+                onClick={handleClick}
               >
-                <input
-                  type='text'
-                  className='projectButtonInput'
-                  defaultValue={project[1].title}
-                  onChange={handleChange} />
+                <div className="projectButtonContent"
+                >
+                  <input
+                    type='text'
+                    className='projectButtonInput'
+                    defaultValue={project[1].title}
+                    onChange={handleChange} />
 
+                </div>
+                <div className="deleteProjectButton"
+                  style={{
+                    opacity: states.editMode ? 1 : 0,
+                    visibility: states.editMode ? 'visible' : 'hidden',
+                    pointerEvents: states.editMode ? 'auto' : 'none',
+                  }}
+                  onClick={handleDeleteButton}
+                ></div>
+                <div className='projectDragHandlerIcon' ></div>
               </div>
-              <div className="deleteProjectButton"
-                style={{
-                  opacity: states.editMode ? 1 : 0,
-                  visibility: states.editMode ? 'visible' : 'hidden',
-                  pointerEvents: states.editMode ? 'auto' : 'none',
-                }}
-                onClick={handleDeleteButton}
-              ></div>
-              <div className='projectDragHandlerIcon' ></div>
-
-            </div>)}
+            </motion.div>)}
 
       </Draggable >
     </>

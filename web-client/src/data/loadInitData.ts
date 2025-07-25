@@ -50,6 +50,9 @@ export async function loadAllData(): Promise<{ taskData: TaskData, projectData: 
         next: task.next,
         userId: task.userId,
       };
+      setTimeout(() => {
+        document.getElementById(task.id)?.classList.remove('hide');
+      }, 10); // Ensure the task is added to the state after the initial render
     });
 
     (projects as ProjectType[]) = projects.map((project: ProjectType) => {

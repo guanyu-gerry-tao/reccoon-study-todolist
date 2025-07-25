@@ -8,6 +8,8 @@ import { useAppContext } from './AppContext.tsx';
 import { createBackup, createBulkPayload, optimisticUIUpdate, postPayloadToServer, restoreBackup } from '../utils/utils.ts';
 import { current } from 'immer';
 
+import { motion } from 'framer-motion';
+
 /**
  * This function is used to get the style of the task when it is being dragged
  * @param style - The current style of the task
@@ -209,7 +211,7 @@ function Task({ task, tasks, }: { task: [TaskId, TaskType], tasks: [TaskId, Task
       const backup = createBackup(states, bulkPayload);
 
       try {
-        actions.moveTask(task[0], 'deleted', 'end', backup); // Move the task to the end of the deleted list
+        actions.moveTask(task[0], 'deleted', 'end', backup, true); // Move the task to the end of the deleted list
         optimisticUIUpdate(setStates, backup); // Optimistically update the UI with the new task status
         postPayloadToServer('/api/bulk', backup); // Send the update to the server
       } catch (error) {
@@ -232,7 +234,7 @@ function Task({ task, tasks, }: { task: [TaskId, TaskType], tasks: [TaskId, Task
       const backup = createBackup(states, bulkPayload);
 
       try {
-        actions.moveTask(task[0], 'completed', 'end', backup); // Move the task to the end of the completed list
+        actions.moveTask(task[0], 'completed', 'end', backup, true); // Move the task to the end of the completed list
         optimisticUIUpdate(setStates, backup); // Optimistically update the UI with the new task status
         postPayloadToServer('/api/bulk', backup); // Send the update to the server
       } catch (error) {
@@ -258,7 +260,7 @@ function Task({ task, tasks, }: { task: [TaskId, TaskType], tasks: [TaskId, Task
     const backup = createBackup(states, bulkPayload);
 
     try {
-      actions.moveTask(task[0], task[1].previousStatus, 'end', backup); // Move the task to the end of the todo list
+      actions.moveTask(task[0], task[1].previousStatus, 'end', backup, true); // Move the task to the end of the todo list
       optimisticUIUpdate(setStates, backup); // Optimistically update the UI with the new task status
       postPayloadToServer('/api/bulk', backup); // Send the update to the server
     } catch (error) {
@@ -345,63 +347,65 @@ function Task({ task, tasks, }: { task: [TaskId, TaskType], tasks: [TaskId, Task
     <Draggable draggableId={task[0]} index={tasks.indexOf(task)}>
       {
         (provided, snapshot) => (
-          <div
-            className={`card`}
-            id={task[0]}
-            ref={provided.innerRef}
-            {...provided.draggableProps}
-            {...provided.dragHandleProps}
-            style={{
-              ...getStyle(provided.draggableProps.style, snapshot),
-            }}
-          >
+          <div className="cardContainer">
+            <div
+              className={`card`}
+              id={task[0]}
+              ref={provided.innerRef}
+              {...provided.draggableProps}
+              {...provided.dragHandleProps}
+              style={{
+                ...getStyle(provided.draggableProps.style, snapshot),
+              }}
+            >
 
-            <div className='taskDragHandler'></div>
+              <div className='taskDragHandler'></div>
 
-            <div className='cardContent'>
-              <textarea
-                className='taskTitle'
-                placeholder='Add a title...'
-                defaultValue={task[1].title}
-                ref={textAreaRefTitle}
-                onChange={(e) => {
-                  const event = e; // Store the current target for later use
-                  event.currentTarget.style.height = '0px';
-                  event.currentTarget.style.height = event.currentTarget.scrollHeight + 'px';
-                  setTextAreaTitleHeight(event.currentTarget.scrollHeight);
-                }}
-                onClick={handleClickTitle}
-                onKeyDown={handleTitleKeyboard}
-                onBlur={handleTitleLostFocus} />
+              <motion.div className='cardContent' >
+                <textarea
+                  className='taskTitle'
+                  placeholder='Add a title...'
+                  defaultValue={task[1].title}
+                  ref={textAreaRefTitle}
+                  onChange={(e) => {
+                    const event = e; // Store the current target for later use
+                    event.currentTarget.style.height = '0px';
+                    event.currentTarget.style.height = event.currentTarget.scrollHeight + 'px';
+                    setTextAreaTitleHeight(event.currentTarget.scrollHeight);
+                  }}
+                  onClick={handleClickTitle}
+                  onKeyDown={handleTitleKeyboard}
+                  onBlur={handleTitleLostFocus} />
 
-              <textarea
-                className='taskDesc'
-                defaultValue={task[1].description}
-                placeholder='Add a description...'
-                ref={textAreaRefDesc}
-                onChange={(e) => {
-                  const event = e; // Store the current target for later use
-                  event.currentTarget.style.height = '0px';
-                  event.currentTarget.style.height = event.currentTarget.scrollHeight + 'px';
-                  setTextAreaDescHeight(event.currentTarget.scrollHeight);
-                }}
-                onKeyDown={handleDescKeyboard}
-                onBlur={handleDescLostFocus}
-              />
+                <textarea
+                  className='taskDesc'
+                  defaultValue={task[1].description}
+                  placeholder='Add a description...'
+                  ref={textAreaRefDesc}
+                  onChange={(e) => {
+                    const event = e; // Store the current target for later use
+                    event.currentTarget.style.height = '0px';
+                    event.currentTarget.style.height = event.currentTarget.scrollHeight + 'px';
+                    setTextAreaDescHeight(event.currentTarget.scrollHeight);
+                  }}
+                  onKeyDown={handleDescKeyboard}
+                  onBlur={handleDescLostFocus}
+                />
 
-              <input type='date'
-                className='taskDueDate'
-                defaultValue={task[1].dueDate ? new Date(task[1].dueDate).toISOString().slice(0, 10) : undefined}
-                onChange={handleDueDateChange}
-                style={{
-                  color: task[1].dueDate && task[1].dueDate < dueDate ? 'red' : '',
-                  fontWeight: task[1].dueDate && task[1].dueDate < dueDate ? 'normal' : '',
-                  opacity: task[1].dueDate && task[1].dueDate < dueDate ? '1' : ''
-                }}
-              />
+                <input type='date'
+                  className='taskDueDate'
+                  defaultValue={task[1].dueDate ? new Date(task[1].dueDate).toISOString().slice(0, 10) : undefined}
+                  onChange={handleDueDateChange}
+                  style={{
+                    color: task[1].dueDate && task[1].dueDate < dueDate ? 'red' : '',
+                    fontWeight: task[1].dueDate && task[1].dueDate < dueDate ? 'normal' : '',
+                    opacity: task[1].dueDate && task[1].dueDate < dueDate ? '1' : ''
+                  }}
+                />
 
-              {/* TODO: add subtasks function: click to drop down subtasks, subtasks can be added, deleted, updated, dragged */}
+                {/* TODO: add subtasks function: click to drop down subtasks, subtasks can be added, deleted, updated, dragged */}
 
+              </motion.div>
             </div>
             <div className="deleteTaskButton"
               style={{
@@ -437,7 +441,6 @@ function Task({ task, tasks, }: { task: [TaskId, TaskType], tasks: [TaskId, Task
               >
               </div>)
             }
-            {/* <p>{task[1].id}</p> */}
           </div>
         )
       }
