@@ -3,7 +3,7 @@ import '../App.css'
 import './Task.css'
 import type { TaskType, Actions, States, TaskId } from '../utils/type.ts'
 import { Draggable } from '@hello-pangea/dnd';
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { useAppContext } from './AppContext.tsx';
 import { createBackup, createBulkPayload, optimisticUIUpdate, postPayloadToServer, restoreBackup } from '../utils/utils.ts';
 import { current } from 'immer';
@@ -39,6 +39,9 @@ function Task({ task, tasks, }: { task: [TaskId, TaskType], tasks: [TaskId, Task
   const { states, actions, setStates } = useAppContext();
 
   let tempValue = task[1].title; // Temporary variable to store the current value of the input field
+
+  const [textAreaTitleHeight, setTextAreaTitleHeight] = useState<number | null>(null); // State to manage the height of the title textarea
+  const [textAreaDescHeight, setTextAreaDescHeight] = useState<number | null>(null); // State to manage the height of the description textarea
 
   /**
    * Handle click event on the task title, saves the current value of the input field.
@@ -301,18 +304,31 @@ function Task({ task, tasks, }: { task: [TaskId, TaskType], tasks: [TaskId, Task
   // The first = '0px' set the height to minimum height, then set it to scrollHeight to ensure it fits the content
   useEffect(() => {
     if (textAreaRefDesc.current) {
-      textAreaRefDesc.current.style.height = '0px'; // Reset height to minimum height, ensure it was smaller and then get larger.
+      textAreaRefDesc.current.style.height = '2px'; // Reset height to minimum height, ensure it was smaller and then get larger.
       textAreaRefDesc.current.style.height = textAreaRefDesc.current.scrollHeight + 'px'; // Set height to scrollHeight.
+      setTextAreaDescHeight(textAreaRefDesc.current.scrollHeight);
+    }
+    if (textAreaRefTitle.current) {
+      textAreaRefTitle.current.style.height = '2px'; // Reset height to minimum height, ensure it was smaller and then get larger.
+      textAreaRefTitle.current.style.height = textAreaRefTitle.current.scrollHeight + 'px'; // Set height to scrollHeight.
+      setTextAreaTitleHeight(textAreaRefTitle.current.scrollHeight);
     }
   }, [task[1].title, task[1].description]); // This effect runs whenever the task title or description changes
 
-  // Adjust the height of the second text area (task title) based on its content
   useEffect(() => {
-    if (textAreaRefTitle.current) {
-      textAreaRefTitle.current.style.height = '0px'; // Reset height to minimum height, ensure it was smaller and then get larger.
-      textAreaRefTitle.current.style.height = textAreaRefTitle.current.scrollHeight + 'px'; // Set height to scrollHeight.
+    if (textAreaTitleHeight) {
+      setTimeout(() => {
+        console.log(`textAreaTitleHeight: ${textAreaTitleHeight}`);
+        textAreaRefTitle.current!.style.height = textAreaTitleHeight + 'px'; // Set height to scrollHeight.
+      }, 200);
     }
-  }, [task[1].title]); // This effect runs whenever the task title changes
+    if (textAreaDescHeight) {
+      setTimeout(() => {
+        console.log(`textAreaDescHeight: ${textAreaDescHeight}`);
+        textAreaRefDesc.current!.style.height = textAreaDescHeight + 'px'; // Set height to scrollHeight.
+      }, 200);
+    }
+  }, [textAreaRefTitle.current?.style.height, textAreaRefDesc.current?.style.height]); // This effect runs whenever the text area heights change
 
   const today = new Date();
   const dueDate = new Date();
@@ -352,6 +368,7 @@ function Task({ task, tasks, }: { task: [TaskId, TaskType], tasks: [TaskId, Task
                   const event = e; // Store the current target for later use
                   event.currentTarget.style.height = '0px';
                   event.currentTarget.style.height = event.currentTarget.scrollHeight + 'px';
+                  setTextAreaTitleHeight(event.currentTarget.scrollHeight);
                 }}
                 onClick={handleClickTitle}
                 onKeyDown={handleTitleKeyboard}
@@ -366,6 +383,7 @@ function Task({ task, tasks, }: { task: [TaskId, TaskType], tasks: [TaskId, Task
                   const event = e; // Store the current target for later use
                   event.currentTarget.style.height = '0px';
                   event.currentTarget.style.height = event.currentTarget.scrollHeight + 'px';
+                  setTextAreaDescHeight(event.currentTarget.scrollHeight);
                 }}
                 onKeyDown={handleDescKeyboard}
                 onBlur={handleDescLostFocus}
@@ -419,7 +437,7 @@ function Task({ task, tasks, }: { task: [TaskId, TaskType], tasks: [TaskId, Task
               >
               </div>)
             }
-            <p>{task[1].id}</p>
+            {/* <p>{task[1].id}</p> */}
           </div>
         )
       }

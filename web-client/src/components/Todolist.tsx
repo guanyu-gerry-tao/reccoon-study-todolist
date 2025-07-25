@@ -48,6 +48,16 @@ function Todolist() {
         {/* The task columns */}
         <div className='todolistColumns'>
 
+          <TodoColumn key="deleted" title="Deleted"
+            bgColor="#ffcce6"
+            status="deleted"
+          />
+
+          <TodoColumn key="completed" title="Completed"
+            bgColor="#e6f2ff"
+            status="completed"
+          />
+
           {statusesSorted.map(([key, status]) => (
             <TodoColumn key={key} title={status.title}
               bgColor={status.color}

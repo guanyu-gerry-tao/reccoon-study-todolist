@@ -36,6 +36,7 @@
   line-height: 20px;
   width: calc(100% - 20px);
   padding: 0px;
+  max-height: 100px;
 }
 
 .taskDesc {
@@ -53,6 +54,7 @@
   overflow: hidden !important;
   width: calc(100% - 20px);
   padding: 0px;
+  max-height: 100px;
 }
 
 .taskDueDate {
@@ -75,13 +77,19 @@
   min-height: 50px;
   position: relative;
   background-color: #fff;
-  width: 100%;
+  width: 18.75rem;
   border-radius: 1rem;
   /* rounded-2xl */
   border-top-width: 2px;
   /* bt-2 */
   margin-bottom: 0.8rem;
   /* mb-2 */
+  flex-shrink: 0;
+}
+
+.card.hide {
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .card:hover>.taskDragHandler {

@@ -131,7 +131,7 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
    */
   const moveTask = (id: TaskId, targetStatusId: StatusId, index: number | "start" | "end", bulkPayload: BulkPayload) => {
     // check if the status is exist
-    if (Object.keys(states.statuses).includes(targetStatusId) === false) {
+    if (Object.keys(states.statuses).includes(targetStatusId) === false && targetStatusId !== "completed" && targetStatusId !== "deleted") {
       throw new Error(`Status with id ${targetStatusId} does not exist.`);
     }
     // check if the task is exist

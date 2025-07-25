@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import '../App.css'
 import './TodoColumn.css';
@@ -9,6 +9,7 @@ import Task from './Task.tsx';
 import { Droppable } from '@hello-pangea/dnd';
 import { sortChain } from '../utils/utils.ts';
 import { useAppContext } from './AppContext.tsx';
+import { s } from 'motion/react-client';
 
 /**
  * TodoColumn component represents a single column in the Kanban board.
@@ -22,10 +23,11 @@ import { useAppContext } from './AppContext.tsx';
 function TodoColumn({
   title,
   bgColor,
-  status, }: {
-    title: string;
-    bgColor: string;
-    status: StatusId;
+  status,
+}: {
+  title: string;
+  bgColor: string;
+  status: StatusId;
   }) {
 
   // Use the AppContext to access the global state and actions
@@ -36,15 +38,24 @@ function TodoColumn({
 
   // This counts the number of tasks in the current column, which is used to determine the order of the new task.
 
+  useEffect(() => {
+    if (status !== "deleted" && status !== "completed") {
+      const ele = document.getElementById(`${status}Container`);
+      if (ele) {
+        // ele.style.display = "none";
+        ele.classList.remove('hide');
+      }
+    }
+  }, [status]);
+
   return (
     <>
-      <div className='todoColumnCard' style={{
-        backgroundColor: bgColor,
-        borderColor: (status === "completed" || status === "deleted") ? 'black' : bgColor,
-        display: status === 'deleted' && states.showDeleted ||
-          status === 'completed' && states.showCompleted ||
-          status !== 'deleted' && status !== 'completed' ? 'block' : 'none'
-      }}>
+      <div className='todoColumnCard hide'
+        id={`${status}Container`}
+        style={{
+          backgroundColor: bgColor,
+          borderColor: (status === "completed" || status === "deleted") ? 'black' : bgColor,
+        }}>
 
         <h1 className='todoColumnTitle'>{title}</h1>
 

@@ -49,7 +49,7 @@
             "title": "Now",
             "description": "Tasks that are currently in progress.",
             "color": "#e8fdec",
-            "prev": "completed",
+            "prev": null,
             "next": "status1",
             "userId": "adminUser001"
         },
@@ -69,24 +69,6 @@
             "color": "#fff8e8",
             "prev": "status1",
             "next": null,
-            "userId": "adminUser001"
-        },
-        "completed": {
-            "id": "completed",
-            "title": "Completed",
-            "description": "Tasks that have been completed.",
-            "color": "#e6f2ff",
-            "prev": "deleted",
-            "next": "status0",
-            "userId": "adminUser001"
-        },
-        "deleted": {
-            "id": "deleted",
-            "title": "Deleted",
-            "description": "Tasks that have been deleted.",
-            "color": "#ffcce6",
-            "prev": null,
-            "next": "completed",
             "userId": "adminUser001"
         }
     },

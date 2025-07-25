@@ -38,17 +38,49 @@ function Menubar() {
    * Handle click event for the delete tasks button.
    */
   const handleDeleteTasksClick = () => {
-    console.log("delete tasks clicked");
-    setStates.setShowDeleted(!states.showDeleted);
-    console.log("show deleted tasks: " + states.showDeleted);
+    if (states.showDeleted) {
+      setStates.setShowDeleted(false);
+      const ele = document.getElementById('deletedContainer');
+      if (ele) {
+        ele.classList.add('hide');
+        setTimeout(() => {
+          // ele.style.display = 'none';
+        }, 300);
+      }
+    } else {
+      setStates.setShowDeleted(true);
+      const ele = document.getElementById('deletedContainer');
+      if (ele) {
+        setTimeout(() => {
+          ele.classList.remove('hide');
+        }, 10);
+        // ele.style.display = 'block';
+      }
+    }
   };
 
   const handleCompletedTasksClick = () => {
-    console.log("completed tasks clicked");
-    setStates.setShowCompleted(!states.showCompleted);
-    console.log("show completed tasks: " + states.showCompleted);
+    if (states.showCompleted) {
+      setStates.setShowCompleted(false);
+      const ele = document.getElementById('completedContainer');
+      if (ele) {
+        ele.classList.add('hide');
+        setTimeout(() => {
+          // ele.style.display = 'none';
+        }, 300);
+      }
+    } else {
+      setStates.setShowCompleted(true);
+      const ele = document.getElementById('completedContainer');
+      if (ele) {
+        setTimeout(() => {
+          ele.classList.remove('hide');
+        }, 10);
+        // ele.style.display = 'block';
+      }
+    }
   };
-  
+
   return (
     <>
       <div className='menubarContainer'>
