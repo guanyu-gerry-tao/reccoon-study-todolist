@@ -3,21 +3,24 @@ const router = express.Router();
 const Task = require('../database/models/tasks'); // Assuming Task model is defined in models/Task.js
 const Project = require('../database/models/projects'); // Assuming Project model is defined in models/Project.js
 const Status = require('../database/models/statuses'); // Assuming Status model is defined in models/
-const validateBulkPayloadStructure = require('./validatePayload'); // Import the validation middleware
+const UserProfile = require('../database/models/userProfiles'); // Assuming UserProfile model is defined in models/UserProfile.js
+const validateBulkPayloadStructure = require('../middlewares/validatePayload'); // Import the validation middleware
+const authMW = require('../middlewares/authMiddleware'); // Import the authentication middleware
 
 /**
  * 
  */
-router.post('/', validateBulkPayloadStructure, async (req, res) => {
+router.post('/', [authMW, validateBulkPayloadStructure], async (req, res) => {
   console.log('receive bulk payload')
   const taskOps = [];
   const projectOps = [];
   const statusOps = [];
+  const userProfileOps = [];
 
   const { ops, backup } = req.body;
   try {
     ops.forEach(op => {
-      switch (op.type){
+      switch (op.type) {
         case 'task':
           switch (op.operation) {
             case 'add':
@@ -40,10 +43,10 @@ router.post('/', validateBulkPayloadStructure, async (req, res) => {
             case 'delete':
               taskOps.push({
                 deleteOne: {
-                  filter: { id: op.data }
+                  filter: { id: op.data.id }
                 }
               })
-              console.log(`task deleted: ${op.data}`);
+              console.log(`task deleted: ${op.data.id}`);
               break;
           }
           break;
@@ -69,10 +72,10 @@ router.post('/', validateBulkPayloadStructure, async (req, res) => {
             case 'delete':
               projectOps.push({
                 deleteOne: {
-                  filter: { id: op.data }
+                  filter: { id: op.data.id }
                 }
               })
-              console.log(`project deleted: ${op.data}`);
+              console.log(`project deleted: ${op.data.id}`);
               break;
           }
           break;
@@ -98,26 +101,41 @@ router.post('/', validateBulkPayloadStructure, async (req, res) => {
             case 'delete':
               statusOps.push({
                 deleteOne: {
-                  filter: { id: op.data }
+                  filter: { id: op.data.id }
                 }
               })
-              console.log(`status deleted: ${op.data}`);
+              console.log(`status deleted: ${op.data.id}`);
               break;
           }
           break;
+        case 'userProfile':
+          switch (op.operation) {
+            case 'update':
+              userProfileOps.push({
+                updateOne: {
+                  filter: { id: op.data.id },
+                  update: { $set: op.data.updatedFields }
+                }
+              })
+              console.log(`userProfile updated: ${op.data.id}`);
+              break;
+          }
+
       }
     });
 
     // bulk write operations
-    const [taskResult, projectResult, statusResult] = await Promise.all([
+    const [taskResult, projectResult, statusResult, userProfileResult] = await Promise.all([
       Task.bulkWrite(taskOps),
       Project.bulkWrite(projectOps),
-      Status.bulkWrite(statusOps)
+      Status.bulkWrite(statusOps),
+      UserProfile.bulkWrite(userProfileOps)
     ]);
 
     console.log(`task operations: ${taskResult.modifiedCount} modified, ${taskResult.deletedCount} deleted`);
     console.log(`project operations: ${projectResult.modifiedCount} modified, ${projectResult.deletedCount} deleted`);
     console.log(`status operations: ${statusResult.modifiedCount} modified, ${statusResult.deletedCount} deleted`);
+    console.log(`userProfile operations: ${userProfileResult.modifiedCount} modified, ${userProfileResult.deletedCount} deleted`);
 
     if (taskResult.ok !== 1 || projectResult.ok !== 1 || statusResult.ok !== 1) {
       console.error('Bulk write operation failed');

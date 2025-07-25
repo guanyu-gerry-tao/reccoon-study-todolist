@@ -47,7 +47,7 @@ function ProjectPanel() {
             ref={provided.innerRef}
             {...provided.droppableProps}>
             {projectsSorted.map((project) => (
-              <ProjectButton key={project[0]} projects={projectsSorted} project={project} currentProjectID={states.currentProjectID} />
+              <ProjectButton key={project[0]} projects={projectsSorted} project={project} currentProjectID={states.userProfile.lastProjectId} />
             ))}
             {provided.placeholder}
 

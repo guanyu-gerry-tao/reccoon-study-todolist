@@ -3,6 +3,6 @@ const loginUser = require('../controllers/authController'); // Import the loginU
 
 const router = express.Router();
 
-router.post('/login', loginUser);
+router.post('/', loginUser);
 
 module.exports = router;

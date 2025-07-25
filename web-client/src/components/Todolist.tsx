@@ -20,6 +20,7 @@ import { createActions } from '../utils/actions.ts';
 import { DragDropContext } from '@hello-pangea/dnd';
 import { loadAllData } from '../data/loadInitData.ts'
 import { AppContext } from '../components/AppContext.tsx';
+import { useNavigate } from 'react-router-dom';
 
 /**
  * Todolist component represents the main todo list interface.
@@ -37,29 +38,48 @@ function Todolist() {
   const actions = createActions(states, setStates);
   const appContextValue = { states, setStates, actions };
 
+  const navigate = useNavigate();
+
   useEffect(() => {
-    loadAllData().then((d) => {
+    loadAllData(navigate).then((d) => {
       console.log("tasks loaded raw", d);
       setStates.setTasks(draft => {
         Object.assign(draft, d.taskData);
-        console.log("tasks loaded", states.tasks);
+        if (Object.keys(d.taskData).length === 0) {
+          console.warn("No tasks found in the initial data. Please add some tasks to get started.");
+        } else {
+          console.log("Tasks loaded successfully.", d.taskData);
+        }
       });
       setStates.setProjects(draft => {
         Object.assign(draft, d.projectData);
-        console.log("projects loaded", states.projects);
+        if (Object.keys(d.projectData).length === 0) {
+          console.warn("No projects found in the initial data. Please add some projects to get started.");
+        } else {
+          console.log("Projects loaded successfully.", d.projectData);
+        }
       });
       setStates.setStatuses(draft => {
         Object.assign(draft, d.statusData);
-        console.log("statuses loaded", states.statuses);
+        if (Object.keys(d.statusData).length === 0) {
+          console.warn("No statuses found in the initial data. Please add some statuses to get started.");
+        } else {
+          console.log("Statuses loaded successfully.", d.statusData);
+        }
       });
       setStates.setUserProfile(draft => {
-        draft.id = d.userProfileData.id; // Set a default user ID for testing
-        draft.nickname = d.userProfileData.nickname; // Set a default nickname for testing
-        draft.lastProjectId = d.userProfileData.lastProjectId; // Set a default last project ID for testing
-        draft.avatarUrl = d.userProfileData.avatarUrl; // Set a default avatar URL for testing
-        draft.language = d.userProfileData.language; // Set a default language for testing
+        if (!d.userProfileData.id) {
+          console.warn("No user profile data found. Please set up your profile.");
+          return;
+        } else {
+          draft.id = d.userProfileData.id; // Set a default user ID for testing
+          draft.nickname = d.userProfileData.nickname; // Set a default nickname for testing
+          draft.lastProjectId = d.userProfileData.lastProjectId; // Set a default last project ID for testing
+          draft.avatarUrl = d.userProfileData.avatarUrl; // Set a default avatar URL for testing
+          draft.language = d.userProfileData.language; // Set a default language for testing
+          console.log("User profile loaded successfully.");
+        }
       });
-      console.log("user profile loaded", states.userProfile);
     }).catch((error) => {
       console.error('Error loading initial data:', error);
       // Optionally, you can load test data here if the initial data loading fails
@@ -68,18 +88,6 @@ function Todolist() {
       // loadTestStatuses().then(statuses => setStates.setStatuses(statuses));
     });
   }, []);
-
-
-  // State to manage the visibility of the delete and complete task drop areas.
-  // Not used yet. // TODO: @Bestpart-Irene add the functionality to show/hide the delete and complete task drop areas when the user clicks on the delete or complete task buttons.
-  const [isDeletedTaskClicked, setIsDeletedTaskClicked] = useImmer<boolean>(false);
-
-  // State to manage the visibility of the completed task drop area.
-  // Not used yet. // TODO: @Bestpart-Irene add the functionality to show/hide the completed task drop area when the user clicks on the complete task button.
-  const [isCompletedTaskClicked, setIsCompletedTaskClicked] = useImmer<boolean>(false);
-
-  // State to manage the mouse over state for the drop zone, used to show/hide the drop area visual.
-  const [isMouseOverDropZone, setIsMouseOverDropZone] = useImmer(false);
 
   const statusesSorted = sortChain(states.statuses);
 

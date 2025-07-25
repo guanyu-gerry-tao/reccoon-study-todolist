@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 import Todolist from './components/Todolist.tsx';
 import Login from './components/Login.tsx';
+import ProtectedPage from './components/ProtectedPage.tsx';
 
 /**
  * Main application component.
@@ -21,7 +22,9 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path='/' element={<Todolist />} />
+        <Route path='/' element={
+          <ProtectedPage><Todolist /></ProtectedPage>
+        } />
         <Route path='/about' element={<div>ABOUT PAGE</div>} />
         <Route path='/intro' element={<div>INTRO PAGE</div>} />
         {/* <Route path='/reset' element={<ResetTestButton />} /> */}
