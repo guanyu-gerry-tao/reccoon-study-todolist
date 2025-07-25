@@ -1,13 +1,15 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import '../App.css'
 import './TodoColumn.css';
 
 import AddNewTask from './AddNewTask.tsx';
-import type { TaskType, Actions, States, StatusId, TaskId } from './type.ts';
+import type { TaskType, Actions, States, StatusId, TaskId } from '../utils/type.ts';
 import Task from './Task.tsx';
 import { Droppable } from '@hello-pangea/dnd';
 import { sortChain } from '../utils/utils.ts';
+import { useAppContext } from './AppContext.tsx';
+import { s } from 'motion/react-client';
 
 /**
  * TodoColumn component represents a single column in the Kanban board.
@@ -22,31 +24,39 @@ function TodoColumn({
   title,
   bgColor,
   status,
-  actions,
- // The states object containing the current state of tasks, projects, and user status.
-  states,
-  className = ''
 }: {
   title: string;
   bgColor: string;
   status: StatusId;
-  actions: Actions;
-  states: States;
-  className?: string;
-}) {
+  }) {
 
+  // Use the AppContext to access the global state and actions
+  const { states, actions } = useAppContext();
 
-  const tasks = Object.fromEntries(Object.entries(states.tasks).filter(([_, task]) => task.status === status && task.project === states.currentProjectID));
+  const tasks = Object.fromEntries(Object.entries(states.tasks).filter(([_, task]) => task.status === status && task.projectId === states.userProfile.lastProjectId));
+  console.log("tasks in TodoColumn", tasks);
   const tasksSorted = sortChain(tasks) as [TaskId, TaskType][];
 
   // This counts the number of tasks in the current column, which is used to determine the order of the new task.
 
+  useEffect(() => {
+    if (status !== "deleted" && status !== "completed") {
+      const ele = document.getElementById(`${status}Container`);
+      if (ele) {
+        // ele.style.display = "none";
+        ele.classList.remove('hide');
+      }
+    }
+  }, [status]);
+
   return (
     <>
-      <div className={`todoColumnCard ${className}`} style={{
-        backgroundColor: bgColor,
-        borderColor: (status === "completed" || status === "deleted") ? 'black' : bgColor
-      }}>
+      <div className='todoColumnCard hide'
+        id={`${status}Container`}
+        style={{
+          backgroundColor: bgColor,
+          borderColor: (status === "completed" || status === "deleted") ? 'black' : bgColor,
+        }}>
 
         <h1 className='todoColumnTitle'>{title}</h1>
 
@@ -61,13 +71,12 @@ function TodoColumn({
                 {/* Render the tasks in the task list */}
                 {/* tasksSorted.map: this maps over the sorted tasks and renders a Task for each */}
                 {tasksSorted.map((task) => (
-                  <Task key={task[0]} task={task} tasks={tasksSorted}
-                    actions={actions} states={states} />
+                  <Task key={task[0]} task={task} tasks={tasksSorted} />
                 ))}
 
                 {provided.placeholder}
 
-                <AddNewTask actions={actions} status={status} tasksSorted={tasksSorted} states={states} />
+                <AddNewTask status={status} tasksSorted={tasksSorted} />
               </div>
             )}
           </Droppable>

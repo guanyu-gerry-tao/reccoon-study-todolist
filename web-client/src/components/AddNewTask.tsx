@@ -1,9 +1,13 @@
 import '../App.css'
 import './AddNewTask.css'
 
-import type { Actions, ProjectId, States, TaskId, TaskType } from './type.ts';
+import type { Actions, ProjectId, States, TaskId, TaskType } from '../utils/type.ts';
+import { createBackup, createBulkPayload, optimisticUIUpdate, postPayloadToServer, restoreBackup } from '../utils/utils'
 
 import Project from './ProjectButton.tsx'
+import { useAppContext } from './AppContext.tsx';
+import { animate, motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 /**
  * AddNewTask component allows users to add a new task by typing in an input field.
@@ -12,44 +16,52 @@ import Project from './ProjectButton.tsx'
  * @newOrder - The order number for the new task, used to determine its position in the list.
  * @currentProjectID - The ID of the current project to which the new task will be added.
  */
-function AddNewTask({ actions,
-  status,
-  tasksSorted,
-  states }: {
-    actions: Actions,
-    status: string,
-    tasksSorted: [TaskId, TaskType][],
-    states: States
-  }) {
+function AddNewTask({ status, tasksSorted, }: { status: string, tasksSorted: [TaskId, TaskType][], }) {
+
+  const navigate = useNavigate();
+
+  // Use the AppContext to access the global state and actions
+  const { states, actions, setStates } = useAppContext();
 
   /**
    * This function handles keyboard events in the input field.
    * @param e - The keyboard event triggered when the user presses a key in the input field.
    */
-  const handleKeyboard = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') { // Check if the Enter key is pressed: this will add a new task
-      const newTaskTitle = e.currentTarget.value.trim(); // Get the trimmed value of the input field
+  const handleKeyboard = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const event = e; // Store the current target for later use
+    if (event.key === 'Enter') { // Check if the Enter key is pressed: this will add a new task
+      const newTaskTitle = event.currentTarget.value.trim(); // Get the trimmed value of the input field
+      event.currentTarget.value = ''; // Clear the input field after adding the task
 
       if (newTaskTitle) { // Check if the input is not empty
         const newTask = {
           title: newTaskTitle,
           status: status,
           previousStatus: status, // for new task, the previous status is the same as the current status
-          project: states.currentProjectID as ProjectId, // Assuming a default project, you can modify this as needed
-          prev: tasksSorted.length > 0 ? tasksSorted[tasksSorted.length - 1][0] : null, // Get the last task ID as the previous task
-          next: null, // For a new task, new task is the last one, next are null
-          userId: states.userProfile.id,
+          projectId: states.userProfile.lastProjectId as ProjectId, // Assuming a default project, you can modify this as needed
+          prev: null, // 
+          next: null, // if prev and next are null, by default, the task will be added to the end of the list
+          userId: states.userProfile.id as string,
         };
-        const id = actions.addTask(newTask); // Call the add function from actions with the new task
-        if (tasksSorted.length > 0) { // If there are existing tasks, update the last task to point to the new task
-          actions.updateTask(tasksSorted[tasksSorted.length - 1][0], { next: id }); // Update the last task to point to the new task
+
+        // create a bulk payload and backup for the new task
+        const bulkPayload = createBulkPayload(); // Create a bulk payload for the new task
+        const backup = createBackup(states, bulkPayload); // Create a backup of the current state
+
+        try {
+          const id = await actions.addTask(newTask, backup, true); // Call the addTask function from actions with the new task
+          optimisticUIUpdate(setStates, backup); // Optimistically update the UI with the new task
+          await postPayloadToServer('/api/bulk', navigate, backup); // Send the new task to the server
         }
-        e.currentTarget.value = ''; // Clear the input field after adding the task
+        catch (error) {
+          console.error('Error adding new task:', error);
+          restoreBackup(setStates, backup); // Restore the previous state in case of an error
+        }
       }
     }
-    if (e.key === 'Escape') { // Check if the Escape key is pressed: this will clear the input field
-      e.currentTarget.value = ''; // Clear the input field
-      e.currentTarget.blur(); // Remove focus from the input field
+    if (event.key === 'Escape') { // Check if the Escape key is pressed: this will clear the input field
+      event.currentTarget.value = ''; // Clear the input field
+      event.currentTarget.blur(); // Remove focus from the input field
     }
   };
 

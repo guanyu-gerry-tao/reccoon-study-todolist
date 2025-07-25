@@ -6,11 +6,21 @@ import Menubar from './Menubar.tsx'
 import TodoColumn from './TodoColumn.tsx'
 import AIChatPanel from './AIChatPanel.tsx'
 
-import type { Actions, States, StatusData, StatusType } from './type.ts'
+import type { Actions, States, StatusData, StatusType } from '../utils/type.ts'
 import { useImmer } from 'use-immer'
 import TaskDropArea from './TaskDropArea.tsx'
 import { sortChain } from '../utils/utils.ts';
-import { useState } from 'react';
+import { useAppContext } from './AppContext.tsx';
+import { useState, useRef, useEffect } from 'react';
+
+
+
+import { createStatesAndSetStates } from '../utils/states.ts';
+import { createActions } from '../utils/actions.ts';
+import { DragDropContext } from '@hello-pangea/dnd';
+import { loadAllData } from '../data/loadInitData.ts'
+import { AppContext } from '../components/AppContext.tsx';
+import { useNavigate } from 'react-router-dom';
 
 /**
  * Todolist component represents the main todo list interface.
@@ -21,31 +31,65 @@ import { useState } from 'react';
  * @param actions - The actions object containing methods to manipulate tasks and projects.
  * @param draggedTask - The currently dragged task information.
  */
-function Todolist({
-  states,
-  actions,
-}: {
-  states: States,
-  actions: Actions,
-}) {
+function Todolist() {
 
+  // Initialize states and actions using custom hooks
+  const [states, setStates] = createStatesAndSetStates();
+  const actions = createActions(states, setStates);
+  const appContextValue = { states, setStates, actions };
 
-  // State to manage the visibility of the delete and complete task drop areas.
-  // Not used yet. // TODO: @Bestpart-Irene add the functionality to show/hide the delete and complete task drop areas when the user clicks on the delete or complete task buttons.
-  const [isDeletedTaskClicked, setIsDeletedTaskClicked] = useImmer<boolean>(false);
+  const navigate = useNavigate();
 
-  // State to manage the visibility of the completed task drop area.
-  // Not used yet. // TODO: @Bestpart-Irene add the functionality to show/hide the completed task drop area when the user clicks on the complete task button.
-  const [isCompletedTaskClicked, setIsCompletedTaskClicked] = useImmer<boolean>(false);
+  useEffect(() => {
+    loadAllData(navigate).then((d) => {
+      console.log("tasks loaded raw", d);
+      setStates.setTasks(draft => {
+        Object.assign(draft, d.taskData);
+        if (Object.keys(d.taskData).length === 0) {
+          console.warn("No tasks found in the initial data. Please add some tasks to get started.");
+        } else {
+          console.log("Tasks loaded successfully.", d.taskData);
+        }
+      });
+      setStates.setProjects(draft => {
+        Object.assign(draft, d.projectData);
+        if (Object.keys(d.projectData).length === 0) {
+          console.warn("No projects found in the initial data. Please add some projects to get started.");
+        } else {
+          console.log("Projects loaded successfully.", d.projectData);
+        }
+      });
+      setStates.setStatuses(draft => {
+        Object.assign(draft, d.statusData);
+        if (Object.keys(d.statusData).length === 0) {
+          console.warn("No statuses found in the initial data. Please add some statuses to get started.");
+        } else {
+          console.log("Statuses loaded successfully.", d.statusData);
+        }
+      });
+      setStates.setUserProfile(draft => {
+        if (!d.userProfileData.id) {
+          console.warn("No user profile data found. Please set up your profile.");
+          return;
+        } else {
+          draft.id = d.userProfileData.id; // Set a default user ID for testing
+          draft.nickname = d.userProfileData.nickname; // Set a default nickname for testing
+          draft.lastProjectId = d.userProfileData.lastProjectId; // Set a default last project ID for testing
+          draft.avatarUrl = d.userProfileData.avatarUrl; // Set a default avatar URL for testing
+          draft.language = d.userProfileData.language; // Set a default language for testing
+          console.log("User profile loaded successfully.");
+        }
+      });
+    }).catch((error) => {
+      console.error('Error loading initial data:', error);
+      // Optionally, you can load test data here if the initial data loading fails
+      // loadTestTasks().then(tasks => setStates.setTasks(tasks));
+      // loadTestProjects().then(projects => setStates.setProjects(projects));
+      // loadTestStatuses().then(statuses => setStates.setStatuses(statuses));
+    });
+  }, []);
 
-  // State to manage the mouse over state for the drop zone, used to show/hide the drop area visual.
-  const [isMouseOverDropZone, setIsMouseOverDropZone] = useImmer(false);
-
-  // State to manage the visibility of the deleted and completed columns.
-  const [deletedColumnHide, setDeletedColumnHide] = useState(false);
-  const [completedColumnHide, setCompletedColumnHide] = useState(false);
-
-  const statusesSorted = sortChain(states.statuses) as [string, StatusType][];
+  const statusesSorted = sortChain(states.statuses);
 
   // Function to handle the click event for the delete tasks button.
   const handleDeleteTasksClick = () => {
@@ -71,66 +115,45 @@ function Todolist({
   };
 
   return (
-    <>
-      <div className='todolistContainer'>
-        {/* The top menu bar */}
-        {/* Contains logos, project, user information */}
-        <Menubar
-          actions={{
-            ...actions,
-            setShowDeleted: handleDeleteTasksClick,
-            setShowCompleted: handleCompletedTasksClick,
-          }}
-          states={states}
-        />
+    <AppContext.Provider value={appContextValue}>
+      <DragDropContext
+        onDragEnd={actions.onDragEnd} onDragStart={actions.onDragStart} onDragUpdate={actions.onDragUpdate}>
+        <div className='todolistContainer'>
+          {/* The top menu bar */}
+          {/* Contains logos, project, user information */}
+          <Menubar />
 
-        {/* The task columns */}
-        <div className='todolistColumns'>
+          {/* The task columns */}
+          <div className='todolistColumns'>
 
-          {states.showDeleted && (
-            <TodoColumn
-              title={"Deleted"}
-              bgColor='#ffcce6'
-              status={"deleted"}
-              actions={actions}
-              states={states}
-              className={deletedColumnHide ? 'hide' : ''}
+            <TodoColumn key="deleted" title="Deleted"
+              bgColor="#ffcce6"
+              status="deleted"
             />
-          )}
 
-          {states.showCompleted && (
-            <TodoColumn
-              title={"Completed"}
-              bgColor='#e6f2ff'
-              status={"completed"}
-              actions={actions}
-              states={states}
-              className={completedColumnHide ? 'hide' : ''}
+            <TodoColumn key="completed" title="Completed"
+              bgColor="#e6f2ff"
+              status="completed"
             />
-          )}
 
-          {statusesSorted.map(([key, status]) => (
-            <TodoColumn key={key} title={status.title}
-              bgColor={status.color}
-              status={status.id}
-              actions={actions}
-              states={states}
-            />
-          ))}
-        </div>
+            {statusesSorted.map(([key, status]) => (
+              <TodoColumn key={key} title={status.title}
+                bgColor={status.color}
+                status={status.id}
+              />
+            ))}
+          </div>
 
-        {/* The right panel for AI chat */}
-        {/* This panel is used to interact with the AI chat feature, which can help users with task management and organization. */}
-        {/* //TODO: implement the AI chat feature in future */}
-        <div className='todolistRightPanel'>
+          {/* The right panel for AI chat */}
+          {/* This panel is used to interact with the AI chat feature, which can help users with task management and organization. */}
+          {/* //TODO: implement the AI chat feature in future */}
+          {/* <div className='todolistRightPanel'>
           <AIChatPanel />
+        </div> */}
+
         </div>
-
-      </div>
-
-
-
-    </>
+      </DragDropContext>
+    </AppContext.Provider >
   )
 }
 
