@@ -7,6 +7,7 @@ import { createBackup, createBulkPayload, optimisticUIUpdate, postPayloadToServe
 import Project from './ProjectButton.tsx'
 import { useAppContext } from './AppContext.tsx';
 import { animate, motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 /**
  * AddNewTask component allows users to add a new task by typing in an input field.
@@ -16,6 +17,8 @@ import { animate, motion } from 'framer-motion';
  * @currentProjectID - The ID of the current project to which the new task will be added.
  */
 function AddNewTask({ status, tasksSorted, }: { status: string, tasksSorted: [TaskId, TaskType][], }) {
+
+  const navigate = useNavigate();
 
   // Use the AppContext to access the global state and actions
   const { states, actions, setStates } = useAppContext();
@@ -35,7 +38,7 @@ function AddNewTask({ status, tasksSorted, }: { status: string, tasksSorted: [Ta
           title: newTaskTitle,
           status: status,
           previousStatus: status, // for new task, the previous status is the same as the current status
-          projectId: states.currentProjectID as ProjectId, // Assuming a default project, you can modify this as needed
+          projectId: states.userProfile.lastProjectId as ProjectId, // Assuming a default project, you can modify this as needed
           prev: null, // 
           next: null, // if prev and next are null, by default, the task will be added to the end of the list
           userId: states.userProfile.id as string,
@@ -48,7 +51,7 @@ function AddNewTask({ status, tasksSorted, }: { status: string, tasksSorted: [Ta
         try {
           const id = await actions.addTask(newTask, backup, true); // Call the addTask function from actions with the new task
           optimisticUIUpdate(setStates, backup); // Optimistically update the UI with the new task
-          await postPayloadToServer('/api/bulk', backup); // Send the new task to the server
+          await postPayloadToServer('/api/bulk', navigate, backup); // Send the new task to the server
         }
         catch (error) {
           console.error('Error adding new task:', error);

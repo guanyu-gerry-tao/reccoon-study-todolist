@@ -98,6 +98,7 @@ export type Actions = {
   updateTask: (updatePayloads: { id: TaskId; updatedFields: Partial<TaskType> }, bulkPayload: BulkPayload) => void; // Accepts an array of update payloads, each containing the task ID and the fields to be updated
   hardDeleteTask: (id: TaskId, bulkPayload: BulkPayload) => void;
   moveTask: (id: TaskId, targetStatusId: StatusId, index: number | "start" | "end", bulkPayload: BulkPayload, moveWithAnimation?: boolean) => void;
+  focusProject: (projectId: ProjectId | null, bulkPayload: BulkPayload) => void; // Focuses on a specific project, updating the user profile with the last interacted project ID
   addProject: (newProject: Omit<ProjectType, 'id'>, bulkPayload: BulkPayload, addWithAnimation?: boolean) => ProjectId; // Returns the ID of the newly added project
   updateProject: (id: ProjectId, updatedFields: Partial<ProjectType>, bulkPayload: BulkPayload) => void;
   moveProject: (id: ProjectId, index: number, bulkPayload: BulkPayload) => void;
@@ -113,7 +114,6 @@ export type States = {
   statuses: StatusData;
   userProfile: UserProfileData;
   draggedTask: TaskId[];
-  currentProjectID: ProjectId | null;
   editMode: boolean;
   showDeleted: boolean; // State to manage the visibility of deleted tasks
   showCompleted: boolean; // State to manage the visibility of completed tasks, optional for future use
@@ -126,27 +126,32 @@ export type SetStates = {
   setStatuses: Updater<StatusData>;
   setUserProfile: Updater<UserProfileData>;
   setDraggedTask: Updater<TaskId[]>;
-  setCurrentProjectID: Updater<ProjectId | null>;
   setEditMode: Updater<boolean>;
   setShowDeleted: Updater<boolean>; // Action to toggle the visibility of deleted tasks
-  setShowCompleted: Updater<boolean>; // Optional action to toggle the visibility of completed tasks, for future use\
+  setShowCompleted: Updater<boolean>; // Optional action to toggle the visibility of completed tasks, for future use
   setOnDragging: Updater<boolean>; // Action to manage the dragging state of tasks
 };
 
 export type BulkPayload = {
   ops: {
-    type: 'task' | 'project' | 'status',
+    type: 'task' | 'project' | 'status' | 'userProfile',
     operation: 'add' | 'update' | 'delete',
     data:
 
-    TaskType | ProjectType | StatusType | // New items to be added
+    TaskType | ProjectType | StatusType | UserProfileData | // New items to be added
 
-    { id: TaskId; updatedFields: Partial<TaskType> } | // Update payloads for tasks, projects, and statuses
-    { id: ProjectId; updatedFields: Partial<ProjectType> } |
-    { id: StatusId; updatedFields: Partial<StatusType> } |
+    { id: TaskId; updatedFields: Partial<Omit<TaskType, 'userId'>> } | // Update payloads for tasks, projects, and statuses
+    { id: ProjectId; updatedFields: Partial<Omit<ProjectType, 'userId'>> } |
+    { id: StatusId; updatedFields: Partial<Omit<StatusType, 'userId'>> } |
+    { id: UserId; updatedFields: Partial<Omit<UserProfileData, 'id'>> } | // Update payload for user profile
 
-    TaskId | ProjectId | StatusId; // Ids for deletion
+    {id: TaskId} | {id: ProjectId} | {id: StatusId}; // Ids for deletion
 
   }[];
-  backup: { statuses: StatusData; tasks: TaskData; projects: ProjectData }; // Backup of the current state before changes, and use for undo functionality
+  backup: {
+    statuses: StatusData;
+    tasks: TaskData;
+    projects: ProjectData;
+    userProfile: UserProfileData
+  }; // Backup of the current state before changes, and use for undo functionality
 }

@@ -1,8 +1,10 @@
 import { useLayoutEffect } from "react";
-import type { UserProfileData, TaskId, TaskType, TaskData, ProjectId, ProjectType, ProjectData, StatusId, StatusType, StatusData, Actions, States, SetStates, BulkPayload } from "./type.ts";
+import type { UserProfileData, TaskId, TaskType, TaskData, ProjectId, ProjectType, ProjectData, StatusId, StatusType, StatusData, Actions, States, SetStates, BulkPayload, UserId } from "./type.ts";
 import { sortChain, createBulkPayload, optimisticUIUpdate, postPayloadToServer, createBackup, restoreBackup } from './utils.ts';
-import type { DragDropContextProps } from '@hello-pangea/dnd';
+import type { DragDropContextProps, DropResult } from '@hello-pangea/dnd';
 import { animate } from 'motion';
+import { nav } from "framer-motion/client";
+import { Navigate } from "react-router-dom";
 
 export const createActions = (states: States, setStates: SetStates): Actions => {
 
@@ -78,7 +80,7 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
       requestAnimationFrame(() => {
         const el = document.getElementById(id);
         if (el) {
-          animate(el, { opacity: [0, 1],  }, { duration: 0.3 }); // Animate the new project card to fade in
+          animate(el, { opacity: [0, 1], }, { duration: 0.3 }); // Animate the new project card to fade in
           animate(el, { height: ["0px", el.scrollHeight] }, { duration: 0.2 }); // Animate the new project card to slide up
         }
       });
@@ -120,12 +122,40 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
     if (!task) {
       throw new Error(`Task with id ${id} not found. Cannot hard delete.`);
     }
+
+    const deletedTaskPrev = task.prev;
+    const deletedTaskNext = task.next;
+
     // Add the task to the bulk payload for hard delete
     bulkPayload.ops.push({
       type: 'task',
       operation: 'delete',
-      data: id
+      data: { id: id }
     });
+
+
+    if (deletedTaskPrev) {
+      bulkPayload.ops.push({
+        type: 'task',
+        operation: 'update',
+        data: {
+          id: deletedTaskPrev,
+          updatedFields: { next: deletedTaskNext } // Update the next task of the previous task
+        }
+      });
+    }
+    if (deletedTaskNext) {
+      bulkPayload.ops.push({
+        type: 'task',
+        operation: 'update',
+        data: {
+          id: deletedTaskNext,
+          updatedFields: { prev: deletedTaskPrev } // Update the previous task of the next task
+        }
+      });
+    }
+
+
   };
 
   /**
@@ -150,7 +180,7 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
     }
 
     // get the target status chain
-    const targetStatusChain = Object.fromEntries(Object.entries(states.tasks).filter(([_, task]) => task.status === targetStatusId && task.projectId === states.currentProjectID));
+    const targetStatusChain = Object.fromEntries(Object.entries(states.tasks).filter(([_, task]) => task.status === targetStatusId && task.projectId === states.userProfile.lastProjectId));
     const sortedTargetChainWithoutTask = sortChain(targetStatusChain).filter(task => task[0] !== id); // Exclude the task being moved
 
     // convert index to a number if it's a string. If index is out of bounds, set it to the start or end of the tasks.
@@ -266,6 +296,19 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
   };
 
 
+  const focusProject = (projectId: ProjectId | null, bulkPayload: BulkPayload) => {
+    bulkPayload.ops.push({
+      type: 'userProfile',
+      operation: 'update',
+      data: {
+        id: states.userProfile.id as UserId,
+        updatedFields: {
+          lastProjectId: projectId // Update the last project ID in the user profile
+        }
+      }
+    });
+  }
+
   /**
    * Function to add a new project to the project list.
    * It generates a unique ID for the new project, adds it to the projects state,
@@ -298,6 +341,7 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
     newProjectWithId.prev = sortedProjects[index - 1]?.[0] || null;
     newProjectWithId.next = sortedProjects[index]?.[0] || null;
 
+
     // Add the new project to the bulk payload:
     bulkPayload.ops.push({
       type: 'project',
@@ -327,11 +371,13 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
       });
     }
 
+    focusProject(newProjectWithId.id, bulkPayload); // Focus on the new project
+
     if (addWithAnimation) {
       requestAnimationFrame(() => {
         const el = document.getElementById(id);
         if (el) {
-          animate(el, { opacity: [0, 1],  }, { duration: 0.3 }); // Animate the new project card to fade in
+          animate(el, { opacity: [0, 1], }, { duration: 0.3 }); // Animate the new project card to fade in
           animate(el, { height: ["0px", "1rem"] }, { duration: 0.2 }); // Animate the new project card to slide up
         }
       });
@@ -483,7 +529,7 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
     bulkPayload.ops.push({
       type: 'project',
       operation: 'delete',
-      data: projectId
+      data: { id: projectId }
     });
 
     // update the prev and next of the surrounding projects:
@@ -514,8 +560,12 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
       bulkPayload.ops.push({
         type: 'task',
         operation: 'delete',
-        data: taskId // Add the task ID to the bulk payload for deletion
+        data: { id: taskId } // Add the task ID to the bulk payload for deletion
       });
+    }
+
+    if (states.userProfile.lastProjectId === projectId) {
+      focusProject(deletedProjectPrev as ProjectId, bulkPayload); // Focus on the previous project if it exists
     }
   };
 
@@ -587,7 +637,7 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
    * Function to handle the end of a drag and drop event for the DragDropContext - hello-pangea/dnd.
    * It updates the task or project chain based on the drag result.
    */
-  const onDragEnd: DragDropContextProps['onDragEnd'] = async (result) => {
+  const onDragEnd: DragDropContextProps['onDragEnd'] = async (result: DropResult, navigate: any) => {
     // handle "task" type drag and drop
     if (result.type === 'task') {
       setTimeout(() => {
@@ -606,7 +656,7 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
           try {
             moveTask(taskId, resultStatus, result.destination!.index, backup);
             optimisticUIUpdate(setStates, backup); // Optimistically update the UI with the new task order
-            postPayloadToServer('/api/bulk', backup); // Send the update to the server
+            postPayloadToServer('/api/bulk', navigate, backup); // Send the update to the server
           } catch (error) {
             console.error('Error updating task:', error);
             restoreBackup(setStates, backup);
@@ -738,7 +788,7 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
           try {
             moveProject(projectId, result.destination!.index, backup);
             optimisticUIUpdate(setStates, backup); // Optimistically update the UI with the new project order
-            postPayloadToServer('/api/bulk', backup); // Send the update to the server
+            postPayloadToServer('/api/bulk', navigate, backup); // Send the update to the server
           } catch (error) {
             console.error('Error updating project:', error);
             restoreBackup(setStates, backup); // Restore the previous state in case of an error
@@ -829,6 +879,7 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
     updateTask,
     hardDeleteTask,
     moveTask,
+    focusProject,
     addProject,
     updateProject,
     moveProject,

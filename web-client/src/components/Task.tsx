@@ -9,6 +9,7 @@ import { createBackup, createBulkPayload, optimisticUIUpdate, postPayloadToServe
 import { current } from 'immer';
 
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 /**
  * This function is used to get the style of the task when it is being dragged
@@ -36,6 +37,8 @@ function getStyle(style: any, snapshot: any) {
  * @param actions - The object containing actions, defined in App.tsx.
  */
 function Task({ task, tasks, }: { task: [TaskId, TaskType], tasks: [TaskId, TaskType][], }) {
+
+  const navigate = useNavigate();
 
   // Use the AppContext to access the global state and actions
   const { states, actions, setStates } = useAppContext();
@@ -73,7 +76,7 @@ function Task({ task, tasks, }: { task: [TaskId, TaskType], tasks: [TaskId, Task
       try {
         actions.updateTask({ id: task[0], updatedFields: { title: event.currentTarget.value } }, backup);
         optimisticUIUpdate(setStates, backup); // Optimistically update the UI with the new task title
-        postPayloadToServer('/api/bulk', backup); // Send the update to the server
+        postPayloadToServer('/api/bulk', navigate, backup); // Send the update to the server
       } catch (error) {
         console.error('Error updating task title:', error);
         // If the request fails, restore the previous state from the backup
@@ -107,7 +110,7 @@ function Task({ task, tasks, }: { task: [TaskId, TaskType], tasks: [TaskId, Task
       try {
         actions.updateTask({ id: task[0], updatedFields: { title: currentTarget.value } }, backup); // Update the task title
         optimisticUIUpdate(setStates, backup); // Optimistically update the UI with the new task title
-        postPayloadToServer('/api/bulk', backup); // Send the update to the server
+        postPayloadToServer('/api/bulk', navigate, backup); // Send the update to the server
       } catch (error) {
         console.error('Error updating task title:', error);
         // If the request fails, restore the previous state from the backup
@@ -135,7 +138,7 @@ function Task({ task, tasks, }: { task: [TaskId, TaskType], tasks: [TaskId, Task
       try {
         actions.updateTask({ id: task[0], updatedFields: { description: currentTarget.value } }, backup); // Update the task description
         optimisticUIUpdate(setStates, backup); // Optimistically update the UI with the new task description
-        postPayloadToServer('/api/bulk', backup);
+        postPayloadToServer('/api/bulk', navigate, backup);
       } catch (error) {
         console.error('Error updating task description:', error);
         // If the request fails, restore the previous state from the backup
@@ -167,7 +170,7 @@ function Task({ task, tasks, }: { task: [TaskId, TaskType], tasks: [TaskId, Task
       try {
         actions.updateTask({ id: task[0], updatedFields: { description: event.currentTarget.value } }, backup); // Update the task description
         optimisticUIUpdate(setStates, backup); // Optimistically update the UI with the new task description
-        postPayloadToServer('/api/bulk', backup); // Send the update to the server
+        postPayloadToServer('/api/bulk', navigate, backup); // Send the update to the server
       } catch (error) {
         console.error('Error updating task description:', error);
         // If the request fails, restore the previous state from the backup
@@ -194,11 +197,12 @@ function Task({ task, tasks, }: { task: [TaskId, TaskType], tasks: [TaskId, Task
         // create a bulk payload and backup for the delete operation
         const bulkPayload = createBulkPayload();
         const backup = createBackup(states, bulkPayload);
-
+        console.log('tasks after deletion', JSON.stringify(states.projects));
         try {
-          actions.hardDeleteTask(task[0], bulkPayload);
+          actions.hardDeleteTask(task[0], backup);
           optimisticUIUpdate(setStates, backup);
-          postPayloadToServer('/api/bulk', backup); // Send the delete request to the server
+          postPayloadToServer('/api/bulk', navigate, backup); // Send the delete request to the server
+
         } catch (error) {
           console.error('Error deleting task:', error);
           // If the request fails, restore the previous state from the backup
@@ -213,7 +217,7 @@ function Task({ task, tasks, }: { task: [TaskId, TaskType], tasks: [TaskId, Task
       try {
         actions.moveTask(task[0], 'deleted', 'end', backup, true); // Move the task to the end of the deleted list
         optimisticUIUpdate(setStates, backup); // Optimistically update the UI with the new task status
-        postPayloadToServer('/api/bulk', backup); // Send the update to the server
+        postPayloadToServer('/api/bulk', navigate, backup); // Send the update to the server
       } catch (error) {
         console.error('Error moving task to deleted status:', error);
         // If the request fails, restore the previous state from the backup
@@ -236,7 +240,7 @@ function Task({ task, tasks, }: { task: [TaskId, TaskType], tasks: [TaskId, Task
       try {
         actions.moveTask(task[0], 'completed', 'end', backup, true); // Move the task to the end of the completed list
         optimisticUIUpdate(setStates, backup); // Optimistically update the UI with the new task status
-        postPayloadToServer('/api/bulk', backup); // Send the update to the server
+        postPayloadToServer('/api/bulk', navigate, backup); // Send the update to the server
       } catch (error) {
         console.error('Error moving task to completed status:', error);
         // If the request fails, restore the previous state from the backup
@@ -262,7 +266,7 @@ function Task({ task, tasks, }: { task: [TaskId, TaskType], tasks: [TaskId, Task
     try {
       actions.moveTask(task[0], task[1].previousStatus, 'end', backup, true); // Move the task to the end of the todo list
       optimisticUIUpdate(setStates, backup); // Optimistically update the UI with the new task status
-      postPayloadToServer('/api/bulk', backup); // Send the update to the server
+      postPayloadToServer('/api/bulk', navigate, backup); // Send the update to the server
     } catch (error) {
       console.error('Error restoring task:', error);
       // If the request fails, restore the previous state from the backup
@@ -290,7 +294,7 @@ function Task({ task, tasks, }: { task: [TaskId, TaskType], tasks: [TaskId, Task
         actions.updateTask({ id: task[0], updatedFields: { dueDate: new Date(currentTarget.value) } }, backup);
       }
       optimisticUIUpdate(setStates, backup); // Optimistically update the UI with the new due date
-      postPayloadToServer('/api/bulk', backup); // Send the update to the server
+      postPayloadToServer('/api/bulk', navigate, backup); // Send the update to the server
     } catch (error) {
       console.error('Error updating task due date:', error);
       // If the request fails, restore the previous state from the backup
@@ -320,13 +324,11 @@ function Task({ task, tasks, }: { task: [TaskId, TaskType], tasks: [TaskId, Task
   useEffect(() => {
     if (textAreaTitleHeight) {
       setTimeout(() => {
-        console.log(`textAreaTitleHeight: ${textAreaTitleHeight}`);
         textAreaRefTitle.current!.style.height = textAreaTitleHeight + 'px'; // Set height to scrollHeight.
       }, 200);
     }
     if (textAreaDescHeight) {
       setTimeout(() => {
-        console.log(`textAreaDescHeight: ${textAreaDescHeight}`);
         textAreaRefDesc.current!.style.height = textAreaDescHeight + 'px'; // Set height to scrollHeight.
       }, 200);
     }

@@ -1,7 +1,8 @@
 import { th } from 'motion/react-client';
-import type { TaskType, ProjectType, StatusType, BulkPayload, SetStates, TaskData, ProjectData, StatusData, States } from './type.ts';
+import type { TaskType, ProjectType, StatusType, BulkPayload, SetStates, TaskData, ProjectData, StatusData, States, UserProfileData } from './type.ts';
 import type { Updater } from 'use-immer';
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 
 /**
@@ -44,7 +45,14 @@ export const createBulkPayload = (): BulkPayload => {
     backup: {
       tasks: {},
       projects: {},
-      statuses: {}
+      statuses: {},
+      userProfile: {
+        id: null,
+        nickname: null,
+        lastProjectId: null,
+        avatarUrl: null,
+        language: null
+      }
     }
   };
 }
@@ -55,7 +63,8 @@ export const createBackup = (states: States, existingPayload: BulkPayload): Bulk
     backup: {
       statuses: states.statuses,
       tasks: states.tasks,
-      projects: states.projects
+      projects: states.projects,
+      userProfile: states.userProfile // Include user profile in the backup
     }
   };
 }
@@ -64,6 +73,7 @@ export const restoreBackup = (setStates: SetStates, backupPayload: BulkPayload) 
   setStates.setTasks(backupPayload.backup.tasks);
   setStates.setProjects(backupPayload.backup.projects);
   setStates.setStatuses(backupPayload.backup.statuses);
+  setStates.setUserProfile(backupPayload.backup.userProfile);
 };
 
 
@@ -171,8 +181,9 @@ export const optimisticUIUpdate = async (setState: SetStates, payload: BulkPaylo
             console.log(`optimisticUIUpdate: task updated: ${id}`);
           }
         } else if (op.operation === 'delete') {
-          delete draft[taskId];
           console.log(`optimisticUIUpdate: task deleted: ${taskId}`);
+          delete draft[taskId];
+          console.log('tasks after deletion in set', JSON.stringify(draft));
         }
       });
     } else if (op.type === 'project') {
@@ -196,22 +207,38 @@ export const optimisticUIUpdate = async (setState: SetStates, payload: BulkPaylo
       });
     } else if (op.type === 'status') {
       // TODO: handle status operations
+    } else if (op.type === 'userProfile') {
+      setState.setUserProfile((draft) => {
+        if (op.operation === 'update') {
+          const { id, updatedFields } = op.data as { id: string; updatedFields: Partial<Omit<UserProfileData, 'id'>> };
+          Object.assign(draft, updatedFields);
+          console.log(`optimisticUIUpdate: user profile updated: ${id}`);
+        } else {
+          throw new Error(`optimisticUIUpdate: only 'update' operation is supported for userProfile, but got ${op.operation}`);
+        }
+      })
     }
   });
 }
 
-export const postPayloadToServer = async (api: string, payload: BulkPayload) => {
+export const postPayloadToServer = async (api: string, navigate: any, payload: BulkPayload) => {
+
   try {
-    const response = await fetch(api, {
+    const res = await fetch(api, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-User-Id': import.meta.env.VITE_DEV_USERID // Use a default user ID for testing if not set
       },
+      credentials: 'include', // Include cookies for session management
       body: JSON.stringify(payload)
     });
-    if (!response.ok) {
-      throw new Error(`Failed to send bulk update: ${response.statusText}`);
+    if (!res.ok) {
+      if (res.status === 401) {
+        navigate('/login');
+        throw new Error('Unauthorized access, redirecting to login');
+      } else {
+        throw new Error(`Failed to send bulk update: ${res.statusText}`);
+      }
     }
   } catch (error) {
     console.error('Error sending bulk update:', error);

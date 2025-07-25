@@ -4,15 +4,17 @@ const Task = require('../database/models/tasks'); // Assuming Task model is defi
 const Project = require('../database/models/projects'); // Assuming Project model is defined in models/Project.js
 const Status = require('../database/models/statuses'); // Assuming Status model is defined in models/Status.js
 const UserProfile = require('../database/models/userProfiles'); // Assuming UserProfile model is defined in models/UserProfile.js
+const authMW = require('../middlewares/authMiddleware'); // Import the authentication middleware
 
 /**
  * GET /api/tasks
  * get all tasks
  */
-router.get('/', (req, res) => {
+router.get('/', authMW, (req, res) => {
   try {
     const { id, status, projectId } = req.query;
-    const userId = req.headers['user-id']; // Assuming user ID is passed in headers
+    const userId = req.user.userId; // Get user ID from the authenticated user
+    console.log('User ID from request:', userId);
 
     // if (id) {
     //   Task.findOne({ id: id })
@@ -78,19 +80,19 @@ router.get('/', (req, res) => {
  * GET /api/tasks/:id
  * get a task by ID
  */
-router.get('/:id', (req, res) => {
-  const { id } = req.params;
-  Task.findOne({ id: id })
-    .then((task) => {
-      if (!task) {
-        return res.status(404).json({ error: 'Task not found' }); // 404 = not found
-      }
-      res.json(task);
-    })
-    .catch((error) => {
-      console.error('Error fetching task by ID:', error);
-      res.status(500).json({ error: 'Internal Server Error' }); // 500 = internal server error
-    });
-});
+// router.get('/:id', authMW, (req, res) => {
+//   const { id } = req.params;
+//   Task.findOne({ id: id, userId: req.user.id })
+//     .then((task) => {
+//       if (!task) {
+//         return res.status(404).json({ error: 'Task not found' }); // 404 = not found
+//       }
+//       res.json(task);
+//     })
+//     .catch((error) => {
+//       console.error('Error fetching task by ID:', error);
+//       res.status(500).json({ error: 'Internal Server Error' }); // 500 = internal server error
+//     });
+// });
 
 module.exports = router;

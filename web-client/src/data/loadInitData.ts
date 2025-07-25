@@ -1,14 +1,15 @@
 import data from './testListChain.json';
 import type { ProjectData, StatusData, TaskData, UserId, UserProfileData, TaskType, ProjectType, StatusType } from '../utils/type.ts';
+import { useNavigate } from 'react-router-dom'; 
 
-const devUserId = import.meta.env.VITE_DEV_USERID; // TODO: after development, remove this line and use the user ID from the server
-if (!devUserId) {
-  console.error('VITE_DEV_USERID 没有被设置，在 .env 文件中设置一个默认的用户 ID： VITE_DEV_USERID=your_default_user_id');
-}
+// const devUserId = import.meta.env.VITE_DEV_USERID; // TODO: after development, remove this line and use the user ID from the server
+// if (!devUserId) {
+//   console.error('VITE_DEV_USERID 没有被设置，在 .env 文件中设置一个默认的用户 ID： VITE_DEV_USERID=your_default_user_id');
+// }
 
-export async function loadAllData(): Promise<{ taskData: TaskData, projectData: ProjectData, statusData: StatusData, userProfileData: UserProfileData }> {
-  
-  console.log("loadAllData called with devUserId:", devUserId);
+export async function loadAllData(navigate: any): Promise<{ taskData: TaskData, projectData: ProjectData, statusData: StatusData, userProfileData: UserProfileData }> {
+
+  // console.log("loadAllData called with devUserId:", devUserId);
   
   try {
     let taskData: TaskData = {};
@@ -26,14 +27,17 @@ export async function loadAllData(): Promise<{ taskData: TaskData, projectData: 
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'User-Id': devUserId, // Use a default user ID for testing if not set
       },
+      credentials: 'include', // Include cookies for session management
     });
 
-    console.log('fetching data from /api/getAll with userId:', devUserId);
-
     if (!res.ok) {
-      throw new Error(`Failed to add task: ${res.statusText}`);
+      if (res.status === 401) {
+        navigate('/login');
+        throw new Error('Unauthorized access, redirecting to login');
+      } else {
+        throw new Error(`Failed to add task`);
+      }
     }
     let { tasks, projects, statuses, userProfile } = await res.json();
 
@@ -91,13 +95,4 @@ export async function loadAllData(): Promise<{ taskData: TaskData, projectData: 
     console.error('Error loading test tasks:', error);
     return { taskData: {}, projectData: {}, statusData: {}, userProfileData: { id: null, nickname: null, lastProjectId: null, avatarUrl: null, language: null } };
   }
-}
-
-export function loadTestStatuses(): StatusData {
-  return data.status;
-}
-
-export function loadTestUserProfile(): UserProfileData {
-  const userId = import.meta.env.VITE_DEV_USERID as string;
-  return (data.userProfile as Record<UserId, UserProfileData>)[userId];
 }

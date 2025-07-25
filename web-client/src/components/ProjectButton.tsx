@@ -8,6 +8,7 @@ import { Draggable } from '@hello-pangea/dnd'
 import { useAppContext } from './AppContext'
 import { createBackup, createBulkPayload, optimisticUIUpdate, postPayloadToServer, restoreBackup } from '../utils/utils'
 import { motion } from 'motion/react'
+import { useNavigate } from 'react-router-dom'
 
 /**
  * This function is used to get the style of the project button when it is being dragged
@@ -46,12 +47,24 @@ function ProjectButton({
     currentProjectID: ProjectId | null,
   }) {
 
+  const navigate = useNavigate();
+
   // Use the AppContext to access the global state and actions
   const { states, setStates, actions } = useAppContext();
 
   /** Handle click event on the project button. */
   const handleClick = () => {
-    setStates.setCurrentProjectID(project[0]);
+    const payload = createBulkPayload();
+    const backup = createBackup(states, payload);
+
+    try {
+      actions.focusProject(project[0], payload); // Focus on the clicked project
+      optimisticUIUpdate(setStates, payload); // Optimistically update the UI
+      postPayloadToServer('/api/bulk', navigate, payload); // Send the focus request
+    } catch (error) {
+      console.error('Error focusing project:', error);
+      restoreBackup(setStates, backup); // Restore the previous state in case of an error
+    }
   }
   // TODO: make project buttons scrollable.
 
@@ -78,14 +91,7 @@ function ProjectButton({
       // handle changing of the current project ID
       // if project deleted and there are still projects left,
       // set the current project ID to the previous project.
-      if (states.currentProjectID === project[0]) {
-        if (projects.length > 0) {
-          setStates.setCurrentProjectID(project[1].prev || project[1].next);
-          console.log(states.currentProjectID);
-        } else { // if no projects left, set the current project ID to an empty string
-          setStates.setCurrentProjectID(null);
-        }
-      }
+
 
       // Create a bulk payload and backup for the delete operation
       const bulkPayload = createBulkPayload();
@@ -96,8 +102,17 @@ function ProjectButton({
         Object.entries(states.tasks).filter(task => task[1].projectId === project[0]).forEach(task => {
           actions.hardDeleteTask(task[0], backup); // Delete all tasks in the project
         });
+        if (states.userProfile.lastProjectId === project[0]) {
+          if (projects.length > 0) {
+            actions.focusProject(project[1].prev || project[1].next, backup);
+            console.log(states.userProfile.lastProjectId);
+          } else { // if no projects left, set the current project ID to an empty string
+            actions.focusProject(null, backup); // Focus on no project
+          }
+        }
         optimisticUIUpdate(setStates, backup); // Optimistically update the UI with the deleted project
-        postPayloadToServer('/api/bulk', backup); // Send the delete request to the server
+        postPayloadToServer('/api/bulk', navigate, backup); // Send the delete request to the server
+        console.log('tasks after deletion', JSON.stringify(states.projects));
       } catch (error) {
         console.error('Error deleting project:', error);
         restoreBackup(setStates, backup); // Restore the previous state in case of an error

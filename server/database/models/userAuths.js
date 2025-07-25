@@ -2,7 +2,8 @@ const mongoose = require('mongoose');
 
 const userAuthSchema = new mongoose.Schema({
   id: { type: String, required: true, unique: true },
-  email: { type: String, required: true, match: /.+@.+/ },
+  email: { type: String, required: true, match: /.+@.+/, unique: true },
+  phoneNumber: { type: String, required: true, unique: true },
   pwHash: { type: String, required: true },
   pwVersion: { type: String, required: true },
   salt: { type: String, required: true },

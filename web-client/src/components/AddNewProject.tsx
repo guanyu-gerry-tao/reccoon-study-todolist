@@ -5,6 +5,7 @@ import type { Actions, ProjectType, States } from '../utils/type.ts'
 import { createBackup, createBulkPayload, optimisticUIUpdate, postPayloadToServer, restoreBackup } from '../utils/utils'
 import { useAppContext } from './AppContext.tsx';
 import { animate } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 /**
  * AddNewProject component allows users to add a new project by typing in an input field.
@@ -12,6 +13,8 @@ import { animate } from 'framer-motion';
  * @projects - The list of existing projects, used to determine the order of the new project.
  */
 function AddNewProject({ projects }: { projects: [string, ProjectType][] }) {
+
+  const navigate = useNavigate();
 
   // Use the AppContext to access the global state and actions
   const { states, setStates, actions } = useAppContext();
@@ -38,8 +41,9 @@ function AddNewProject({ projects }: { projects: [string, ProjectType][] }) {
         
         try {
           const id = actions.addProject(newProject, backup, true); // Call the addProject function from actions with the new project
+          actions.focusProject(id, backup); // Focus on the newly added project
           optimisticUIUpdate(setStates, backup);
-          await postPayloadToServer('/api/bulk', backup);
+          await postPayloadToServer('/api/bulk', navigate, backup);
         } catch (error) {
           console.error('Error adding project:', error);
           restoreBackup(setStates, backup);
