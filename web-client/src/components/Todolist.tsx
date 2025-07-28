@@ -99,8 +99,6 @@ function Todolist() {
           {/* The top menu bar */}
           {/* Contains logos, project, user information */}
           <Menubar />
-
-          {/* The task columns */}
           <div className='todolistColumns'>
 
             <TodoColumn key="deleted" title="Deleted"
@@ -124,9 +122,7 @@ function Todolist() {
           {/* The right panel for AI chat */}
           {/* This panel is used to interact with the AI chat feature, which can help users with task management and organization. */}
           {/* //TODO: implement the AI chat feature in future */}
-          {/* <div className='todolistRightPanel'>
-          <AIChatPanel />
-        </div> */}
+          <AIChatPanel onClose={() => { /* TODO: handle close action */ }} />
 
         </div>
       </DragDropContext>

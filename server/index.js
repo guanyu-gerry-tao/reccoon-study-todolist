@@ -10,8 +10,7 @@ const routes = require('./routes/operations');
 const getAll = require('./routes/getAll');
 const authRoute = require('./routes/authRoute');
 const me = require('./routes/me');
-
-dotenv.config();
+const aiChatRouter = require('./routes/ai-chat');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -31,7 +30,7 @@ app.use('/api/bulk', routes);
 app.use('/api/getAll', getAll);
 app.use('/api/login', authRoute);
 app.use('/api/me', me);
-
+app.use('/api/ai-chat', aiChatRouter);
 
 // start the server
 app.listen(PORT, () => {
