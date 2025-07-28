@@ -91,29 +91,6 @@ function Todolist() {
 
   const statusesSorted = sortChain(states.statuses);
 
-  // Function to handle the click event for the delete tasks button.
-  const handleDeleteTasksClick = () => {
-    if (states.showDeleted) {
-      //  从true到false先隐藏再去掉hide
-      setDeletedColumnHide(true);
-      setTimeout(() => actions.setShowDeleted(false), 400);
-    } else {
-      // 从false到true先显示再去掉hide
-      actions.setShowDeleted(true);
-      setTimeout(() => setDeletedColumnHide(false), 10);
-    }
-  };
-
-  const handleCompletedTasksClick = () => {
-    if (states.showCompleted) {
-      setCompletedColumnHide(true);
-      setTimeout(() => actions.setShowCompleted(false), 400);
-    } else {
-      actions.setShowCompleted(true);
-      setTimeout(() => setCompletedColumnHide(false), 10);
-    }
-  };
-
   return (
     <AppContext.Provider value={appContextValue}>
       <DragDropContext
@@ -122,8 +99,6 @@ function Todolist() {
           {/* The top menu bar */}
           {/* Contains logos, project, user information */}
           <Menubar />
-
-          {/* The task columns */}
           <div className='todolistColumns'>
 
             <TodoColumn key="deleted" title="Deleted"
@@ -147,9 +122,7 @@ function Todolist() {
           {/* The right panel for AI chat */}
           {/* This panel is used to interact with the AI chat feature, which can help users with task management and organization. */}
           {/* //TODO: implement the AI chat feature in future */}
-          {/* <div className='todolistRightPanel'>
-          <AIChatPanel />
-        </div> */}
+          <AIChatPanel onClose={() => { /* TODO: handle close action */ }} />
 
         </div>
       </DragDropContext>

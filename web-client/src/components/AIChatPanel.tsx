@@ -82,11 +82,11 @@ const AIChatPanel = ({ onClose, onAcceptTask }: { onClose: () => void; onAcceptT
       right: "2rem",
       bottom: "5rem",
       zIndex: 2000,
-      width: "350px",
-      height: "480px",
+      width: "500px",      // 放大宽度
+      height: "700px",     // 放大高度
       boxShadow: "0 2px 16px rgba(0,0,0,0.18)"
     }}>
-      <MainContainer>
+      <MainContainer style={{ width: "100%", height: "100%" }}>
         <ChatContainer>
           <div style={{ display: "flex", justifyContent: "flex-end", padding: 8 }}>
             <button onClick={onClose}>关闭</button>
@@ -104,7 +104,7 @@ const AIChatPanel = ({ onClose, onAcceptTask }: { onClose: () => void; onAcceptT
                   direction: msg.sender === "user" ? "outgoing" : "incoming"
                 }}
               >
-                <Avatar name={msg.sender === "user" ? "你" : "AI"} />
+                {/* <Avatar name={msg.sender === "user" ? "你" : "AI"} /> */}
               </Message>
             ))}
             {/* 新增：任务卡片和一键添加按钮 */}
