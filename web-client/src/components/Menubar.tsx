@@ -2,10 +2,10 @@ import { act, useState } from 'react'
 import '../App.css'
 import './Menubar.css'
 
-import ProjectButton from './ProjectButton.tsx'
+import ProjectButton from './ProjectItem.tsx'
 import { useImmer } from 'use-immer'
 import TaskDropArea from './TaskDropArea.tsx'
-import ProjectPanel from './ProjectPanel.tsx'
+import ProjectPanel from './ProjectContainer.tsx'
 import type { Actions, States } from '../utils/type.ts'
 import { useAppContext } from './AppContext.tsx'
 

@@ -1,19 +1,20 @@
 import '../App.css'
-import './ProjectPanel.css';
+import './ProjectContainer.css';
 
 import { useImmer } from 'use-immer';
 import { Droppable } from '@hello-pangea/dnd';
-import ProjectButton from './ProjectButton.tsx';
-import type { Actions, ProjectType, States } from '../utils/type.ts';
+import ProjectButton from './ProjectItem.tsx';
+import type { Actions, Project, States } from '../utils/type.ts';
 import AddNewProject from './AddNewProject.tsx';
 import { sortChain } from '../utils/utils.ts';
 import { useAppContext } from './AppContext.tsx';
+import ProjectItem from './ProjectItem.tsx';
 
 /**
- * ProjectPanel component displays a list of project buttons in a draggable panel.
+ * ProjectContainer component displays a list of project buttons in a draggable panel.
  * A Project contains many tasks in same theme, for example, to study driving, to study math, etc.
  */
-function ProjectPanel() {
+function ProjectContainer() {
 
   // Use the AppContext to access the global state and actions
   const { states, actions } = useAppContext();
@@ -31,7 +32,7 @@ function ProjectPanel() {
    * @returns An array of ProjectItem sorted.
    */
 
-  const projectsSorted = sortChain(states.projects) as [string, ProjectType][];
+  const projectsSorted = sortChain(states.projects) as [string, Project][];
 
   // Note: ref: it is specially required by the Droppable component.
   // {...provided.droppableProps}: these are the props required by the Droppable component to make the project panel droppable.
@@ -40,24 +41,15 @@ function ProjectPanel() {
   // the type='project' indicates that this droppable area is for projects, which is used to differentiate between different types of draggable items in the application.
   // projectsSorted.map: this maps over the sorted projects and renders a ProjectButton for each
   return (
-    <>
-      <Droppable droppableId='projectPanel' type='project' >
-        {(provided, snapshot) => (
-          <div className='projectPanelDroppable'
-            ref={provided.innerRef}
-            {...provided.droppableProps}>
-            {projectsSorted.map((project) => (
-              <ProjectButton key={project[0]} projects={projectsSorted} project={project} currentProjectID={states.userProfile.lastProjectId} />
-            ))}
-            {provided.placeholder}
+    <div className='projectPanelDroppable'>
+      {projectsSorted.map((project) => (
+        <ProjectItem key={project[0]} projectId={project[0]} />
+      ))}
 
-            {/* AddNewProject is added at the end of the project list */}
-            <AddNewProject projects={projectsSorted} />
-          </div>
-        )}
-      </Droppable>
-    </>
+      {/* AddNewProject is added at the end of the project list */}
+      <AddNewProject />
+    </div>
   )
 }
 
-export default ProjectPanel
+export default ProjectContainer

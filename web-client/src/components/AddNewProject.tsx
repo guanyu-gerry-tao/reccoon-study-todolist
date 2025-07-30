@@ -1,8 +1,8 @@
 import '../App.css'
 import './AddNewProject.css'
 
-import type { Actions, ProjectType, States } from '../utils/type.ts'
-import { createBackup, createBulkPayload, optimisticUIUpdate, postPayloadToServer, restoreBackup } from '../utils/utils'
+import type { Actions, Project, States } from '../utils/type.ts'
+import { createBulkPayload, optimisticUIUpdate, postPayloadToServer, restoreBackup, sortChain } from '../utils/utils'
 import { useAppContext } from './AppContext.tsx';
 import { animate } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -12,12 +12,16 @@ import { useNavigate } from 'react-router-dom';
  * @actions - The actions object containing methods to manipulate projects.
  * @projects - The list of existing projects, used to determine the order of the new project.
  */
-function AddNewProject({ projects }: { projects: [string, ProjectType][] }) {
+function AddNewProject() {
+
+
 
   const navigate = useNavigate();
 
   // Use the AppContext to access the global state and actions
   const { states, setStates, actions } = useAppContext();
+
+  const projects = sortChain(states.projects) as [string, Project][]
 
   const handleKeyboard = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     const event = e
@@ -36,17 +40,16 @@ function AddNewProject({ projects }: { projects: [string, ProjectType][] }) {
         event.currentTarget.value = ''; // Clear the input field after adding the task
         
         //
-        const bulkPayload = createBulkPayload(); // Create a bulk payload for the new project
-        const backup = createBackup(states, bulkPayload); // Create a backup of the current state
-        
+        const bulkPayload = createBulkPayload(states); // Create a bulk payload for the new project
+
         try {
-          const id = actions.addProject(newProject, backup, true); // Call the addProject function from actions with the new project
-          actions.focusProject(id, backup); // Focus on the newly added project
-          optimisticUIUpdate(setStates, backup);
-          await postPayloadToServer('/api/bulk', navigate, backup);
+          const id = actions.addItem('project', newProject, states.projects, bulkPayload); // Call the addProject function from actions with the new project
+          actions.focusItem('project', id, bulkPayload); // Focus on the newly added project
+          optimisticUIUpdate(setStates, bulkPayload);
+          await postPayloadToServer('/api/bulk', navigate, bulkPayload);
         } catch (error) {
           console.error('Error adding project:', error);
-          restoreBackup(setStates, backup);
+          restoreBackup(setStates, bulkPayload);
         }     
 
       }

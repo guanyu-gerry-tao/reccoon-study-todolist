@@ -1,5 +1,5 @@
 import { th } from 'motion/react-client';
-import type { TaskType, ProjectType, StatusType, BulkPayload, SetStates, TaskData, ProjectData, StatusData, States, UserProfileData } from './type.ts';
+import type { Task, Project, Status, BulkPayload, SetStates, TaskMap, ProjectMap, StatusMap, States, UserProfileData } from './type.ts';
 import type { Updater } from 'use-immer';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -28,6 +28,8 @@ export const sortChain = <T extends { id: string; prev: string | null; next: str
     }
     if (index !== Object.keys(chain).length) {
       console.warn(`sortChain: The chain is not complete. Expected ${Object.keys(chain).length} items, but found ${index} items.`);
+      console.warn(`sortChain: Expected items` + Object.keys(chain).join(', '));
+      console.warn(`sortChain: Found items` + sortedChain.map(item => item[0]).join(', '));
     }
   }
   return sortedChain;
@@ -39,32 +41,14 @@ export const sortChain = <T extends { id: string; prev: string | null; next: str
  * 
  * 工厂函数，用于创建一个批量操作的payload对象。
  */
-export const createBulkPayload = (): BulkPayload => {
+export const createBulkPayload = (states: States): BulkPayload => {
   return {
     ops: [],
-    backup: {
-      tasks: {},
-      projects: {},
-      statuses: {},
-      userProfile: {
-        id: null,
-        nickname: null,
-        lastProjectId: null,
-        avatarUrl: null,
-        language: null
-      }
-    }
-  };
-}
-
-export const createBackup = (states: States, existingPayload: BulkPayload): BulkPayload => {
-  return {
-    ...existingPayload,
     backup: {
       statuses: states.statuses,
       tasks: states.tasks,
       projects: states.projects,
-      userProfile: states.userProfile // Include user profile in the backup
+      userProfile: states.userProfile
     }
   };
 }
@@ -166,57 +150,34 @@ export const restoreBackup = (setStates: SetStates, backupPayload: BulkPayload) 
  */
 export const optimisticUIUpdate = async (setState: SetStates, payload: BulkPayload) => {
   payload.ops.forEach((op) => {
-    if (op.type === 'task') {
-      setState.setTasks((draft) => {
-        const taskId = (op.data as TaskType).id;
-        if (op.operation === 'add') {
-          draft[taskId] = {
-            ...op.data as TaskType
-          };
-          console.log(`optimisticUIUpdate: task added: ${taskId}`);
-        } else if (op.operation === 'update') {
-          const { id, updatedFields } = op.data as { id: string; updatedFields: Partial<TaskType> };
-          if (draft[id]) {
-            Object.assign(draft[id], updatedFields);
-            console.log(`optimisticUIUpdate: task updated: ${id}`);
-          }
-        } else if (op.operation === 'delete') {
-          console.log(`optimisticUIUpdate: task deleted: ${taskId}`);
-          delete draft[taskId];
-          console.log('tasks after deletion in set', JSON.stringify(draft));
-        }
-      });
-    } else if (op.type === 'project') {
-      setState.setProjects((draft) => {
-        const projectId = (op.data as ProjectType).id;
-        if (op.operation === 'add') {
-          draft[projectId] = {
-            ...op.data as ProjectType
-          };
-          console.log(`optimisticUIUpdate: project added: ${projectId}`);
-        } else if (op.operation === 'update') {
-          const { id, updatedFields } = op.data as { id: string; updatedFields: Partial<ProjectType> };
-          if (draft[id]) {
-            Object.assign(draft[id], updatedFields);
-            console.log(`optimisticUIUpdate: project updated: ${id}`);
-          }
-        } else if (op.operation === 'delete') {
-          delete draft[projectId];
-          console.log(`optimisticUIUpdate: project deleted: ${projectId}`);
-        }
-      });
-    } else if (op.type === 'status') {
-      // TODO: handle status operations
-    } else if (op.type === 'userProfile') {
+    const setMethod = setState[`set${op.type[0].toUpperCase()}${op.type.slice(1)}s` as keyof SetStates] as Updater<any>;
+
+    if (op.type === 'userProfile') {
       setState.setUserProfile((draft) => {
         if (op.operation === 'update') {
           const { id, updatedFields } = op.data as { id: string; updatedFields: Partial<Omit<UserProfileData, 'id'>> };
           Object.assign(draft, updatedFields);
-          console.log(`optimisticUIUpdate: user profile updated: ${id}`);
         } else {
           throw new Error(`optimisticUIUpdate: only 'update' operation is supported for userProfile, but got ${op.operation}`);
         }
       })
+    } else {
+      setMethod((draft: Record<string, any>) => {
+        const id = op.data.id as string;
+        if (op.operation === 'add') {
+          draft[id] = {
+            ...op.data
+          };
+          console.log(`optimisticUIUpdate: ${op.type} added: ${id}`);
+        } else if (op.operation === 'update') {
+          const { id, updatedFields } = op.data as { id: string; updatedFields: Partial<Task> };
+          if (draft[id]) {
+            Object.assign(draft[id], updatedFields);
+          }
+        } else if (op.operation === 'delete') {
+          delete draft[id];
+        }
+      });
     }
   });
 }

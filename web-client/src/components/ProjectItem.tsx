@@ -1,14 +1,15 @@
 import { useRef, useState, useEffect, act } from 'react'
 
 import '../App.css'
-import './ProjectButton.css'
+import './ProjectItem.css'
 
-import type { ProjectType, Actions, States, ProjectId } from '../utils/type'
+import type { Project, Actions, States, ProjectId } from '../utils/type'
 import { Draggable } from '@hello-pangea/dnd'
 import { useAppContext } from './AppContext'
-import { createBackup, createBulkPayload, optimisticUIUpdate, postPayloadToServer, restoreBackup } from '../utils/utils'
+import { createBulkPayload, optimisticUIUpdate, postPayloadToServer, restoreBackup, sortChain } from '../utils/utils'
 import { motion } from 'motion/react'
 import { useNavigate } from 'react-router-dom'
+import { s } from 'framer-motion/client'
 
 /**
  * This function is used to get the style of the project button when it is being dragged
@@ -16,19 +17,19 @@ import { useNavigate } from 'react-router-dom'
  * @param snapshot - The snapshot of the drag state, provides information about the drag state, provided by the Draggable component
  * @returns The updated style for the project button, used in the Draggable component.
  */
-function getStyle(style: any, snapshot: any) {
-  if (snapshot.isDragging) {
-    return {
-      ...style,
-      boxShadow: `rgba(114, 114, 114, 0.5) 0px 5px 10px 5px`,
-      opacity: 0.5,
-    }
-  }
-  return style
-}
+// function getStyle(style: any, snapshot: any) {
+//   if (snapshot.isDragging) {
+//     return {
+//       ...style,
+//       boxShadow: `rgba(114, 114, 114, 0.5) 0px 5px 10px 5px`,
+//       opacity: 0.5,
+//     }
+//   }
+//   return style
+// }
 
 /**
- * ProjectButton component represents a single project button in the project panel.
+ * ProjectItem component represents a single project button in the project panel.
  * It is draggable and can be clicked to select the project.
  * @param project - The project item to be displayed in this button. Contains properties like id, title, and order.
  * @param projects - The list of all projects, used for deleting and reordering.
@@ -37,33 +38,26 @@ function getStyle(style: any, snapshot: any) {
  * @param actions - The actions object containing methods to manipulate projects. Defined in App.tsx.
  * @param editMode - Boolean indicating if the editMode is active. Edit mode allows the user to edit project titles.
  */
-function ProjectButton({
-  project,
-  projects,
-  currentProjectID, }:
-  {
-    project: [ProjectId, ProjectType],
-    projects: [ProjectId, ProjectType][],
-    currentProjectID: ProjectId | null,
-  }) {
+function ProjectItem({ projectId }: { projectId: ProjectId }) {
 
   const navigate = useNavigate();
 
   // Use the AppContext to access the global state and actions
   const { states, setStates, actions } = useAppContext();
 
-  /** Handle click event on the project button. */
-  const handleClick = () => {
-    const payload = createBulkPayload();
-    const backup = createBackup(states, payload);
+  const project = states.projects[projectId]; // Get the project by ID
+  const projects = sortChain(states.projects) as [string, Project][]; // Get the sorted projects
 
+  /** Handle click event on the project item. */
+  const handleClick = () => {
+    const payload = createBulkPayload(states); // Create a bulk payload for the project click
     try {
-      actions.focusProject(project[0], payload); // Focus on the clicked project
+      actions.focusItem('project', projectId, payload); // Focus on the clicked project
       optimisticUIUpdate(setStates, payload); // Optimistically update the UI
       postPayloadToServer('/api/bulk', navigate, payload); // Send the focus request
     } catch (error) {
       console.error('Error focusing project:', error);
-      restoreBackup(setStates, backup); // Restore the previous state in case of an error
+      restoreBackup(setStates, payload); // Restore the previous state in case of an error
     }
   }
   // TODO: make project buttons scrollable.
@@ -86,7 +80,7 @@ function ProjectButton({
   const handleDeleteButton = (e: React.MouseEvent<HTMLDivElement>) => {
     const event = e; // Store the current target for later use
     event.stopPropagation(); // Prevent the click event from propagating to the parent div
-    if (window.confirm(`Are you sure you want to delete the project: ${project[1].title}? You cannot undo this action and all tasks will gone!`)) {
+    if (window.confirm(`Are you sure you want to delete the project: ${project.title}? You cannot undo this action and all tasks will gone!`)) {
 
       // handle changing of the current project ID
       // if project deleted and there are still projects left,
@@ -94,33 +88,28 @@ function ProjectButton({
 
 
       // Create a bulk payload and backup for the delete operation
-      const bulkPayload = createBulkPayload();
-      const backup = createBackup(states, bulkPayload);
-
+      const bulkPayload = createBulkPayload(states);
       try {
-        actions.deleteProject(project[0], backup); // Call the delete function from actions with the project ID
-        Object.entries(states.tasks).filter(task => task[1].projectId === project[0]).forEach(task => {
-          actions.hardDeleteTask(task[0], backup); // Delete all tasks in the project
-        });
-        if (states.userProfile.lastProjectId === project[0]) {
+        actions.deleteItem('project', projectId, states.projects, bulkPayload); // Call the delete function from actions with the project ID
+        if (states.userProfile.focusProject === projectId) {
           if (projects.length > 0) {
-            actions.focusProject(project[1].prev || project[1].next, backup);
-            console.log(states.userProfile.lastProjectId);
+            actions.focusItem('project', project.prev || project.next, bulkPayload);
+            console.log(states.userProfile.focusProject);
           } else { // if no projects left, set the current project ID to an empty string
-            actions.focusProject(null, backup); // Focus on no project
+            actions.focusItem('project', null, bulkPayload); // Focus on no project
           }
         }
-        optimisticUIUpdate(setStates, backup); // Optimistically update the UI with the deleted project
-        postPayloadToServer('/api/bulk', navigate, backup); // Send the delete request to the server
+        optimisticUIUpdate(setStates, bulkPayload); // Optimistically update the UI with the deleted project
+        postPayloadToServer('/api/bulk', navigate, bulkPayload); // Send the delete request to the server
         console.log('tasks after deletion', JSON.stringify(states.projects));
       } catch (error) {
         console.error('Error deleting project:', error);
-        restoreBackup(setStates, backup); // Restore the previous state in case of an error
+        restoreBackup(setStates, bulkPayload); // Restore the previous state in case of an error
       }
 
       // actions.deleteProject(project[0]); // Call the delete function from actions with the project ID
 
-      console.log(`Delete button clicked for project: ${project[1].title}`);
+      console.log(`Delete button clicked for project: ${project.title}`);
 
     }
   }
@@ -133,45 +122,38 @@ function ProjectButton({
   // ...provided.dragHandleProps: these are the props required by the Draggable component to make the <div> draggable.
   // style: this is used to apply the draggable styles to the task element. See getStyle function above.
   return (
-    <>
-      <Draggable draggableId={project[0]} index={projects.indexOf(project)}>
-        {
-          (provided, snapshot) => (
+    <motion.div
+      className={`projectButton`}
+      id={projectId}
+      style={{ border: states.userProfile.focusProject === projectId ? '1px solid #808080' : '1px solid transparent' }}
+      onClick={handleClick}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      layoutId={projectId} // Magic property: layout animation ✅
+      layout // Magic property: automatically detect layout changes
+      initial={{ opacity: 0, scale: 0.95 }} // Initial animation state
+      animate={{ opacity: 1, scale: 1 }} // Animation state when the component is mounted
+      transition={{ type: 'spring', stiffness: 300, damping: 30, layout: { duration: 0.3 } }} // Animation transition properties
+    >
+      <div className="projectButtonContent">
+        <input
+          type='text'
+          className='projectButtonInput'
+          defaultValue={project.title}
+          onChange={handleChange} />
 
-            <motion.div>
-              <div
-                className={`projectButton`}
-                id={project[0]}
-                ref={provided.innerRef}
-                {...provided.draggableProps}
-                {...provided.dragHandleProps}
-                style={{ ...getStyle(provided.draggableProps.style, snapshot), border: currentProjectID === project[0] ? '1px solid #808080' : '1px solid transparent' }}
-                onClick={handleClick}
-              >
-                <div className="projectButtonContent"
-                >
-                  <input
-                    type='text'
-                    className='projectButtonInput'
-                    defaultValue={project[1].title}
-                    onChange={handleChange} />
-
-                </div>
-                <div className="deleteProjectButton"
-                  style={{
-                    opacity: states.editMode ? 1 : 0,
-                    visibility: states.editMode ? 'visible' : 'hidden',
-                    pointerEvents: states.editMode ? 'auto' : 'none',
-                  }}
-                  onClick={handleDeleteButton}
-                ></div>
-                <div className='projectDragHandlerIcon' ></div>
-              </div>
-            </motion.div>)}
-
-      </Draggable >
-    </>
+      </div>
+      <div className="deleteProjectButton"
+        style={{
+          opacity: states.editMode ? 1 : 0,
+          visibility: states.editMode ? 'visible' : 'hidden',
+          pointerEvents: states.editMode ? 'auto' : 'none',
+        }}
+        onClick={handleDeleteButton}
+      ></div>
+      <div className='projectDragHandlerIcon' ></div>
+    </motion.div>
   )
 }
 
-export default ProjectButton
+export default ProjectItem

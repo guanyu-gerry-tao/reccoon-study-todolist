@@ -1,10 +1,10 @@
 import '../App.css'
 import './AddNewTask.css'
 
-import type { Actions, ProjectId, States, TaskId, TaskType } from '../utils/type.ts';
-import { createBackup, createBulkPayload, optimisticUIUpdate, postPayloadToServer, restoreBackup } from '../utils/utils'
+import type { Actions, ProjectId, States, TaskId, Task } from '../utils/type.ts';
+import { createBulkPayload, optimisticUIUpdate, postPayloadToServer, restoreBackup } from '../utils/utils'
 
-import Project from './ProjectButton.tsx'
+import Project from './ProjectItem.tsx'
 import { useAppContext } from './AppContext.tsx';
 import { animate, motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -16,7 +16,7 @@ import { useNavigate } from 'react-router-dom';
  * @newOrder - The order number for the new task, used to determine its position in the list.
  * @currentProjectID - The ID of the current project to which the new task will be added.
  */
-function AddNewTask({ status, tasksSorted, }: { status: string, tasksSorted: [TaskId, TaskType][], }) {
+function AddNewTask({ status }: { status: string }) {
 
   const navigate = useNavigate();
 
@@ -38,24 +38,23 @@ function AddNewTask({ status, tasksSorted, }: { status: string, tasksSorted: [Ta
           title: newTaskTitle,
           status: status,
           previousStatus: status, // for new task, the previous status is the same as the current status
-          projectId: states.userProfile.lastProjectId as ProjectId, // Assuming a default project, you can modify this as needed
-          prev: null, // 
-          next: null, // if prev and next are null, by default, the task will be added to the end of the list
+          projectId: states.userProfile.focusProject as ProjectId, // Assuming a default project, you can modify this as needed
+          prev: null, // If prev is null, the task will be added to the beginning of the list
+          next: null, // If prev and next are null, by default, the task will be added to the end of the list
           userId: states.userProfile.id as string,
         };
 
         // create a bulk payload and backup for the new task
-        const bulkPayload = createBulkPayload(); // Create a bulk payload for the new task
-        const backup = createBackup(states, bulkPayload); // Create a backup of the current state
+        const bulkPayload = createBulkPayload(states); // Create a bulk payload for the new task
 
         try {
-          const id = await actions.addTask(newTask, backup, true); // Call the addTask function from actions with the new task
-          optimisticUIUpdate(setStates, backup); // Optimistically update the UI with the new task
-          await postPayloadToServer('/api/bulk', navigate, backup); // Send the new task to the server
+          const id = await actions.addItem('task', newTask, states.tasks, bulkPayload); // Call the addTask function from actions with the new task
+          optimisticUIUpdate(setStates, bulkPayload); // Optimistically update the UI with the new task
+          await postPayloadToServer('/api/bulk', navigate, bulkPayload); // Send the new task to the server
         }
         catch (error) {
           console.error('Error adding new task:', error);
-          restoreBackup(setStates, backup); // Restore the previous state in case of an error
+          restoreBackup(setStates, bulkPayload); // Restore the previous state in case of an error
         }
       }
     }

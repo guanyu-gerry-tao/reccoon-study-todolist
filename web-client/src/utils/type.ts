@@ -13,45 +13,25 @@ import type { Updater } from "use-immer";
 /**
  * Task represents a single task in the todo list.
  */
-export type TaskType = {
+export type Task = {
   id: TaskId; // Unique identifier for the task
   title: string;
   dueDate?: Date | null;
   description?: string;
   status: string;
   previousStatus: string;
-  projectId: ProjectId;
   prev: TaskId | null;
   next: TaskId | null;
   userId: UserId;
 };
 export type TaskId = string;
-export type TaskData = Record<TaskId, TaskType>;
+export type TaskMap = Record<TaskId, Task>;
 
-
-/**
- * TodoColumnProps defines the properties for the TodoColumn component.
- */
-// type TodoColumnProps = {
-//   title: React.ReactNode;
-//   bgColor: string;
-//   status: number;
-//   actions: Actions;
-//   tasks: Record<TaskId, TaskItem>;
-//   draggingType?: string | null;
-//   draggingTaskId?: TaskId | null;
-//   currentProjectID: ProjectId | null;
-// };
-
-
-// type Projects = {
-//   [id: ProjectId]: ProjectItem;
-// };
 
 /**
  * ProjectId represents a unique identifier for a project in the todo list application.
  */
-export type ProjectType = {
+export type Project = {
   id: ProjectId; // Unique identifier for the project
   title: string;
   description?: string;
@@ -60,7 +40,7 @@ export type ProjectType = {
   userId: UserId;
 };
 export type ProjectId = string;
-export type ProjectData = Record<ProjectId, ProjectType>;
+export type ProjectMap = Record<ProjectId, Project>;
 
 /**
  * UserId represents a unique identifier for a user in the todo list application.
@@ -68,7 +48,8 @@ export type ProjectData = Record<ProjectId, ProjectType>;
 export type UserProfileData = {
   id: UserId | null; // Unique identifier for the user
   nickname: string | null; // The nickname of the user, can be null if not set
-  lastProjectId: ProjectId | null; // The last project ID the user interacted with
+  focusProject: ProjectId | null; // The last project ID the user interacted with
+  focusConversation: ConversationId | null; // The last conversation ID the user interacted with
   avatarUrl: string | null; // The avatar URL of the user, can be null if not set;
   language: string | null; // The language preference of the user, can be null if not set
 };
@@ -79,79 +60,114 @@ export type UserId = string;
 /**
  * Status represents a single status in the todo list.
  */
-export type StatusType = {
+export type Status = {
   id: StatusId; // Unique identifier for the status
   title: string;
-  description: string;
+  description?: string;
   color: string;
+  projectId: ProjectId; // The ID of the project this status belongs to
   prev: StatusId | null;
   next: StatusId | null;
   userId: UserId;
 }
 export type StatusId = string;
-export type StatusData = Record<StatusId, StatusType>;
+export type StatusMap = Record<StatusId, Status>;
 
+/**
+ * Conversation represents a single conversation in the todo list application.
+ * It can be used for chat or discussion features related to tasks or projects.
+ */
+export type Conversation = {
+  id: ConversationId; // Unique identifier for the conversation
+  title: string;
+  prev: ConversationId | null;
+  next: ConversationId | null;
+  userId: UserId;
+};
+export type ConversationId = string;
+export type ConversationMap = Record<ConversationId, Conversation>;
+
+
+/**
+ * Message represents a single message in a conversation.
+ */
+export type Message = {
+  id: MessageId; // Unique identifier for the message
+  content: string; // The content of the message
+  conversationId: ConversationId; // The ID of the conversation this message belongs to
+  prev: MessageId | null; // The ID of the previous message in the conversation
+  next: MessageId | null; // The ID of the next message in the conversation
+  sender: 'user' | 'AI'; // The sender of the message, can be 'user' or 'AI'
+  userId: UserId; // The ID of the user who sent the message
+};
+export type MessageId = string;
+export type MessageMap = Record<MessageId, Message>;
 
 
 export type Actions = {
-  addTask: (newTask: Omit<TaskType, 'id'>, bulkPayload: BulkPayload, addWithAnimation?: boolean) => TaskId; // Returns the ID of the newly added task
-  updateTask: (updatePayloads: { id: TaskId; updatedFields: Partial<TaskType> }, bulkPayload: BulkPayload) => void; // Accepts an array of update payloads, each containing the task ID and the fields to be updated
-  hardDeleteTask: (id: TaskId, bulkPayload: BulkPayload) => void;
-  moveTask: (id: TaskId, targetStatusId: StatusId, index: number | "start" | "end", bulkPayload: BulkPayload, moveWithAnimation?: boolean) => void;
-  focusProject: (projectId: ProjectId | null, bulkPayload: BulkPayload) => void; // Focuses on a specific project, updating the user profile with the last interacted project ID
-  addProject: (newProject: Omit<ProjectType, 'id'>, bulkPayload: BulkPayload, addWithAnimation?: boolean) => ProjectId; // Returns the ID of the newly added project
-  updateProject: (id: ProjectId, updatedFields: Partial<ProjectType>, bulkPayload: BulkPayload) => void;
-  moveProject: (id: ProjectId, index: number, bulkPayload: BulkPayload) => void;
-  deleteProject: (projectId: ProjectId, bulkPayload: BulkPayload) => void;
-  onDragEnd: (result: DropResult, provided: ResponderProvided) => void;
-  onDragStart: (start: DragStart, provided: ResponderProvided) => void;
-  onDragUpdate: (update: DragUpdate, provided: ResponderProvided) => void;
+  addItem: <Item extends { id: string; prev: string | null; next: string | null }, ItemMap extends Record<string, Item>>(type: 'task' | 'project' | 'status' | 'conversation' | 'message', newItem: Omit<Item, 'id'>, itemRecord: ItemMap, bulkPayload: BulkPayload) => string; // Returns the ID of the newly added project
+  updateItem: <T extends Task | Project | Status | Conversation | Message>(type: 'task' | 'project' | 'status' | 'conversation' | 'message', id: string, updatedFields: Partial<T>, bulkPayload: BulkPayload) => void;
+  moveTask: (id: TaskId, targetStatusId: StatusId, prev: TaskId | "start" | null, next: TaskId | "end" | null, bulkPayload: BulkPayload) => void;
+  moveItem: <Item extends { id: string; prev: string | null; next: string | null }>(type: 'project' | 'status' | 'conversation', id: string, itemRecord: Record<string, Item>, prev: string | "start" | null, next: string | "end" | null, bulkPayload: BulkPayload) => void;
+  deleteItem: <Item extends Task | Project | Status | Conversation | Message>(type: 'task' | 'project' | 'status' | 'conversation' | 'message', id: string, itemMap: Record<string, Item>, bulkPayload: BulkPayload) => void;
+  focusItem: (type: 'project' | 'conversation', id: string | null, bulkPayload: BulkPayload) => void; // Focuses on a specific project, updating the user profile with the last interacted project ID
+  // onDragEnd: (result: DropResult, provided: ResponderProvided) => void;
+  // onDragStart: (start: DragStart, provided: ResponderProvided) => void;
+  // onDragUpdate: (update: DragUpdate, provided: ResponderProvided) => void;
 };
 
 export type States = {
-  tasks: TaskData;
-  projects: ProjectData;
-  statuses: StatusData;
+  tasks: TaskMap;
+  projects: ProjectMap;
+  statuses: StatusMap;
   userProfile: UserProfileData;
+  conversations: ConversationMap;
+  messages: MessageMap;
   draggedTask: TaskId[];
   editMode: boolean;
   showDeleted: boolean; // State to manage the visibility of deleted tasks
   showCompleted: boolean; // State to manage the visibility of completed tasks, optional for future use
   onDragging: boolean; // State to manage the dragging state of tasks
+  activeId: string | null; // The currently active ID, used for drag and drop operations
 };
 
 export type SetStates = {
-  setTasks: Updater<TaskData>;
-  setProjects: Updater<ProjectData>;
-  setStatuses: Updater<StatusData>;
+  setTasks: Updater<TaskMap>;
+  setProjects: Updater<ProjectMap>;
+  setStatuses: Updater<StatusMap>;
   setUserProfile: Updater<UserProfileData>;
+  setConversations: Updater<ConversationMap>;
+  setMessages: Updater<MessageMap>;
   setDraggedTask: Updater<TaskId[]>;
   setEditMode: Updater<boolean>;
   setShowDeleted: Updater<boolean>; // Action to toggle the visibility of deleted tasks
   setShowCompleted: Updater<boolean>; // Optional action to toggle the visibility of completed tasks, for future use
   setOnDragging: Updater<boolean>; // Action to manage the dragging state of tasks
+  setActiveId: Updater<string | null>; // Action to set the currently active ID for drag and drop operations
 };
 
 export type BulkPayload = {
   ops: {
-    type: 'task' | 'project' | 'status' | 'userProfile',
+    type: 'task' | 'project' | 'status' | 'userProfile' | 'conversation' | 'message'; // Type of the operation
     operation: 'add' | 'update' | 'delete',
     data:
 
-    TaskType | ProjectType | StatusType | UserProfileData | // New items to be added
+    Task | Project | Status | UserProfileData | Conversation | Message | // New items to be added
 
-    { id: TaskId; updatedFields: Partial<Omit<TaskType, 'userId'>> } | // Update payloads for tasks, projects, and statuses
-    { id: ProjectId; updatedFields: Partial<Omit<ProjectType, 'userId'>> } |
-    { id: StatusId; updatedFields: Partial<Omit<StatusType, 'userId'>> } |
+    { id: TaskId; updatedFields: Partial<Omit<Task, 'userId'>> } | // Update payloads for tasks, projects, and statuses
+    { id: ProjectId; updatedFields: Partial<Omit<Project, 'userId'>> } |
+    { id: StatusId; updatedFields: Partial<Omit<Status, 'userId'>> } |
     { id: UserId; updatedFields: Partial<Omit<UserProfileData, 'id'>> } | // Update payload for user profile
+    { id: ConversationId; updatedFields: Partial<Omit<Conversation, 'userId'>> } | // Update payload for conversation
+    { id: MessageId; updatedFields: Partial<Omit<Message, 'userId'>> } | // Update payload for message
 
-    {id: TaskId} | {id: ProjectId} | {id: StatusId}; // Ids for deletion
+    {id: TaskId} | {id: ProjectId} | {id: StatusId} | {id: ConversationId} | {id: MessageId}; // Ids for deletion
 
   }[];
   backup: {
-    statuses: StatusData;
-    tasks: TaskData;
-    projects: ProjectData;
-    userProfile: UserProfileData
+    statuses: StatusMap;
+    tasks: TaskMap;
+    projects: ProjectMap;
+    userProfile: UserProfileData;
   }; // Backup of the current state before changes, and use for undo functionality
 }

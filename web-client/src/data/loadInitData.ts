@@ -1,5 +1,5 @@
 import data from './testListChain.json';
-import type { ProjectData, StatusData, TaskData, UserId, UserProfileData, TaskType, ProjectType, StatusType } from '../utils/type.ts';
+import type { ProjectMap, StatusMap, TaskMap, UserId, UserProfileData, Task, Project, Status } from '../utils/type.ts';
 import { useNavigate } from 'react-router-dom'; 
 
 // const devUserId = import.meta.env.VITE_DEV_USERID; // TODO: after development, remove this line and use the user ID from the server
@@ -7,18 +7,19 @@ import { useNavigate } from 'react-router-dom';
 //   console.error('VITE_DEV_USERID 没有被设置，在 .env 文件中设置一个默认的用户 ID： VITE_DEV_USERID=your_default_user_id');
 // }
 
-export async function loadAllData(navigate: any): Promise<{ taskData: TaskData, projectData: ProjectData, statusData: StatusData, userProfileData: UserProfileData }> {
+export async function loadAllData(navigate: any): Promise<{ taskData: TaskMap, projectData: ProjectMap, statusData: StatusMap, userProfileData: UserProfileData }> {
 
   // console.log("loadAllData called with devUserId:", devUserId);
   
   try {
-    let taskData: TaskData = {};
-    let projectData: ProjectData = {};
-    let statusData: StatusData = {};
+    let taskData: TaskMap = {};
+    let projectData: ProjectMap = {};
+    let statusData: StatusMap = {};
     let userProfileData: UserProfileData = {
       id: null,
       nickname: null,
-      lastProjectId: null,
+      focusProject: null,
+      focusConversation: null,
       avatarUrl: null,
       language: null
     };
@@ -41,15 +42,14 @@ export async function loadAllData(navigate: any): Promise<{ taskData: TaskData, 
     }
     let { tasks, projects, statuses, userProfile } = await res.json();
 
-    (tasks as TaskType[]).map((task: TaskType) => {
-      (taskData as TaskData)[task.id] = {
+    (tasks as Task[]).map((task: Task) => {
+      (taskData as TaskMap)[task.id] = {
         id: task.id,
         title: task.title,
         dueDate: task.dueDate ? new Date(task.dueDate) : undefined,
         description: task.description,
         status: task.status,
         previousStatus: task.previousStatus,
-        projectId: task.projectId,
         prev: task.prev,
         next: task.next,
         userId: task.userId,
@@ -59,8 +59,8 @@ export async function loadAllData(navigate: any): Promise<{ taskData: TaskData, 
       }, 10); // Ensure the task is added to the state after the initial render
     });
 
-    (projects as ProjectType[]) = projects.map((project: ProjectType) => {
-      (projectData as ProjectData)[project.id] = {
+    (projects as Project[]) = projects.map((project: Project) => {
+      (projectData as ProjectMap)[project.id] = {
         id: project.id,
         title: project.title,
         description: project.description,
@@ -70,12 +70,13 @@ export async function loadAllData(navigate: any): Promise<{ taskData: TaskData, 
       };
     });
 
-    (statuses as StatusType[]) = statuses.map((status: StatusType) => {
-      (statusData as StatusData)[status.id] = {
+    (statuses as Status[]) = statuses.map((status: Status) => {
+      (statusData as StatusMap)[status.id] = {
         id: status.id,
         title: status.title,
         description: status.description,
         color: status.color,
+        projectId: status.projectId,
         prev: status.prev,
         next: status.next,
         userId: status.userId,
@@ -85,7 +86,8 @@ export async function loadAllData(navigate: any): Promise<{ taskData: TaskData, 
     (userProfileData as UserProfileData) = {
       id: userProfile.id,
       nickname: userProfile.nickname,
-      lastProjectId: userProfile.lastProjectId,
+      focusProject: userProfile.focusProject,
+      focusConversation: userProfile.focusConversation,
       avatarUrl: userProfile.avatarUrl,
       language: userProfile.language
     };
@@ -93,6 +95,6 @@ export async function loadAllData(navigate: any): Promise<{ taskData: TaskData, 
     return { taskData, projectData, statusData, userProfileData };
   } catch (error) {
     console.error('Error loading test tasks:', error);
-    return { taskData: {}, projectData: {}, statusData: {}, userProfileData: { id: null, nickname: null, lastProjectId: null, avatarUrl: null, language: null } };
+    return { taskData: {}, projectData: {}, statusData: {}, userProfileData: { id: null, nickname: null, focusProject: null, focusConversation: null, avatarUrl: null, language: null } };
   }
 }
