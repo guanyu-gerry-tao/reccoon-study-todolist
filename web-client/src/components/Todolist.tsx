@@ -21,6 +21,7 @@ import { DragDropContext } from '@hello-pangea/dnd';
 import { loadAllData } from '../data/loadInitData.ts'
 import { AppContext } from '../components/AppContext.tsx';
 import { useNavigate } from 'react-router-dom';
+import { AnimatePresence, motion } from 'motion/react';
 
 /**
  * Todolist component represents the main todo list interface.
@@ -99,30 +100,33 @@ function Todolist() {
           {/* The top menu bar */}
           {/* Contains logos, project, user information */}
           <Menubar />
-          <div className='todolistColumns'>
-
-            <TodoColumn key="deleted" title="Deleted"
-              bgColor="#ffcce6"
-              status="deleted"
-            />
-
-            <TodoColumn key="completed" title="Completed"
-              bgColor="#e6f2ff"
-              status="completed"
-            />
-
-            {statusesSorted.map(([key, status]) => (
-              <TodoColumn key={key} title={status.title}
-                bgColor={status.color}
-                status={status.id}
-              />
-            ))}
-          </div>
+          <motion.div className='todolistColumns'>
+            <AnimatePresence mode="popLayout">
+              {states.showDeleted && (
+                <TodoColumn key="deleted" title="Deleted"
+                  bgColor="#ffcce6"
+                  status="deleted"
+                />
+              )}
+              {states.showCompleted && (
+                <TodoColumn key="completed" title="Completed"
+                  bgColor="#e6f2ff"
+                  status="completed"
+                />
+              )}
+              {statusesSorted.map(([key, status]) => (
+                <TodoColumn key={key} title={status.title}
+                  bgColor={status.color}
+                  status={status.id}
+                />
+              ))}
+            </AnimatePresence>
+          </motion.div>
 
           {/* The right panel for AI chat */}
           {/* This panel is used to interact with the AI chat feature, which can help users with task management and organization. */}
           {/* //TODO: implement the AI chat feature in future */}
-          <AIChatPanel onClose={() => { /* TODO: handle close action */ }} />
+          {/* <AIChatPanel onClose={() => {  }} /> */}
 
         </div>
       </DragDropContext>

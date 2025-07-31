@@ -52,16 +52,15 @@
   width: 25px;
   height: 25px;
   transform: translate(-50%, -50%);
-  background-color: rgb(255, 255, 255);
+  background-color: rgb(255, 217, 215);
   font-size: large;
   background-image: url('../assets/remove.svg');
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
   cursor: pointer;
-  border-radius: 50%;
+  border-radius: 20%;
   border-color: rgba(0, 0, 0, 0.2);
   box-shadow: rgba(0, 0, 0, 0.2) 0px 1px 3px 0px;
   transition: all 0.3s;
 }
-

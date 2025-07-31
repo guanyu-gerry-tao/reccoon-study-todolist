@@ -1,14 +1,12 @@
-import { create, div, filter, style, text } from 'motion/react-client';
 import '../App.css'
 import './Task.css'
-import type { TaskType, Actions, States, TaskId } from '../utils/type.ts'
+import type { TaskType, TaskId } from '../utils/type.ts'
 import { Draggable } from '@hello-pangea/dnd';
 import React, { useRef, useEffect, useState } from 'react';
 import { useAppContext } from './AppContext.tsx';
 import { createBackup, createBulkPayload, optimisticUIUpdate, postPayloadToServer, restoreBackup } from '../utils/utils.ts';
-import { current } from 'immer';
 
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 
 /**
@@ -47,6 +45,8 @@ function Task({ task, tasks, }: { task: [TaskId, TaskType], tasks: [TaskId, Task
 
   const [textAreaTitleHeight, setTextAreaTitleHeight] = useState<number | null>(null); // State to manage the height of the title textarea
   const [textAreaDescHeight, setTextAreaDescHeight] = useState<number | null>(null); // State to manage the height of the description textarea
+  const [isExiting, setIsExiting] = useState<boolean>(false); // State to manage exit animation
+  const [exitingToStatus, setExitingToStatus] = useState<string | null>(null); // Track which status we're exiting to
 
   /**
    * Handle click event on the task title, saves the current value of the input field.
@@ -194,6 +194,10 @@ function Task({ task, tasks, }: { task: [TaskId, TaskType], tasks: [TaskId, Task
     event.stopPropagation(); // Prevent the click event from propagating to the parent div
     if (task[1].status === 'deleted') { // If the task is already deleted, we ask for double confirmation before permanently deleting it
       if (window.confirm(`By double deleting task: ${task[1].title}, you will permanently delete it. Are you sure?`)) {
+        // Start exit animation
+        setIsExiting(true);
+        setExitingToStatus('hardDeleted'); // Special status for hard deletion - always fly up
+        
         // create a bulk payload and backup for the delete operation
         const bulkPayload = createBulkPayload();
         const backup = createBackup(states, bulkPayload);
@@ -207,21 +211,29 @@ function Task({ task, tasks, }: { task: [TaskId, TaskType], tasks: [TaskId, Task
           console.error('Error deleting task:', error);
           // If the request fails, restore the previous state from the backup
           restoreBackup(setStates, backup);
+          setIsExiting(false); // Reset exit state on error
+          setExitingToStatus(null); // Reset target status on error
         };
       };
     } else { // if the task is not deleted, we move it to the deleted status
+      // Start exit animation
+      setIsExiting(true);
+      setExitingToStatus('deleted'); // Set the target status
+      
       // create a bulk payload and backup for the move operation
       const bulkPayload = createBulkPayload();
       const backup = createBackup(states, bulkPayload);
 
       try {
-        actions.moveTask(task[0], 'deleted', 'end', backup, true); // Move the task to the end of the deleted list
+        actions.moveTask(task[0], 'deleted', 'end', backup, false); // Move the task to the end of the deleted list
         optimisticUIUpdate(setStates, backup); // Optimistically update the UI with the new task status
         postPayloadToServer('/api/bulk', navigate, backup); // Send the update to the server
       } catch (error) {
         console.error('Error moving task to deleted status:', error);
         // If the request fails, restore the previous state from the backup
         restoreBackup(setStates, backup);
+        setIsExiting(false); // Reset exit state on error
+        setExitingToStatus(null); // Reset target status on error
       }
     };
   };
@@ -233,18 +245,24 @@ function Task({ task, tasks, }: { task: [TaskId, TaskType], tasks: [TaskId, Task
       // for deleted/completed tasks, there shouldn't be a complete button, so we don't need to handle this case.
       console.warn(`Task with id ${task[0]} is deleted/completed, cannot complete it.`);
     } else { // if the task is not completed, we move it to the completed status
+      // Start exit animation
+      setIsExiting(true);
+      setExitingToStatus('completed'); // Set the target status
+      
       // create a bulk payload and backup for the move operation
       const bulkPayload = createBulkPayload();
       const backup = createBackup(states, bulkPayload);
 
       try {
-        actions.moveTask(task[0], 'completed', 'end', backup, true); // Move the task to the end of the completed list
+        actions.moveTask(task[0], 'completed', 'end', backup, false); // Move the task to the end of the completed list
         optimisticUIUpdate(setStates, backup); // Optimistically update the UI with the new task status
         postPayloadToServer('/api/bulk', navigate, backup); // Send the update to the server
       } catch (error) {
         console.error('Error moving task to completed status:', error);
         // If the request fails, restore the previous state from the backup
         restoreBackup(setStates, backup);
+        setIsExiting(false); // Reset exit state on error
+        setExitingToStatus(null); // Reset target status on error
       }
 
       console.log(`Task ${task[0]} completed: ${task[1].title}`); // Log the completion of the task
@@ -264,7 +282,7 @@ function Task({ task, tasks, }: { task: [TaskId, TaskType], tasks: [TaskId, Task
     const backup = createBackup(states, bulkPayload);
 
     try {
-      actions.moveTask(task[0], task[1].previousStatus, 'end', backup, true); // Move the task to the end of the todo list
+      actions.moveTask(task[0], task[1].previousStatus, 'end', backup, false); // Move the task to the end of the todo list
       optimisticUIUpdate(setStates, backup); // Optimistically update the UI with the new task status
       postPayloadToServer('/api/bulk', navigate, backup); // Send the update to the server
     } catch (error) {
@@ -310,16 +328,16 @@ function Task({ task, tasks, }: { task: [TaskId, TaskType], tasks: [TaskId, Task
   // The first = '0px' set the height to minimum height, then set it to scrollHeight to ensure it fits the content
   useEffect(() => {
     if (textAreaRefDesc.current) {
-      textAreaRefDesc.current.style.height = '2px'; // Reset height to minimum height, ensure it was smaller and then get larger.
-      textAreaRefDesc.current.style.height = textAreaRefDesc.current.scrollHeight + 'px'; // Set height to scrollHeight.
+      textAreaRefDesc.current.style.height = textAreaRefDesc.current.scrollHeight + 'px'; // Reset height to minimum height, ensure it was smaller and then get larger.
+      // textAreaRefDesc.current.style.height = textAreaRefDesc.current.scrollHeight + 'px'; // Set height to scrollHeight.
       setTextAreaDescHeight(textAreaRefDesc.current.scrollHeight);
     }
     if (textAreaRefTitle.current) {
-      textAreaRefTitle.current.style.height = '2px'; // Reset height to minimum height, ensure it was smaller and then get larger.
-      textAreaRefTitle.current.style.height = textAreaRefTitle.current.scrollHeight + 'px'; // Set height to scrollHeight.
+      textAreaRefTitle.current.style.height = textAreaRefTitle.current.scrollHeight + 'px'; // Reset height to minimum height, ensure it was smaller and then get larger.
+      // textAreaRefTitle.current.style.height = textAreaRefTitle.current.scrollHeight + 'px'; // Set height to scrollHeight.
       setTextAreaTitleHeight(textAreaRefTitle.current.scrollHeight);
     }
-  }, [task[1].title, task[1].description]); // This effect runs whenever the task title or description changes
+  }, [task[1].title, task[1].description, states.showCompleted, states.showDeleted]); // This effect runs whenever the task title or description changes
 
   useEffect(() => {
     if (textAreaTitleHeight) {
@@ -338,6 +356,9 @@ function Task({ task, tasks, }: { task: [TaskId, TaskType], tasks: [TaskId, Task
   const dueDate = new Date();
   dueDate.setDate(today.getDate() - 2);
 
+  const [onMouseEnter, setOnMouseEnter] = useState<boolean>(false); // State to manage mouse enter event
+
+
   // Note: the Draggable component from @hello-pangea/dnd requires a unique draggableId for each task.
   // The setup below is specially for the draggable task component.
   // id: it should be unique and match the taskInfo.id, which is already unique. Specially required by Draggable component.
@@ -346,107 +367,150 @@ function Task({ task, tasks, }: { task: [TaskId, TaskType], tasks: [TaskId, Task
   // ...provided.dragHandleProps: these are the props required by the Draggable component to make the <div> draggable.
   // style: this is used to apply the draggable styles to the task element. See getStyle function above.
   return (
-    <Draggable draggableId={task[0]} index={tasks.indexOf(task)}>
+    <Draggable draggableId={task[0]} index={tasks.indexOf(task)} >
       {
-        (provided, snapshot) => (
-          <div className="cardContainer">
-            <div
-              className={`card`}
-              id={task[0]}
-              ref={provided.innerRef}
-              {...provided.draggableProps}
-              {...provided.dragHandleProps}
-              style={{
-                ...getStyle(provided.draggableProps.style, snapshot),
-              }}
+        (provided, snapshot) => {
+          const isDragging = snapshot.isDragging || snapshot.isDropAnimating || states.justDragged;
+          
+          // Determine exit animation based on task status and visibility settings
+          const getExitAnimation = () => {
+            if (!isExiting) return {};
+            
+            // Use exitingToStatus to determine target, fallback to current status
+            const targetStatus = exitingToStatus || task[1].status;
+            
+            // For tasks going to deleted status
+            if (targetStatus === 'deleted') {
+              return states.showDeleted 
+                ? { opacity: 0, scale: 0.8, x: 0, y: 0 } // Fly to deleted bar (visible)
+                : { opacity: 0, scale: 0.5, y: -50 }; // Fly up and disappear (hidden)
+            }
+            
+            // For tasks going to completed status
+            if (targetStatus === 'completed') {
+              return states.showCompleted
+                ? { opacity: 0, scale: 0.8, x: 0, y: 0 } // Fly to completed bar (visible)
+                : { opacity: 0, scale: 0.5, y: -50 }; // Fly up and disappear (hidden)
+            }
+            
+            // Default upward animation
+            return { opacity: 0, scale: 0.5, y: -50 };
+          };
+
+          return (
+            <motion.div className="cardContainer"
+              layout={!isDragging && !isExiting}
+              layoutId={isDragging ? undefined : task[0]}
+              initial={isDragging ? { opacity: 0.1 } : isExiting ? { opacity: 1, scale: 1 } : { opacity: 0.1 }}
+              animate={isDragging ? { opacity: 1 } : isExiting ? getExitAnimation() : { opacity: 1 }}
+              exit={getExitAnimation()}
+              transition={
+                isDragging ? { duration: 0 } : 
+                isExiting ? { duration: 0.2, ease: "easeOut" } : 
+                { type: 'spring', stiffness: 300, damping: 25 }
+              }
+              onMouseEnter={() => setOnMouseEnter(true)}
+              onMouseLeave={() => setOnMouseEnter(false)}
             >
+              <div
+                className={`card`}
+                id={task[0]}
+                ref={provided.innerRef}
+                {...provided.draggableProps}
+                {...provided.dragHandleProps}
+                style={{
+                  ...getStyle(provided.draggableProps.style, snapshot),
+                }}
+              >
 
-              <div className='taskDragHandler'></div>
+                <div className='taskDragHandler'
+                ></div>
 
-              <motion.div className='cardContent' >
-                <textarea
-                  className='taskTitle'
-                  placeholder='Add a title...'
-                  defaultValue={task[1].title}
-                  ref={textAreaRefTitle}
-                  onChange={(e) => {
-                    const event = e; // Store the current target for later use
-                    event.currentTarget.style.height = '0px';
-                    event.currentTarget.style.height = event.currentTarget.scrollHeight + 'px';
-                    setTextAreaTitleHeight(event.currentTarget.scrollHeight);
-                  }}
-                  onClick={handleClickTitle}
-                  onKeyDown={handleTitleKeyboard}
-                  onBlur={handleTitleLostFocus} />
+                <div className='cardContent' >
+                  <textarea
+                    className='taskTitle'
+                    placeholder='Add a title...'
+                    defaultValue={task[1].title}
+                    ref={textAreaRefTitle}
+                    onChange={(e) => {
+                      const event = e; // Store the current target for later use
+                      event.currentTarget.style.height = '0px';
+                      event.currentTarget.style.height = event.currentTarget.scrollHeight + 'px';
+                      setTextAreaTitleHeight(event.currentTarget.scrollHeight);
+                    }}
+                    onClick={handleClickTitle}
+                    onKeyDown={handleTitleKeyboard}
+                    onBlur={handleTitleLostFocus} />
 
-                <textarea
-                  className='taskDesc'
-                  defaultValue={task[1].description}
-                  placeholder='Add a description...'
-                  ref={textAreaRefDesc}
-                  onChange={(e) => {
-                    const event = e; // Store the current target for later use
-                    event.currentTarget.style.height = '0px';
-                    event.currentTarget.style.height = event.currentTarget.scrollHeight + 'px';
-                    setTextAreaDescHeight(event.currentTarget.scrollHeight);
-                  }}
-                  onKeyDown={handleDescKeyboard}
-                  onBlur={handleDescLostFocus}
-                />
+                  <textarea
+                    className='taskDesc'
+                    defaultValue={task[1].description}
+                    placeholder='Add a description...'
+                    ref={textAreaRefDesc}
+                    onChange={(e) => {
+                      const event = e; // Store the current target for later use
+                      event.currentTarget.style.height = '0px';
+                      event.currentTarget.style.height = event.currentTarget.scrollHeight + 'px';
+                      setTextAreaDescHeight(event.currentTarget.scrollHeight);
+                    }}
+                    onKeyDown={handleDescKeyboard}
+                    onBlur={handleDescLostFocus}
+                  />
 
-                <input type='date'
-                  className='taskDueDate'
-                  defaultValue={task[1].dueDate ? new Date(task[1].dueDate).toISOString().slice(0, 10) : undefined}
-                  onChange={handleDueDateChange}
+                  <input type='date'
+                    className='taskDueDate'
+                    defaultValue={task[1].dueDate ? new Date(task[1].dueDate).toISOString().slice(0, 10) : undefined}
+                    onChange={handleDueDateChange}
+                    style={{
+                      color: task[1].dueDate && task[1].dueDate < dueDate ? 'red' : '',
+                      fontWeight: task[1].dueDate && task[1].dueDate < dueDate ? 'normal' : '',
+                      opacity: task[1].dueDate && task[1].dueDate < dueDate ? '1' : ''
+                    }}
+                  />
+
+                  {/* TODO: add subtasks function: click to drop down subtasks, subtasks can be added, deleted, updated, dragged */}
+
+                </div>
+                <div className="deleteTaskButton"
                   style={{
-                    color: task[1].dueDate && task[1].dueDate < dueDate ? 'red' : '',
-                    fontWeight: task[1].dueDate && task[1].dueDate < dueDate ? 'normal' : '',
-                    opacity: task[1].dueDate && task[1].dueDate < dueDate ? '1' : ''
+                    opacity: onMouseEnter && !isDragging ? 1 : 0,
+                    visibility: onMouseEnter && !isDragging ? 'visible' : 'hidden',
+                    pointerEvents: onMouseEnter && !isDragging ? 'auto' : 'none'
                   }}
-                />
+                  onClick={handleDeleteButton}
+                >
+                </div>
 
-                {/* TODO: add subtasks function: click to drop down subtasks, subtasks can be added, deleted, updated, dragged */}
-
-              </motion.div>
-            </div>
-            <div className="deleteTaskButton"
-              style={{
-                opacity: states.editMode ? 1 : 0,
-                visibility: states.editMode ? 'visible' : 'hidden',
-                pointerEvents: states.editMode ? 'auto' : 'none'
-              }}
-              onClick={handleDeleteButton}
-            >
-            </div>
-
-            {task[1].status !== 'deleted' && task[1].status !== 'completed' && (
-              <div className="completeTaskButton"
-                style={{
-                  opacity: states.editMode ? 1 : 0,
-                  visibility: states.editMode ? 'visible' : 'hidden',
-                  pointerEvents: states.editMode ? 'auto' : 'none'
-                }}
-                onClick={handleCompleteButton}
-              >
-              </div>)
-            }
+                {task[1].status !== 'deleted' && task[1].status !== 'completed' && (
+                  <div className="completeTaskButton"
+                    style={{
+                      opacity: onMouseEnter && !isDragging ? 1 : 0,
+                      visibility: onMouseEnter && !isDragging ? 'visible' : 'hidden',
+                      pointerEvents: onMouseEnter && !isDragging ? 'auto' : 'none'
+                    }}
+                    onClick={handleCompleteButton}
+                  >
+                  </div>)
+                }
 
 
-            {(task[1].status === "deleted" || task[1].status === "completed") && (
-              <div className="restoreTaskButton"
-                style={{
-                  opacity: states.editMode ? 1 : 0,
-                  visibility: states.editMode ? 'visible' : 'hidden',
-                  pointerEvents: states.editMode ? 'auto' : 'none'
-                }}
-                onClick={handleRestoreButton}
-              >
-              </div>)
-            }
-          </div>
-        )
+                {(task[1].status === "deleted" || task[1].status === "completed") && (
+                  <div className="restoreTaskButton"
+                    style={{
+                      opacity: onMouseEnter && !isDragging ? 1 : 0,
+                      visibility: onMouseEnter && !isDragging ? 'visible' : 'hidden',
+                      pointerEvents: onMouseEnter && !isDragging ? 'auto' : 'none'
+                    }}
+                    onClick={handleRestoreButton}
+                  >
+                  </div>)
+                }
+              </div>
+            </motion.div>
+          )
+        }
       }
-    </Draggable>
+    </Draggable >
   )
 }
 

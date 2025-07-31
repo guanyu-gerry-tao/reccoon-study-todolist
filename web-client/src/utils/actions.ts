@@ -75,6 +75,10 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
         }
       });
     };
+
+    // make the project top:
+    moveProject(newTaskWithId.projectId, 0, bulkPayload); // Move the project to the top of the list
+
     console.log(`addTask: payload: ${JSON.stringify(bulkPayload)}`);
     if (addWithAnimation) {
       requestAnimationFrame(() => {
@@ -104,6 +108,10 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
         updatedFields: updatePayload.updatedFields
       }
     })
+
+    // make the project top:
+    const project = states.tasks[updatePayload.id].projectId;
+    moveProject(project, 0, bulkPayload); // Move the project to the top of the list
   };
 
 
@@ -155,6 +163,9 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
       });
     }
 
+    // make the project top:
+    const project = states.tasks[id].projectId;
+    moveProject(project, 0, bulkPayload); // Move the project to the top of the list
 
   };
 
@@ -170,6 +181,7 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
    * @bulkPayload - The bulk payload to be used for the move operation.
    */
   const moveTask = (id: TaskId, targetStatusId: StatusId, index: number | "start" | "end", bulkPayload: BulkPayload, moveWithAnimation: boolean = false) => {
+
     // check if the status is exist
     if (Object.keys(states.statuses).includes(targetStatusId) === false && targetStatusId !== "completed" && targetStatusId !== "deleted") {
       throw new Error(`Status with id ${targetStatusId} does not exist.`);
@@ -284,12 +296,22 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
     if (moveWithAnimation) {
       requestAnimationFrame(() => {
         const el = document.getElementById(id);
+        console.log('animating task move');
         if (el) {
-          animate(el, { opacity: [0, 1], }, { duration: 0.3 }); // Animate the new project card to fade in
-          animate(el, { height: ["0px", el.scrollHeight] }, { duration: 0.2 }); // Animate the new project card to slide up
+          setStates.setJustDragged(true); // Set the just dragged state to the task being moved
+          setTimeout(() => {
+            setStates.setJustDragged(false); // Remove the task from the just dragged state after a delay
+          }, 300); // Match the duration of the animation
+          // animate(el, { x: ["0px", "-20px"], }, { duration: 0.3 }); // Animate the new project card to fade in
+          console.log('animating task move');
         }
       });
     }
+
+    // make the project top:
+    const project = states.tasks[id].projectId;
+    moveProject(project, 0, bulkPayload); // Move the project to the top of the list
+
     // requestAnimationFrame(() => {
     //   document.getElementById(id)?.classList.remove('hide'); // Ensure the task is visible after moving
     // });
@@ -632,7 +654,6 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
 
 
 
-
   /**
    * Function to handle the end of a drag and drop event for the DragDropContext - hello-pangea/dnd.
    * It updates the task or project chain based on the drag result.
@@ -654,7 +675,7 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
           const backup = createBackup(states, payload); // Create a backup of the current state for optimistic UI updates
 
           try {
-            moveTask(taskId, resultStatus, result.destination!.index, backup);
+            moveTask(taskId, resultStatus, result.destination!.index, backup, false);
             optimisticUIUpdate(setStates, backup); // Optimistically update the UI with the new task order
             postPayloadToServer('/api/bulk', navigate, backup); // Send the update to the server
           } catch (error) {
@@ -769,6 +790,10 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
           // This is a placeholder for handling tasks dropped outside of valid areas
           // Do nothing for now
         }
+        setTimeout(() => {
+          setStates.setJustDragged(false); // Reset the just dragged task after the drag ends
+        }, 300);
+        setStates.setDraggedTask([]); // Reset the dragged task after the drag ends
         console.log('onDragEnd completed');
       }
     }
@@ -834,7 +859,12 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
    * Currently, it does not handle project dragging. Not implemented yet.
    */
   const onDragStart: DragDropContextProps['onDragStart'] = (start) => {
+
+    const tasksInStatus = Object.fromEntries(Object.entries(states.tasks)
+      .filter(([_, task]) => task.status === start.source?.droppableId &&
+        task.projectId === states.userProfile.lastProjectId)); // Get all tasks in the result status
     setStates.setDraggedTask([start.draggableId]); // Set the dragged task ID to the state
+    setStates.setJustDragged(true);
     //   if (start.type === 'task') {
     //     setStates.setDraggedTask([start.draggableId]);
     //   }
@@ -849,6 +879,10 @@ export const createActions = (states: States, setStates: SetStates): Actions => 
     //   // Not in use. Stored here for future use.
   }
   const onDragUpdate: DragDropContextProps['onDragUpdate'] = (update) => {
+    const tasksInStatus = Object.fromEntries(Object.entries(states.tasks)
+      .filter(([_, task]) => task.status === update.destination?.droppableId &&
+        task.projectId === states.userProfile.lastProjectId)); // Get all tasks in the result status
+    setStates.setJustDragged(true); // Set the just dragged task ID and all tasks in the status to the state
     //   const current = update.destination?.droppableId || null;
     //   if (current !== prevDroppableId.current) {
     //     if (prevDroppableId.current === '-1') { // exit delete-zone

@@ -124,6 +124,7 @@ function Menubar() {
           <div className='menubarBottomItems'>
             <p>Help & About</p>
           </div>
+          <span>{states.justDragged ? "Dragging..." : ""}</span>
         </div>
       </div>
     </>

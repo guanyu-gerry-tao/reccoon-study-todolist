@@ -1,6 +1,6 @@
 import { useImmer } from "use-immer";
 import { useEffect } from "react";
-import type { TaskData, ProjectData, UserProfileData, StatusData, States, SetStates } from "./type";
+import type { TaskData, ProjectData, UserProfileData, StatusData, States, SetStates, TaskId } from "./type";
 
 export const createStatesAndSetStates = (): [States, SetStates] => {
 
@@ -24,6 +24,7 @@ export const createStatesAndSetStates = (): [States, SetStates] => {
   const [showDeleted, setShowDeleted] = useImmer<boolean>(false);
   const [showCompleted, setShowCompleted] = useImmer<boolean>(false);
   const [onDragging, setOnDragging] = useImmer<boolean>(false); // State to manage the dragging state of tasks
+  const [justDragged, setJustDragged] = useImmer<boolean>(false); // State to manage the dragging state of tasks
 
   const states: States = {
     tasks,
@@ -34,7 +35,8 @@ export const createStatesAndSetStates = (): [States, SetStates] => {
     editMode,
     showDeleted,
     showCompleted,
-    onDragging
+    onDragging,
+    justDragged
   };
 
   const setStates: SetStates = {
@@ -46,7 +48,8 @@ export const createStatesAndSetStates = (): [States, SetStates] => {
     setEditMode,
     setShowDeleted,
     setShowCompleted,
-    setOnDragging
+    setOnDragging,
+    setJustDragged
   };
 
   return [states, setStates];
