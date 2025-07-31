@@ -118,6 +118,7 @@ export type States = {
   showDeleted: boolean; // State to manage the visibility of deleted tasks
   showCompleted: boolean; // State to manage the visibility of completed tasks, optional for future use
   onDragging: boolean; // State to manage the dragging state of tasks
+  justDragged: boolean; // State to manage the dragging state of tasks
 };
 
 export type SetStates = {
@@ -130,6 +131,7 @@ export type SetStates = {
   setShowDeleted: Updater<boolean>; // Action to toggle the visibility of deleted tasks
   setShowCompleted: Updater<boolean>; // Optional action to toggle the visibility of completed tasks, for future use
   setOnDragging: Updater<boolean>; // Action to manage the dragging state of tasks
+  setJustDragged: Updater<boolean>; // Action to manage the just dragged state of tasks
 };
 
 export type BulkPayload = {

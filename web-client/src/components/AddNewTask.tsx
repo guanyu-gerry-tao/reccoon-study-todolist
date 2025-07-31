@@ -49,7 +49,7 @@ function AddNewTask({ status, tasksSorted, }: { status: string, tasksSorted: [Ta
         const backup = createBackup(states, bulkPayload); // Create a backup of the current state
 
         try {
-          const id = await actions.addTask(newTask, backup, true); // Call the addTask function from actions with the new task
+          const id = await actions.addTask(newTask, backup, false); // Call the addTask function from actions with the new task
           optimisticUIUpdate(setStates, backup); // Optimistically update the UI with the new task
           await postPayloadToServer('/api/bulk', navigate, backup); // Send the new task to the server
         }

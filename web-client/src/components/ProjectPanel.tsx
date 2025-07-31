@@ -41,21 +41,16 @@ function ProjectPanel() {
   // projectsSorted.map: this maps over the sorted projects and renders a ProjectButton for each
   return (
     <>
-      <Droppable droppableId='projectPanel' type='project' >
-        {(provided, snapshot) => (
-          <div className='projectPanelDroppable'
-            ref={provided.innerRef}
-            {...provided.droppableProps}>
-            {projectsSorted.map((project) => (
-              <ProjectButton key={project[0]} projects={projectsSorted} project={project} currentProjectID={states.userProfile.lastProjectId} />
-            ))}
-            {provided.placeholder}
+      <div id='projectPanel' className='projectPanelContainer'>
+        <div className='projectPanelDroppable'>
+          {projectsSorted.map((project) => (
+            <ProjectButton key={project[0]} projects={projectsSorted} project={project} currentProjectID={states.userProfile.lastProjectId} />
+          ))}
 
-            {/* AddNewProject is added at the end of the project list */}
-            <AddNewProject projects={projectsSorted} />
-          </div>
-        )}
-      </Droppable>
+          {/* AddNewProject is added at the end of the project list */}
+          <AddNewProject projects={projectsSorted} />
+        </div>
+      </div>
     </>
   )
 }
