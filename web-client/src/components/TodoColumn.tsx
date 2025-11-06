@@ -50,17 +50,18 @@ function TodoColumn({
         }}
         layout
         layoutId={`${status}-Container`}
-        transition={{ type: 'tween', stiffness: 300, damping: 30, duration: 0.2 }}
+        transition={{ type: false, stiffness: 100, damping: 10, duration: 0.5 }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
       >
 
-        <motion.div className='taskList'
+        {/* <motion.div className='taskList'
           layout
           layoutId={`TaskList-${title}`}
           transition={{ type: false }}
-        >
+        > */}
+        <div className='taskList'>
           <h1 className='todoColumnTitle'>{title}</h1>
 
           <div className='todoColumnContent'>
@@ -92,7 +93,8 @@ function TodoColumn({
               )}
             </Droppable>
           </div >
-        </motion.div>
+        {/* </motion.div> */}
+        </div>
 
       </motion.div >
     </>

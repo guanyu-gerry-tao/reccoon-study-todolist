@@ -1,0 +1,72 @@
+name: Build and Push to AWS ECR
+
+# 触发条件：推送到 main 分支
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:  # 允许手动触发
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY_SERVER: raccoon-server
+  ECR_REPOSITORY_AI: raccoon-ai
+
+jobs:
+  # TODO: 添加测试步骤
+  # - test:
+  #     name: Run Tests
+  #     runs-on: ubuntu-latest
+  #     steps:
+  #       - name: Run tests
+  #         run: npm test
+
+  build-and-push:
+    name: Build and Push Docker Images
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      # 构建并推送主服务镜像
+      - name: Build and push server image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_SERVER:$IMAGE_TAG ./server
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY_SERVER:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY_SERVER:latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY_SERVER:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY_SERVER:latest
+          echo "✅ Server image pushed: $ECR_REGISTRY/$ECR_REPOSITORY_SERVER:$IMAGE_TAG"
+
+      # 构建并推送AI服务镜像
+      - name: Build and push AI service image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_AI:$IMAGE_TAG ./ai-service
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY_AI:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY_AI:latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY_AI:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY_AI:latest
+          echo "✅ AI service image pushed: $ECR_REGISTRY/$ECR_REPOSITORY_AI:$IMAGE_TAG"
+
+      - name: Summary
+        run: |
+          echo "🎉 Images built and pushed successfully!"
+          echo "📝 Next step: Update ECS services manually in AWS Console"
+          echo "   Or add deployment step to automate ECS updates"
+
