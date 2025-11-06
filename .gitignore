@@ -2,3 +2,10 @@
 .env
 .env.local
 .env.*
+智能客服技术方案.*
+README_OLD.md
+
+# 个人笔记和指南（不公开，使用 submodule）
+log/
+# 但允许 .gitmodules（submodule配置需要）
+!.gitmodules

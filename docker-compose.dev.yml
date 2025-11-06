@@ -1,0 +1,47 @@
+version: '3.8'
+
+# Docker Compose 开发环境配置
+# 支持热重载，代码修改自动生效
+# 使用方式: docker-compose -f docker-compose.dev.yml up
+
+services:
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.simple
+    container_name: raccoon-server-dev
+    volumes:
+      - ./server:/app  # 挂载代码目录（支持热重载）
+      - /app/node_modules  # 排除 node_modules（使用容器内的）
+    command: npm run dev  # 使用 nodemon（自动重启）
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+    env_file:
+      - ./server/.env
+    networks:
+      - raccoon-network
+
+  ai-service:
+    build:
+      context: ./ai-service
+      dockerfile: Dockerfile.simple
+    container_name: raccoon-ai-service-dev
+    volumes:
+      - ./ai-service:/app  # 挂载代码目录
+      - /app/node_modules  # 排除 node_modules
+    command: npm run dev  # 使用 nodemon
+    ports:
+      - "3002:3002"
+    environment:
+      - NODE_ENV=development
+    env_file:
+      - ./ai-service/.env
+    networks:
+      - raccoon-network
+
+networks:
+  raccoon-network:
+    driver: bridge
+

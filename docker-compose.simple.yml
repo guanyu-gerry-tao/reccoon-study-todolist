@@ -1,0 +1,27 @@
+# 简化版 docker-compose.yml - 新手友好
+
+version: '3.8'
+
+services:
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.simple  # 使用简化版
+    container_name: raccoon-server
+    ports:
+      - "3001:3001"
+    env_file:
+      - ./server/.env
+    restart: unless-stopped
+
+  ai-service:
+    build:
+      context: ./ai-service
+      dockerfile: Dockerfile.simple  # 使用简化版
+    container_name: raccoon-ai-service
+    ports:
+      - "3002:3002"
+    env_file:
+      - ./ai-service/.env
+    restart: unless-stopped
+
